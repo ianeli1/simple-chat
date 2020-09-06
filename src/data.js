@@ -1,0 +1,58 @@
+import * as firebase from "firebase";
+import {firebaseConfig} from "./secretKey"
+
+  // Initialize Firebase
+firebase.initializeApp(firebaseConfig);
+
+const reservedNames = [
+    "_channelList", //stores the global channel names
+    "_users" // stores the user data for all users
+]
+
+const handler = {
+    _listRef: null,   
+    _chRef: null,
+    _writer: null,
+    updateChannels: function(callback){
+        if(this._listRef){
+            this._listRef.off()
+            this._listRef = null
+        }
+        this._listRef = firebase.database().ref("_channelList")
+        this._listRef.on("value", callback)
+    },
+    updateMessages: function(channel, callback){
+        if(this._chRef){
+            this._chRef.off()
+            this._chRef = null
+        }
+        this._chRef = firebase.database().ref(channel)
+        this._chRef.on("child_added", callback)
+    },
+    sendMessage: function(msg){
+        this._writer = this._chRef.push()
+        this._writer.set(msg)
+    },
+    createChannel: function(name, user){
+        if(!reservedNames.includes(name)){
+            try{
+                let newNode = firebase.database().ref("_channelList").push()
+                newNode.set(name)
+                newNode = firebase.database().ref(name).push()
+                newNode.set({
+                    name: user,
+                    message: "Created the channel"
+                })
+            }catch(e){
+                console.error(e)
+            }
+        }
+    }
+}
+
+window.handler = handler
+
+export {handler}
+
+
+

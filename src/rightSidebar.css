@@ -1,0 +1,42 @@
+.RightSidebar {
+    height: 100%;
+    min-width: 20rem;
+    max-width: 25rem;
+    flex: none;
+    align-self: flex-end;
+}
+
+.InnerRightSidebar{
+    margin: 8px;
+}
+
+/*Widget*/
+
+.Widget {
+    box-sizing: border-box;
+    background: darkgray;
+    width: 100%;
+    border-radius: 8px;
+    padding: 8px;
+}
+
+.WidgetAdmin {
+    padding: 8px;
+    border-radius: 28px;
+    display: flex;
+}
+
+.WidgetInner {
+    margin: 8px;
+    background: gray;
+    border-radius: 8px;
+    padding: 8px;
+}
+
+/*Profile*/
+
+.Profile {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
