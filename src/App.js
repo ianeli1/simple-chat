@@ -43,15 +43,22 @@ class App extends React.Component {
   }
   
 
-  render() {
+  render() { //this looks hacky, fix
     return (
       <Box className="App">
         {
           !this.state.user && <Login setUser={this.handleSetUser} />
         }
-        <LeftSidebar changeChannel={this.handleChannelChange} user={this.state.user} />
-        <ChatBox currentChannel={this.state.currentChannel} user={this.state.user} />
-        <RightSidebar user={this.state.user} />
+        {
+          this.state.user && <LeftSidebar changeChannel={this.handleChannelChange} user={this.state.user} />
+        }
+        {
+          this.state.user && <ChatBox currentChannel={this.state.currentChannel} user={this.state.user} />
+        }
+        {
+          this.state.user && <RightSidebar user={this.state.user} />
+        }
+        
       </Box>
     );
   }
