@@ -22,9 +22,9 @@ export default class ChatBox extends React.Component {
   }
 
   componentWillReceiveProps(props) {
-    console.log("Reloading ChatBox element...", props.currentChannel);
     this.setState(
       {
+        user: props.user,
         currentChannel: props.currentChannel,
         channel: []
       },
@@ -90,8 +90,10 @@ function NewMessage({ submit }) {
       />
       <IconButton
         onClick={() => {
-          submit(message)();
-          setMessage("");
+          if(message.length){
+            submit(message)();
+            setMessage("");
+          }
         }}
       >
         <SendIcon />

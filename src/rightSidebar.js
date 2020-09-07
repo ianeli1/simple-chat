@@ -18,6 +18,15 @@ export class RightSidebar extends React.Component{
         }
     }
 
+    componentWillReceiveProps(props){
+        console.log(props.user)
+        if(props.user){
+            this.setState({
+                user: props.user
+            })
+        }
+    }
+
     render() {
         return (
         <Box className="RightSidebar">

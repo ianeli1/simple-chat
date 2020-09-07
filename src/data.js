@@ -9,10 +9,13 @@ const reservedNames = [
     "_users" // stores the user data for all users
 ]
 
+window.firebase = firebase
+
 const handler = {
     _listRef: null,   
     _chRef: null,
     _writer: null,
+    _userRef: null,
     updateChannels: function(callback){
         if(this._listRef){
             this._listRef.off()
@@ -47,10 +50,44 @@ const handler = {
                 console.error(e)
             }
         }
-    }
+    },
+    signIn: function(email, pass, callback){
+        firebase.auth().signInWithEmailAndPassword(email, pass)
+            .then((user) => {
+                callback(user.user.uid)
+                window.user = user
+            })
+            .catch(e => {
+                switch(e.code){
+                    case "auth/invalid-email":
+                    case "auth/user-not-found":
+                        callback("email")
+                        break;
+                    case "auth/wrong-password":
+                        callback("password")
+                        break;
+                    default:
+                        console.error(e);
+                        break;
+                }
+            }) //TODO error callback?
+    },
+    getUserData(callback){
+        console.log("Getting user data...")
+        firebase.auth().onAuthStateChanged((user) => 
+        {
+            if(user){ //is logged in
+                console.log("User is logged in:", user.uid)
+                this._userRef = firebase.database().ref("_users/"+user.uid)
+                this._userRef.on("value", (snap) => callback(snap.val()))
+            }else{ //not
+                console.log("Not logged in!")
+                callback(false) //set user to false, show Login screen
+            }
+        })
+    },
+    
 }
-
-window.handler = handler
 
 export {handler}
 

@@ -17,6 +17,14 @@
 /*Login*/
 
 .Login {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 20px;
     background: darkgray;
     
+}
+
+.Login > div {
+    margin: 5px 0px;
 }
