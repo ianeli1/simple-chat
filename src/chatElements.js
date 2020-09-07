@@ -78,6 +78,12 @@ function Message({ name, message, key }) {
 
 function NewMessage({ submit }) {
   let [message, setMessage] = useState("");
+  function sendMsg(){
+    if(message.length){
+      submit(message)();
+      setMessage("");
+    }
+  }
   return (
     <Box className="newMessage">
       <TextField
@@ -85,16 +91,12 @@ function NewMessage({ submit }) {
         style={{ flexGrow: 1 }}
         value={message}
         onChange={(e) => setMessage(e.target.value)}
+        onKeyDown={(e) => (e.key == "Enter") && sendMsg() }
         variant="outlined"
         label="Message"
       />
       <IconButton
-        onClick={() => {
-          if(message.length){
-            submit(message)();
-            setMessage("");
-          }
-        }}
+        onClick={() => sendMsg()}
       >
         <SendIcon />
       </IconButton>
