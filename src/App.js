@@ -39,7 +39,7 @@ class App extends React.Component {
   handleSetUser(user){
     this.setState({
       user: user
-    }, () => console.log(this.state))
+    }, () => console.log("setUser:",this.state))
   }
   
 

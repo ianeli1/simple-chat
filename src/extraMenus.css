@@ -22,7 +22,7 @@
     align-items: flex-start;
     padding: 20px;
     background: darkgray;
-    
+    border-radius: 20px;
 }
 
 .Login > div {

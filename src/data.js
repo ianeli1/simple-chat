@@ -55,7 +55,6 @@ const handler = {
         firebase.auth().signInWithEmailAndPassword(email, pass)
             .then((user) => {
                 callback(user.user.uid)
-                window.user = user
             })
             .catch(e => {
                 switch(e.code){
@@ -86,7 +85,29 @@ const handler = {
             }
         })
     },
-    
+    createUser(username, email, pass, callback){
+        console.log("Creating new user:",{username, email})
+        firebase.auth().createUserWithEmailAndPassword(email, pass).then((user) => {
+            console.log("Creating user",user.user.uid)
+            firebase.database().ref("_users/"+user.user.uid).set({
+                name: username,
+                email
+                //todo create an addFeature method?
+            })
+        }).catch((e) => {
+            switch(e.code){
+                case "auth/email-already-in-use":
+                case "auth/invalid-email":
+                    callback("email")
+                    break;
+                case "auth/weak-password":
+                    callback("password")
+                    break;
+                default:
+                    console.log("An unhandled error ocurred while creating a new user:", e)
+            }
+        })
+    }
 }
 
 export {handler}

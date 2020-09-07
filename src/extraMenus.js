@@ -24,25 +24,38 @@ export default function Login(props) {
 
 
     const [user, setUser] = useState("")
+    const [email, setEmail] = useState("")
     const [pass, setPass] = useState("")
     const [emailError, setEmailError] = useState(false) //todo
     const [passError, setPassError] = useState(false)
+    const [register, setRegister] = useState(false)
 
     return (
         <div className="fullscreen">
             <Box className="Login">
                 <Typography variant="h3">
-                    Welcome. Please sign in.
+                    Welcome. Please <Button variant="outlined" style={{fontSize: "3rem"}} onClick={() => setRegister(!register)} >{register ? "sign up." : "sign in."}</Button>
                 </Typography>
+                {register &&
+                    <TextField
+                    id="username"
+                    value={user}
+                    onChange={(e) =>
+                      setUser(e.target.value)
+                    }
+                    variant="filled"
+                    label="Username"
+                    />
+                }
                 <TextField
-                id="username"
+                id="email"
                 error={emailError}
-                value={user}
+                value={email}
                 onChange={(e) =>
-                  setUser(e.target.value)
+                  setEmail(e.target.value)
                 }
                 variant="filled"
-                label="Username"
+                label="Email"
                 />
                 <TextField
                 id="password"
@@ -55,16 +68,18 @@ export default function Login(props) {
                 type="password"
                 label="Password"
                 />
+                
                 <Button
                 variant="outlined"
-                disabled={!user.length || !pass.length}
+                disabled={!email.length || !pass.length || (register && !user.length)}
                 onClick={
                     () => {
-                        handler.signIn(user, pass, handleLogin)
+                        if(register) handler.createUser(user, email, pass, handleLogin)
+                        else handler.signIn(email, pass, handleLogin)
                     }
                 }
                 >
-                    Log in
+                    {register ? "sign up" : "Log in"}
                 </Button>
             </Box>
         </div>
