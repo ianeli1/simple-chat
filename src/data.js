@@ -32,11 +32,11 @@ const handler = {
       this._chRef = null;
     }
     this._chRef = firebase.database().ref(channel);
-    this._chRef.on("child_added", callback);
+    this._chRef.orderByChild("timestamp").on("child_added", callback);
   },
   sendMessage: function (msg) {
     this._writer = this._chRef.push();
-    this._writer.set(msg);
+    this._writer.set({...msg, timestamp: Date.now()});
   },
   sendMessageWithImage: function(msg, file){ 
       //TODO add progress bar
@@ -48,7 +48,7 @@ const handler = {
       .storage()
       .ref(this.currChannel+"/"+name)
       .put(file)
-      .then(() => this._writer.set({...msg, image: name}))
+      .then(() => this._writer.set({...msg, image: name, timestamp: Date.now()}))
       .catch((e) => console.log("An error ocurred while uploading a file", e));
   },
   createChannel: function (name, user) {

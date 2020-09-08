@@ -33,6 +33,7 @@ export default class ChatBox extends React.Component {
         this.state.currentChannel &&
         handler.updateMessages(this.state.currentChannel, (snap) => {
           const temp = snap.val();
+          temp.key = snap.key
           if (temp.image)
             handler.getImage(temp.image, (img) => {
               this.setState({
@@ -41,7 +42,7 @@ export default class ChatBox extends React.Component {
             });
           else
             this.setState({
-              channel: [snap.val(), ...this.state.channel],
+              channel: [temp, ...this.state.channel],
             });
         })
     );
@@ -61,7 +62,7 @@ export default class ChatBox extends React.Component {
       <Box id="chatBox" bgcolor="primary.main">
         <Box id="messageList">
           {this.state.channel &&
-            Object.values(this.state.channel).map((x, i) => (
+            Object.values(this.state.channel).sort((b,a) => a.timestamp-b.timestamp || 0).map((x, i) => ( //get rid of the || 0 eventually?
               <Message
                 key={i}
                 name={x.name}
@@ -69,6 +70,7 @@ export default class ChatBox extends React.Component {
                 image={x.image || false}
               />
             ))}
+          
         </Box>
         <Box id="newMessageBox">
           <NewMessage user={this.state.user} submit={this.handleNewMessage} />
@@ -88,7 +90,7 @@ function Message({ name, message, key, image }) {
         </Box>
         <Typography variant="body1">{message}</Typography>
       </Box>
-      {image && <img src={image} alt="Loading image..." />}
+      {image && <img className="MessageImage" src={image} alt="Loading image..." />}
     </Box>
   );
 }

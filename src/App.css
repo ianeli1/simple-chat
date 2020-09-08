@@ -120,7 +120,14 @@
 
 }
 
+.MessageImage {
+  margin-top: 8px;
+  max-height: 300px;
+  max-width: 300px;
+}
+
 .BasicMessage {
+  
   display: flex;
   align-items: center;
   
