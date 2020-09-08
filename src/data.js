@@ -71,6 +71,10 @@ const handler = {
                 }
             }) //TODO error callback?
     },
+    signOut: function(callback){
+        firebase.auth.signOut()
+            .then(callback)
+    },
     getUserData(callback){
         console.log("Getting user data...")
         firebase.auth().onAuthStateChanged((user) => 

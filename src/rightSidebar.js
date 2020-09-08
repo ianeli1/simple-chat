@@ -1,6 +1,7 @@
 import React, {useState} from "react";
-import { Box, IconButton, Avatar, Typography } from "@material-ui/core"
+import { Box, Button, IconButton, Avatar, Typography } from "@material-ui/core"
 import { KeyboardArrowDown, KeyboardArrowUp } from '@material-ui/icons';
+import { handler } from "./data"
 import "./rightSidebar.css"
 
 /*Ideas for the epic toolbar
@@ -64,6 +65,12 @@ function Profile(props) {
                     <Avatar>{props.user.name[0]}</Avatar>
                     <Typography variant="h5">{props.user.name}</Typography>
                 </Box>
+                <Button onClick={
+                    handler.signOut
+                }>
+                    Log Out
+                </Button>
+
                 <Typography>
                     {props.user.name}
                 </Typography>
