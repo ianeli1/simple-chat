@@ -7,6 +7,7 @@ firebase.initializeApp(firebaseConfig);
 const reservedNames = [
   "_channelList", //stores the global channel names
   "_users", // stores the user data for all users
+  "online", //online user list
 ];
 
 window.firebase = firebase;
@@ -16,6 +17,7 @@ const handler = {
   _chRef: null,
   _writer: null,
   _userRef: null,
+  _onlineRef: null,
   currChannel: "",
   updateChannels: function (callback) {
     if (this._listRef) {
@@ -98,13 +100,22 @@ const handler = {
         //is logged in
         console.log("User is logged in:", user.uid);
         this._userRef = firebase.database().ref("_users/" + user.uid);
-        this._userRef.on("value", (snap) => callback(snap.val()));
+        const onlineRef = firebase.database().ref("_online/"+user.uid)
+        onlineRef.onDisconnect().remove()
+        this._userRef.on("value", (snap) => {
+            onlineRef.set(snap.val())
+            callback(snap.val())
+        });
       } else {
         //not
         console.log("Not logged in!");
         callback(false); //set user to false, show Login screen
       }
     });
+  },
+  getOnlineUsers(callback){
+    this._onlineRef = firebase.database().ref("_online")
+    this._onlineRef.on("value", (snap) => callback(snap.val()))
   },
   createUser(username, email, pass, callback) {
     console.log("Creating new user:", { username, email });
