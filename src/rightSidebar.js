@@ -15,8 +15,13 @@ export class RightSidebar extends React.Component{
     constructor(props){
         super(props);
         this.state = {
-            user: props.user || {name: "USER"}
+            user: props.user || {name: "USER"},
+            online: []
         }
+    }
+
+    componentDidMount(){
+        handler.getOnlineUsers((users) => this.setState({online: users}))
     }
 
     componentWillReceiveProps(props){
@@ -32,6 +37,7 @@ export class RightSidebar extends React.Component{
         <Box className="RightSidebar">
             <Box className="InnerRightSidebar">
                 <Profile user={this.state.user} />
+                <Online users={this.state.online} />
             </Box>
         </Box>
         );
@@ -79,3 +85,22 @@ function Profile(props) {
     );
 }
 
+function Online(props){
+    
+    return (
+        <Widget
+        title="Online users"
+        >
+            {Object.values(props.users).map(x => (
+                <Box className="MessageName">
+                    <Avatar>{x.name[0]}</Avatar>
+                <Typography variant="h5">{x.name}</Typography>
+            </Box>
+            ))}
+
+            
+
+
+        </Widget>
+    )
+}
