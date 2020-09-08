@@ -33,7 +33,10 @@ class App extends React.Component {
   }
 
   handleChannelChange(newChannel){
-    return () => this.setState({ currentChannel: newChannel })
+    
+    return () => {
+      if(newChannel !== this.state.currentChannel) this.setState({ currentChannel: newChannel })
+    } 
   }
 
   handleSetUser(user){
@@ -50,7 +53,7 @@ class App extends React.Component {
           !this.state.user && <Login setUser={this.handleSetUser} />
         }
         {
-          this.state.user && <LeftSidebar changeChannel={this.handleChannelChange} user={this.state.user} />
+          this.state.user && <LeftSidebar currentChannel={this.state.currentChannel} changeChannel={this.handleChannelChange} user={this.state.user} />
         }
         {
           this.state.user && <ChatBox currentChannel={this.state.currentChannel} user={this.state.user} />

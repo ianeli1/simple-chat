@@ -17,9 +17,10 @@ export default class LeftSidebar extends React.Component {
     super(props);
 
     this.state = {
-      user: props.user || {name: "USER"},
+      user: props.user || { name: "USER" },
       channelList: [],
       creatingChannel: false,
+      currentChannel: props.currentChannel || ""
     };
     handler.updateChannels((snap) =>
       this.setState(
@@ -32,16 +33,17 @@ export default class LeftSidebar extends React.Component {
     ); //attach listener to channel list
   }
 
+  componentWillReceiveProps(props){
+    this.setState({ currentChannel: props.currentChannel })
+  }
+
   render() {
     return (
       <Box id="channelSelection">
         <List component="nav" aria-label="main channels">
           {this.state.channelList.map((x) => (
-            <ListItem button>
-              <ListItemText
-                primary={"#" + x}
-                onClick={this.props.changeChannel(x)}
-              />
+            <ListItem button selected={this.state.currentChannel == x} onClick={this.props.changeChannel(x)}>
+              <ListItemText primary={"#" + x} />
             </ListItem>
           ))}
           <ListItem
