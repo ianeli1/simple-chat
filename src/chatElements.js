@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { handler } from "./data";
-import SendIcon from "@material-ui/icons/Send";
+import { Send, AddPhotoAlternate } from "@material-ui/icons";
+import { File } from "./extraMenus";
 import {
   Box,
   Avatar,
@@ -26,14 +27,22 @@ export default class ChatBox extends React.Component {
       {
         user: props.user,
         currentChannel: props.currentChannel,
-        channel: []
+        channel: [],
       },
       () =>
         this.state.currentChannel &&
         handler.updateMessages(this.state.currentChannel, (snap) => {
-          this.setState({
-            channel: [snap.val(), ...this.state.channel],
-          });
+          const temp = snap.val();
+          if (temp.image)
+            handler.getImage(temp.image, (img) => {
+              this.setState({
+                channel: [{...temp, image: img}, ...this.state.channel] 
+                })
+            });
+          else
+            this.setState({
+              channel: [snap.val(), ...this.state.channel],
+            });
         })
     );
   }
@@ -53,7 +62,12 @@ export default class ChatBox extends React.Component {
         <Box id="messageList">
           {this.state.channel &&
             Object.values(this.state.channel).map((x, i) => (
-              <Message key={i} name={x.name} message={x.message} />
+              <Message
+                key={i}
+                name={x.name}
+                message={x.message}
+                image={x.image || false}
+              />
             ))}
         </Box>
         <Box id="newMessageBox">
@@ -64,41 +78,53 @@ export default class ChatBox extends React.Component {
   }
 }
 
-function Message({ name, message, key }) {
+function Message({ name, message, key, image }) {
   return (
     <Box className="Message" key={key}>
-      <Box className="MessageName">
-        <Avatar>{name[0]}</Avatar>
-        <Typography variant="h5">{name}</Typography>
+      <Box class="BasicMessage">
+        <Box className="MessageName">
+          <Avatar>{name[0]}</Avatar>
+          <Typography variant="h5">{name}</Typography>
+        </Box>
+        <Typography variant="body1">{message}</Typography>
       </Box>
-      <Typography variant="body1">{message}</Typography>
+      {image && <img src={image} alt="Loading image..." />}
     </Box>
   );
 }
 
 function NewMessage({ submit }) {
   let [message, setMessage] = useState("");
-  function sendMsg(){
-    if(message.length){
+  const [isUploading, setIsUploading] = useState(false);
+
+  function sendMsg() {
+    if (message.length) {
       submit(message)();
       setMessage("");
     }
   }
   return (
     <Box className="newMessage">
+      {isUploading && <File cancel={() => setIsUploading(false)} />}
+      <IconButton
+        onClick={
+          //get file
+          () => setIsUploading(true)
+        }
+      >
+        <AddPhotoAlternate />
+      </IconButton>
       <TextField
         id="messageInput"
         style={{ flexGrow: 1 }}
         value={message}
         onChange={(e) => setMessage(e.target.value)}
-        onKeyDown={(e) => (e.key == "Enter") && sendMsg() }
+        onKeyDown={(e) => e.key === "Enter" && sendMsg()}
         variant="outlined"
         label="Message"
       />
-      <IconButton
-        onClick={() => sendMsg()}
-      >
-        <SendIcon />
+      <IconButton onClick={() => sendMsg()}>
+        <Send />
       </IconButton>
     </Box>
   );
