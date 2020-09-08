@@ -34,6 +34,9 @@ export default class ChatBox extends React.Component {
         handler.updateMessages(this.state.currentChannel, (snap) => {
           const temp = snap.val();
           temp.key = snap.key
+          if(!temp.timestamp){ //remove once all the messages without timestamps are gone
+            temp.timestamp = 0
+          }
           if (temp.image)
             handler.getImage(temp.image, (img) => {
               this.setState({
