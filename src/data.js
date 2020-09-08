@@ -38,6 +38,19 @@ const handler = {
     this._writer = this._chRef.push();
     this._writer.set(msg);
   },
+  sendMessageWithImage: function(msg, file){ 
+      //TODO add progress bar
+      //add error handling
+      //figure out where it can fail too 
+    this._writer = this._chRef.push(); //create reference to new entry
+    const name = this._writer.path.pieces_.slice(-1)[0] + "." + file.name.split(".").pop()
+    firebase
+      .storage()
+      .ref(this.currChannel+"/"+name)
+      .put(file)
+      .then(() => this._writer.set({...msg, image: name}))
+      .catch((e) => console.log("An error ocurred while uploading a file", e));
+  },
   createChannel: function (name, user) {
     if (!reservedNames.includes(name)) {
       try {

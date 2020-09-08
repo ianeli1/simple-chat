@@ -86,3 +86,49 @@ export default function Login(props) {
     );
 }
 
+export function File(props){
+    function handleFirebaseUpload(){
+        console.log("Uploading...",{file})
+        handler.sendMessageWithImage({name: props.user.name, message: msg}, file)
+
+    }
+
+    const [msg, setMsg] = useState("")
+    const [file, setFile] = useState(null) //change the class for the box element
+    return (
+        <div className="fullscreen">
+            <Box className="Login"> 
+                <input 
+                    type="file"
+                    onChange={
+                        (e) => {
+                            console.log(e.target.files)
+                            setFile(e.target.files[0])
+                        }
+                    }
+                />
+                <TextField 
+                id="debugMessageInput"
+                value={msg}
+                onChange={(e) => setMsg(e.target.value)}
+                variant="outlined"
+                label="Message"
+                />
+                <Button
+                onClick={
+                    handleFirebaseUpload
+                }
+                variant="filled"
+                >
+                    Upload
+                </Button>
+                <Button
+                onClick={props.cancel}
+                >
+                    Cancel
+                </Button>
+            </Box>
+        </div>
+    )
+}
+

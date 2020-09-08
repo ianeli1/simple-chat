@@ -71,7 +71,7 @@ export default class ChatBox extends React.Component {
             ))}
         </Box>
         <Box id="newMessageBox">
-          <NewMessage submit={this.handleNewMessage} />
+          <NewMessage user={this.state.user} submit={this.handleNewMessage} />
         </Box>
       </Box>
     );
@@ -93,7 +93,7 @@ function Message({ name, message, key, image }) {
   );
 }
 
-function NewMessage({ submit }) {
+function NewMessage({ submit, user }) {
   let [message, setMessage] = useState("");
   const [isUploading, setIsUploading] = useState(false);
 
@@ -105,7 +105,7 @@ function NewMessage({ submit }) {
   }
   return (
     <Box className="newMessage">
-      {isUploading && <File cancel={() => setIsUploading(false)} />}
+      {isUploading && <File user={user} cancel={() => setIsUploading(false)} />}
       <IconButton
         onClick={
           //get file
