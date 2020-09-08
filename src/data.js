@@ -34,7 +34,7 @@ const handler = {
       this._chRef = null;
     }
     this._chRef = firebase.database().ref(channel);
-    this._chRef.orderByChild("timestamp").on("child_added", callback);
+    this._chRef.limitToLast(15).orderByChild("timestamp").on("child_added", callback);
   },
   sendMessage: function (msg) {
     this._writer = this._chRef.push();
@@ -90,8 +90,8 @@ const handler = {
         }
       }); //TODO error callback?
   },
-  signOut: function (callback) {
-    firebase.auth.signOut().then(callback);
+  signOut: function () {
+    firebase.auth().signOut();
   },
   getUserData(callback) {
     console.log("Getting user data...");
