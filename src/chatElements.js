@@ -93,7 +93,11 @@ function Message({ name, message, key, image }) {
         </Box>
         <Typography variant="body1">{message}</Typography>
       </Box>
-      {image && <img className="MessageImage" src={image} alt="[Loading...]" />}
+      {image && 
+      <Box className="MessageImage">
+        <img className="MessageImagePrim" src={image} alt="[Loading...]" />
+      </Box>
+      }
     </Box>
   );
 }
