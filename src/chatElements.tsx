@@ -37,21 +37,22 @@ export default class ChatBox extends React.Component<ChatBoxProps, ChatBoxState>
   }
 
   componentWillReceiveProps(props: ChatBoxProps) {
-     
     this.setState( //all this is innefficient af, leave this work to the handler.
       {
         user: props.user,
         currentChannel: props.currentChannel,
         channel: {},
       },
-      () =>
+      () => this.state.currentChannel && handler.initializeChannel(this.state.currentChannel, (channel: r.Channel) => this.setState({channel})))
+
+      /*
         this.state.currentChannel && handler.updateMessages(this.state.currentChannel, (msg: r.Message, key: string) => {
           
           msg.timestamp = Number(key) ///¡??????
           /*
           if(!temp.timestamp){ //remove once all the messages without timestamps are gone
             temp.timestamp = 0
-          }*/
+          }
           if (msg.image){
             handler.getImage(msg.image, (img: string) => {
               this.setState({channel: {...this.state.channel, key: {...msg, image: img}} })
@@ -64,7 +65,7 @@ export default class ChatBox extends React.Component<ChatBoxProps, ChatBoxState>
             });
             }   
         })
-    );
+    );*/
   }
 
   handleNewMessage(message: string): () => void {
@@ -108,10 +109,10 @@ function Message({ key, message}: {key: number, message: r.Message}) {
     <Box className="Message" key={key}>
       <Box className="BasicMessage">
         <Box className="MessageName">
-          <Avatar>{name[0]}</Avatar>
-          <Typography variant="h5">{name}</Typography>
+          <Avatar>{message.name[0]}</Avatar>
+          <Typography variant="h5">{message.name}</Typography>
         </Box>
-        <Typography variant="body1">{message}</Typography>
+        <Typography variant="body1">{message.message}</Typography>
       </Box>
       {message.image && 
       <Box className="MessageImage">

@@ -20,10 +20,12 @@ interface handler {
   _chRef: null | firebase.database.Reference,
   _userRef: null | firebase.database.Reference,
   _onlineRef: null | firebase.database.Reference,
+  _currentChannelCache: r.Channel,
   _writer: null | firebase.database.ThenableReference,
   currChannel: string,
   updateChannels: (callback: any) => void,
   updateMessages: (channel: string, callback: any) => void,
+  initializeChannel: (channel: string, updateState: (channel: r.Channel) => void) => void,
   sendMessage: (msg: r.Message) => void,
   sendMessageWithImage: (msg: r.Message, file: File) => void,
   createChannel: (name: string, user: r.User) => void,
@@ -33,7 +35,7 @@ interface handler {
   getOnlineUsers: (callback: any) => void,
   createUser: (username: string, email: string, pass: string, callback: any) => void,
   uploadImage: (name: string, file: File, callback: any) => void,
-  getImage: (id: string, callback: any) => void
+  getImage: (id: string) => Promise<string>
 }
 
 
@@ -43,6 +45,7 @@ const handler: handler = {
   _writer: null,
   _userRef: null,
   _onlineRef: null,
+  _currentChannelCache: {},
   currChannel: "",
   updateChannels: function (callback): void {
     if (this._listRef) {
@@ -50,7 +53,7 @@ const handler: handler = {
       this._listRef = null;
     }
     this._listRef = firebase.database().ref("_channelList");
-    this._listRef.on("value", (snap) => callback(snap.val()));
+    this._listRef.on("value", (snap) => callback(Object.values(snap.val())));
   },
   updateMessages: function (channel: string, callback): void {
     this.currChannel = channel;
@@ -60,6 +63,23 @@ const handler: handler = {
     }
     this._chRef = firebase.database().ref(channel);
     this._chRef.limitToLast(15).orderByChild("timestamp").on("child_added", (snap) => callback(snap.val(), snap.key));
+  },
+  initializeChannel: function (channel, updateState){
+    this.currChannel = channel;
+    if(this._chRef){
+      this._currentChannelCache = {}
+      this._chRef.off();
+      this._chRef = null;
+    }
+    this._chRef = firebase.database().ref(channel);
+    this._chRef.limitToLast(15).on("child_added", async (snap) => {
+      const temp = snap.val()
+      this._currentChannelCache[temp.timestamp] = temp
+      if(temp.image){
+        temp.image = await this.getImage(temp.image)
+      }
+      updateState(this._currentChannelCache)
+    })
   },
   sendMessage: function (msg: r.Message): void {
     if(this._chRef){
@@ -188,13 +208,13 @@ const handler: handler = {
       .then(callback)
       .catch((e) => console.log("An error ocurred while uploading a file", e));
   },
-  getImage(id: string, callback): void { //callback has to be a setState
+  getImage: async function(id: string): Promise<string> { //callback has to be a setState
     console.log("Obtaining "+id+" from "+this.currChannel+"...")
-    firebase
+    return await firebase
       .storage()
       .ref(this.currChannel + "/" + id)
       .getDownloadURL()
-      .then(callback);
+      
   },
 };
 
