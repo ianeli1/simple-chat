@@ -10,13 +10,31 @@ import {
   ListItemAvatar,
   Avatar,
 } from "@material-ui/core";
-import { handler } from "./data";
+import { handler } from "./handler";
 import "./leftSidebar.css";
+import * as r from "./reference"
+import { FormatListBulletedOutlined } from "@material-ui/icons";
 
 //TODO divide everything into components
 
-export default class LeftSidebar extends React.Component {
-  constructor(props) {
+type LeftSidebarProps = {
+    user: r.User,
+    currentChannel: string,
+    changeChannel: (newChannel: string) => () => void
+}
+
+type LeftSidebarState = {
+    user: r.User,
+    channelList: string[],
+    creatingChannel: boolean,
+    currentChannel: string
+    currentServer: string,
+    servers: {
+        [key: string]: r.Server
+    }
+}
+export default class LeftSidebar extends React.Component<LeftSidebarProps, LeftSidebarState>{
+  constructor(props: LeftSidebarProps) {
     super(props);
 
     this.state = {
@@ -24,34 +42,34 @@ export default class LeftSidebar extends React.Component {
       channelList: [],
       creatingChannel: false,
       currentChannel: props.currentChannel || "",
-      currentServer: 124124,
+      currentServer: "124124",
       servers: {
         124124: {
-          id: 124124,
+          id: "124124",
           name: "Test Server",
           icon: "test.png",
           channels: ["general", "memes", "idk"],
         },
         124125: {
-          id: 124125,
-          name: "Hughesnet",
+          id: "124125",
+          name: "Test Server 2",
           icon: "test.png",
           channels: ["general", "memes", "idk"],
-        },
+        }
       },
     };
-    handler.updateChannels((snap) =>
+    handler.updateChannels((channelList: Array<string>) =>
       this.setState(
         {
-          channelList: Object.values(snap.val()),
-          currentChannel: snap.val()[0],
+          channelList: channelList,
+          currentChannel: channelList[0],
         },
         () => this.props.changeChannel(this.state.currentChannel)()
       )
     ); //attach listener to channel list
   }
 
-  componentWillReceiveProps(props) {
+  componentWillReceiveProps(props: LeftSidebarProps) {
     this.setState({ currentChannel: props.currentChannel });
   }
 
@@ -70,7 +88,7 @@ export default class LeftSidebar extends React.Component {
   }
 }
 
-function ServerList({ serverList }) {
+function ServerList({ serverList }: { serverList: {[key: string]: r.Server} }) {
   return (
     <Box id="ServerList">
       <List component="nav" aria-label="server-picker">
@@ -81,14 +99,13 @@ function ServerList({ serverList }) {
             </ListItemAvatar>
           </ListItem>
         ))}
-        <ListItemAvatar></ListItemAvatar>
       </List>
     </Box>
   );
 }
 
-function ChannelList({ channelList, currentChannel, changeChannel, user }) {
-  const [creatingChannel, setCreatingChannel] = useState(false);
+function ChannelList({ channelList, currentChannel, changeChannel, user }: {channelList: Array<string>, currentChannel: string, changeChannel: (newChannel: string) => () => void, user: r.User}) {
+  const [creatingChannel, setCreatingChannel] = useState<{name: string} | false>(false);
   return (
     <Box id="channelSelection">
       <List component="nav" aria-label="main channels">
@@ -132,7 +149,7 @@ function ChannelList({ channelList, currentChannel, changeChannel, user }) {
             />
             <Button
               onClick={() => {
-                handler.createChannel(creatingChannel.name, user.name);
+                handler.createChannel(creatingChannel.name, user);
                 setCreatingChannel(false);
               }}
             >
@@ -145,7 +162,7 @@ function ChannelList({ channelList, currentChannel, changeChannel, user }) {
   );
 }
 
-function Popup({ title, desc, children, close }) {
+function Popup({ title, desc, children, close }: { title: string, desc: string, children: React.ReactNode, close: () => void }) {
   return (
     <Box className="Popup">
       <Box className="Popup_inside">
