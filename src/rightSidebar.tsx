@@ -1,7 +1,7 @@
 import React, {useState} from "react";
 import { Box, Button, IconButton, Avatar, Typography } from "@material-ui/core"
 import { KeyboardArrowDown, KeyboardArrowUp } from '@material-ui/icons';
-import { handler } from "./handler"
+//import { handler } from "./handler"
 import * as r from "./reference"
 import "./rightSidebar.css"
 
@@ -14,32 +14,35 @@ import "./rightSidebar.css"
 
 type RightSidebarProps = {
     user: r.User
+    online: {
+        [key: string]: r.User
+    }
 }
 
 type RightSidebarState = {
     user: r.User,
-    online: Array<r.User>
+    online: {
+        [key: string]: r.User
+      }
 }
 
 export class RightSidebar extends React.Component<RightSidebarProps, RightSidebarState>{
     constructor(props: RightSidebarProps){
         super(props);
         this.state = {
-            user: props.user || {name: "USER"},
-            online: []
+            user: props.user,
+            online: {}
         }
     }
 
     componentDidMount(){
-        handler.getOnlineUsers((users: Array<r.User>) => this.setState({online: users}))
     }
 
     componentWillReceiveProps(props: RightSidebarProps){
-        if(props.user){
-            this.setState({
-                user: props.user
-            })
-        }
+        this.setState({
+            user: props.user,
+            online: props.online
+        })
     }
 
     render() {
@@ -47,7 +50,7 @@ export class RightSidebar extends React.Component<RightSidebarProps, RightSideba
         <Box className="RightSidebar">
             <Box className="InnerRightSidebar">
                 <Profile user={this.state.user} />
-                <Online users={this.state.online} />
+                {this.state.online.length && <Online users={this.state.online} />}
             </Box>
         </Box>
         );
@@ -82,7 +85,7 @@ function Profile(props: {user: r.User}) {
                     <Typography variant="h5">{props.user.name}</Typography>
                 </Box>
                 <Button onClick={
-                    handler.signOut
+                    () => console.log("You're trapped") //Todo: implement
                 }>
                     Log Out
                 </Button>
@@ -95,7 +98,7 @@ function Profile(props: {user: r.User}) {
     );
 }
 
-function Online(props: { users: Array<r.User>}){
+function Online(props: { users: { [key: string]: r.User }}){
     
     return (
         <Widget

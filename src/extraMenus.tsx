@@ -1,6 +1,6 @@
 import React, {useState} from "react"
 import { Box, Typography, TextField, Button } from "@material-ui/core"
-import {handler} from "./handler"
+
 import * as r from "./reference"
 import "./extraMenus.css"
 
@@ -76,9 +76,10 @@ export default function Login() {
                 variant="outlined"
                 disabled={!email.length || !pass.length || (register && !user.length)}
                 onClick={
-                    () => {
+                    () => {/*
                         if(register) handler.createUser(user, email, pass, handleLogin)
                         else handler.signIn(email, pass, handleLogin)
+                        */
                     }
                 }
                 >
@@ -89,11 +90,11 @@ export default function Login() {
     );
 }
 
-export function File(props: {user: r.User, cancel: any}){
+export function File(props: {user: r.User, cancel: any, sendMessage: (msg: r.Message, file?: File) => void}){
     function handleFirebaseUpload(){
         if(file){
             console.log("Uploading...",{file})
-            handler.sendMessageWithImage({name: props.user.name, message: msg, timestamp: 0}, file)
+            props.sendMessage({name: props.user.name, message: msg, timestamp: 0}, file)
         }
         
     }

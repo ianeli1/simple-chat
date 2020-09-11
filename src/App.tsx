@@ -5,8 +5,10 @@ import ChatBox from "./chatElements"
 import LeftSidebar from "./leftSidebar"
 import { RightSidebar } from "./rightSidebar";
 import Login from "./extraMenus"
-import {handler} from "./handler"
+//import {handler} from "./handler"
 import * as r from "./reference"
+import { Handler } from "./handler2";
+
  
 
  //APP is supposed to be divided in three parts, the left sidebar(channels, etc)
@@ -24,40 +26,46 @@ type AppProps = {
 type AppState = {
     loading: boolean,
     currentChannel: string,
-    user: false | r.User //implement
+    user: null | r.User //implement,
+    channel: r.Channel,
+    members: {
+      [key: string]: r.User
+    },
+    data: r.Server | null
 }
 class App extends React.Component<AppProps, AppState> {
+  private handler: Handler
   constructor(props: AppProps) {
     super(props);
     this.state = {
       loading: true,
       currentChannel: "exampleChannel",
-      user: false
+      user: null,
+      channel: {},
+      members: {},
+      data: null
     };
-    
+    this.handler = new Handler()
     this.handleChannelChange = this.handleChannelChange.bind(this)
-    this.handleSetUser = this.handleSetUser.bind(this)
-
-   
+    this.handleServerChange = this.handleServerChange.bind(this)
   }
 
   componentDidMount(){
-    handler.getUserData((user: r.User) => this.handleSetUser(user))
+    //handler.getUserData((user: r.User) => this.handleSetUser(user))
+    this.handler.getUser((user) => this.setState({user}))
+  }
+
+  handleServerChange(newServer: string){
+    return () => {
+      this.handler.loadServer(newServer, (members) => this.setState({members}), (data) => this.setState({data}))
+    }
   }
 
   handleChannelChange(newChannel: string){
-    
     return () => {
-      if(newChannel !== this.state.currentChannel) this.setState({ currentChannel: newChannel })
+      if(newChannel !== this.state.currentChannel) this.handler.getChannel(newChannel, (channel) => this.setState({channel}))
     } 
   }
-
-  handleSetUser(user: r.User){
-    this.setState({
-      user: user
-    }, () => console.log("setUser:",this.state))
-  }
-  
 
   render() { //this looks hacky, fix
     return (
@@ -66,13 +74,13 @@ class App extends React.Component<AppProps, AppState> {
           !this.state.user && <Login />
         }
         {
-          this.state.user && <LeftSidebar currentChannel={this.state.currentChannel} changeChannel={this.handleChannelChange} user={this.state.user} />
+          this.state.user && <LeftSidebar channelList={this.state.data && this.state.data.channels || []} currentChannel={this.state.currentChannel} changeServer={this.handleServerChange} changeChannel={this.handleChannelChange} user={this.state.user} />
         }
         {
-          this.state.user && <ChatBox currentChannel={this.state.currentChannel} user={this.state.user} />
+          this.state.user && <ChatBox user={this.state.user} channel={this.state.channel} sendMessage={this.handler.sendMessage} />
         }
         {
-          this.state.user && <RightSidebar user={this.state.user} />
+          this.state.user && <RightSidebar user={this.state.user} online={this.state.members} />
         }
         
       </Box>

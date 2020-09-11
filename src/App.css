@@ -86,7 +86,7 @@
 #messageList{
   padding: 20px;
   display: flex;
-  flex-direction: column-reverse;
+  flex-direction: column;
   align-items: flex-start;
   max-height: calc(100% - 72px);
   overflow-y: auto;

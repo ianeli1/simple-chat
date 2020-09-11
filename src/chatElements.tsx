@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { handler } from "./handler";
+//import { handler } from "./handler";
 import { Send, AddPhotoAlternate } from "@material-ui/icons";
 import { File } from "./extraMenus";
 import {
@@ -13,12 +13,12 @@ import * as r from "./reference";
 
 type ChatBoxProps = {
     user: r.User,
-    currentChannel: string
+    channel: r.Channel,
+    sendMessage: (msg: r.Message, file?: File) => void
 }
 
 type ChatBoxState = {
     loading: boolean,
-    currentChannel: string | null,
     user: r.User,
     channel: r.Channel
 }
@@ -29,14 +29,18 @@ export default class ChatBox extends React.Component<ChatBoxProps, ChatBoxState>
     super(props);
     this.state = {
       loading: true, //TODO use this lmao
-      currentChannel: props.currentChannel || null,
       user: props.user,
-      channel: {},
+      channel: props.channel,
     };
     this.handleNewMessage = this.handleNewMessage.bind(this);
   }
 
   componentWillReceiveProps(props: ChatBoxProps) {
+    this.setState({
+      user: props.user,
+      channel: props.channel
+    })
+    /*
     this.setState( //all this is innefficient af, leave this work to the handler.
       {
         user: props.user,
@@ -44,37 +48,16 @@ export default class ChatBox extends React.Component<ChatBoxProps, ChatBoxState>
         channel: {},
       },
       () => this.state.currentChannel && handler.initializeChannel(this.state.currentChannel, (channel: r.Channel) => this.setState({channel})))
-
-      /*
-        this.state.currentChannel && handler.updateMessages(this.state.currentChannel, (msg: r.Message, key: string) => {
-          
-          msg.timestamp = Number(key) ///¡??????
-          /*
-          if(!temp.timestamp){ //remove once all the messages without timestamps are gone
-            temp.timestamp = 0
-          }
-          if (msg.image){
-            handler.getImage(msg.image, (img: string) => {
-              this.setState({channel: {...this.state.channel, key: {...msg, image: img}} })
-            });
-          }
-          else
-          {
-            this.setState({
-              channel: {key: msg, ...this.state.channel},
-            });
-            }   
-        })
-    );*/
+      */
   }
 
   handleNewMessage(message: string): () => void {
     return () => {
-      handler.sendMessage({
-        name: this.state.user.name,
-        message,
-        timestamp: 0
-      });
+      this.props.sendMessage({
+        name: this.state.user.name, 
+        userId: this.state.user.userId,
+        message: message,
+        timestamp: 0})
     };
   }
 
@@ -83,7 +66,7 @@ export default class ChatBox extends React.Component<ChatBoxProps, ChatBoxState>
       <Box id="chatBox" bgcolor="primary.main">
         <Box id="messageList">
           {this.state.channel &&
-            Object.values(this.state.channel).sort((b,a) => a.timestamp-b.timestamp || 0).map((x, i) => ( //get rid of the || 0 eventually?
+            Object.values(this.state.channel).sort((a,b) => a.timestamp-b.timestamp || 0).map((x, i) => ( //get rid of the || 0 eventually?
               <Message
                 key={i}
                 message={{
@@ -97,7 +80,7 @@ export default class ChatBox extends React.Component<ChatBoxProps, ChatBoxState>
           
         </Box>
         <Box id="newMessageBox">
-          <NewMessage user={this.state.user} submit={this.handleNewMessage} />
+          <NewMessage sendMessage={this.props.sendMessage} user={this.state.user} submit={this.handleNewMessage} />
         </Box>
       </Box>
     );
@@ -123,19 +106,23 @@ function Message({ key, message}: {key: number, message: r.Message}) {
   );
 }
 
-function NewMessage({ submit, user }: {submit: any, user: r.User}) { //handle the submit function
+function NewMessage({ submit, user, sendMessage }: {submit: any, user: r.User, sendMessage: (msg: r.Message, file?: File) => void}) { //handle the submit function
   const [message, setMessage] = useState("");
   const [isUploading, setIsUploading] = useState(false);
 
   function sendMsg() {
     if (message.length) {
-      submit(message)();
+      sendMessage({
+        name: user.name, 
+        userId: user.userId,
+        message: message,
+        timestamp: 0})
       setMessage("");
     }
   }
   return (
     <Box className="newMessage">
-      {isUploading && <File user={user} cancel={() => setIsUploading(false)} />}
+      {isUploading && <File user={user} cancel={() => setIsUploading(false)} sendMessage={sendMessage}/>}
       <IconButton
         onClick={
           //get file

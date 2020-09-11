@@ -10,7 +10,7 @@ import {
   ListItemAvatar,
   Avatar,
 } from "@material-ui/core";
-import { handler } from "./handler";
+//import { handler } from "./handler";
 import "./leftSidebar.css";
 import * as r from "./reference"
 import { FormatListBulletedOutlined } from "@material-ui/icons";
@@ -20,7 +20,9 @@ import { FormatListBulletedOutlined } from "@material-ui/icons";
 type LeftSidebarProps = {
     user: r.User,
     currentChannel: string,
-    changeChannel: (newChannel: string) => () => void
+    channelList: string[],
+    changeChannel: (newChannel: string) => () => void,
+    changeServer: (serverId: string) => () => void
 }
 
 type LeftSidebarState = {
@@ -29,54 +31,30 @@ type LeftSidebarState = {
     creatingChannel: boolean,
     currentChannel: string
     currentServer: string,
-    servers: {
-        [key: string]: r.Server
-    }
 }
 export default class LeftSidebar extends React.Component<LeftSidebarProps, LeftSidebarState>{
   constructor(props: LeftSidebarProps) {
     super(props);
 
     this.state = {
-      user: props.user || { name: "USER" },
+      user: props.user,
       channelList: [],
       creatingChannel: false,
       currentChannel: props.currentChannel || "",
       currentServer: "124124",
-      servers: {
-        124124: {
-          id: "124124",
-          name: "Test Server",
-          icon: "test.png",
-          channels: ["general", "memes", "idk"],
-        },
-        124125: {
-          id: "124125",
-          name: "Test Server 2",
-          icon: "test.png",
-          channels: ["general", "memes", "idk"],
-        }
-      },
     };
-    handler.updateChannels((channelList: Array<string>) =>
-      this.setState(
-        {
-          channelList: channelList,
-          currentChannel: channelList[0],
-        },
-        () => this.props.changeChannel(this.state.currentChannel)()
-      )
-    ); //attach listener to channel list
   }
 
   componentWillReceiveProps(props: LeftSidebarProps) {
-    this.setState({ currentChannel: props.currentChannel });
+    this.setState({ currentChannel: props.currentChannel, user: props.user, channelList: props.channelList });
   }
 
   render() {
     return (
       <Box id="LeftSidebar">
-        <ServerList serverList={this.state.servers} />
+        {
+          this.state.user.servers && <ServerList serverList={this.state.user.servers} changeServer={this.props.changeServer} />
+        }
         <ChannelList
           currentChannel={this.state.currentChannel}
           channelList={this.state.channelList}
@@ -88,14 +66,14 @@ export default class LeftSidebar extends React.Component<LeftSidebarProps, LeftS
   }
 }
 
-function ServerList({ serverList }: { serverList: {[key: string]: r.Server} }) {
+function ServerList({ serverList, changeServer }: { serverList: string[], changeServer: (serverId: string) => () => void }) {
   return (
     <Box id="ServerList">
       <List component="nav" aria-label="server-picker">
-        {Object.values(serverList).map((x) => (
-          <ListItem button>
+        {serverList.map((x) => (
+          <ListItem button onClick={changeServer(x)}>
             <ListItemAvatar>
-              <Avatar alt={x.name[0]} src="no.jpg" />
+              <Avatar>{x}</Avatar>
             </ListItemAvatar>
           </ListItem>
         ))}
@@ -149,7 +127,7 @@ function ChannelList({ channelList, currentChannel, changeChannel, user }: {chan
             />
             <Button
               onClick={() => {
-                handler.createChannel(creatingChannel.name, user);
+                //todo add
                 setCreatingChannel(false);
               }}
             >
