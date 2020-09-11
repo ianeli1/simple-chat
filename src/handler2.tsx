@@ -22,13 +22,12 @@ export class Handler {
   }
 
   createChannel(channelName: string) {
-    //implement
     this.user &&
       this.servers[this.currentServer].createChannel(channelName, this.user);
   }
 
   signOut() {
-    //implement
+      firebase.auth().signOut()
   }
 
   getUser(updateUser: (user: r.User | null) => void) {
@@ -219,6 +218,7 @@ class Channel {
       .on("child_added", async (snap) => {
         if (snap.key) {
           const temp = snap.val();
+          temp.timestamp = snap.key
           this.cache[snap.key] = temp;
           if (temp.image) temp.image = await this.getImage(temp.image);
           this.isAttached && updateState(this.cache);

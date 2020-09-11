@@ -16,7 +16,8 @@ type RightSidebarProps = {
     user: r.User
     online: {
         [key: string]: r.User
-    }
+    },
+    signOut: () => void
 }
 
 type RightSidebarState = {
@@ -49,7 +50,7 @@ export class RightSidebar extends React.Component<RightSidebarProps, RightSideba
         return (
         <Box className="RightSidebar">
             <Box className="InnerRightSidebar">
-                <Profile user={this.state.user} />
+                <Profile user={this.state.user} signOut={this.props.signOut}/>
                 {this.state.online.length && <Online users={this.state.online} />}
             </Box>
         </Box>
@@ -74,7 +75,7 @@ function Widget(props: {title: string, children: React.ReactNode}){
     </Box>
 }
 
-function Profile(props: {user: r.User}) {
+function Profile(props: {user: r.User, signOut: () => void}) {
     return (
         <Widget 
         title="Profile"
@@ -85,7 +86,7 @@ function Profile(props: {user: r.User}) {
                     <Typography variant="h5">{props.user.name}</Typography>
                 </Box>
                 <Button onClick={
-                    () => console.log("You're trapped") //Todo: implement
+                    () => props.signOut() //Todo: implement
                 }>
                     Log Out
                 </Button>

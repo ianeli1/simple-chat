@@ -91,7 +91,7 @@ class App extends React.Component<AppProps, AppState> {
           />
         )}
         {this.state.user && (
-          <RightSidebar user={this.state.user} online={this.state.members} />
+          <RightSidebar user={this.state.user} online={this.state.members} signOut={this.handler.signOut} />
         )}
       </Box>
     );
