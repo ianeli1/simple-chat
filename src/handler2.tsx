@@ -18,12 +18,13 @@ export class Handler {
     this.getChannel = this.getChannel.bind(this);
     this.getUser = this.getUser.bind(this);
     this.loadServer = this.loadServer.bind(this);
-    this.createChannel = this.createChannel.bind(this)
+    this.createChannel = this.createChannel.bind(this);
   }
 
   createChannel(channelName: string) {
     //implement
-    this.user && this.servers[this.currentServer].createChannel(channelName, this.user)
+    this.user &&
+      this.servers[this.currentServer].createChannel(channelName, this.user);
   }
 
   signOut() {
@@ -56,7 +57,7 @@ export class Handler {
     this.currentServer.length && this.servers[this.currentServer].detach();
     this.currentServer = serverId;
     if (Object.keys(this.servers).includes(serverId)) {
-      this.servers[this.currentServer].attach();
+      this.servers[this.currentServer].attach(updateMembers, updateData);
     } else {
       this.servers[this.currentServer] = new Server(serverId);
       this.servers[this.currentServer].initialize(updateMembers, updateData);
@@ -111,7 +112,7 @@ class Server {
     this.isAttached = true;
     this.ref.child("data").on("value", (snap) => {
       this.data = { ...this.data, ...snap.val() };
-      this.data.channels = Object.values(this.data.channels)
+      this.data.channels = Object.values(this.data.channels);
       console.log({ data: this.data });
       this.isAttached && updateData(this.data);
     });
@@ -126,7 +127,8 @@ class Server {
     this.currentChannel.length && this.channels[this.currentChannel].detach();
     this.currentChannel = channel;
     if (Object.keys(this.channels).includes(channel)) {
-      this.channels[this.currentChannel].attach();
+      console.log("Attaching channel...", channel);
+      this.channels[this.currentChannel].attach(updateChannel);
     } else {
       this.channels[this.currentChannel] = new Channel(
         this.data.id,
@@ -155,9 +157,14 @@ class Server {
     this.channels[this.currentChannel].detach();
   }
 
-  attach() {
+  attach(
+    updateMembers: (serverMembers: { [key: string]: r.User }) => void,
+    updateData: (serverData: r.Server) => void
+  ) {
     this.isAttached = true;
-    this.channels[this.currentChannel].attach();
+    updateMembers(this.members);
+    updateData(this.data);
+    //this.channels[this.currentChannel].attach(updateChannel);
   }
 
   destroy() {
@@ -191,7 +198,8 @@ class Channel {
     this.isAttached = false;
   }
 
-  attach() {
+  attach(updateState: (channel: r.Channel) => void) {
+    updateState(this.cache);
     this.isAttached = true;
   }
 
