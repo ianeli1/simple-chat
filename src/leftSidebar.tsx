@@ -12,27 +12,29 @@ import {
 } from "@material-ui/core";
 //import { handler } from "./handler";
 import "./leftSidebar.css";
-import * as r from "./reference"
-import { FormatListBulletedOutlined } from "@material-ui/icons";
-
+import * as r from "./reference";
 //TODO divide everything into components
 
 type LeftSidebarProps = {
-    user: r.User,
-    currentChannel: string,
-    channelList: string[],
-    changeChannel: (newChannel: string) => () => void,
-    changeServer: (serverId: string) => () => void
-}
+  user: r.User;
+  currentChannel: string;
+  channelList: string[];
+  changeChannel: (newChannel: string) => () => void;
+  changeServer: (serverId: string) => () => void;
+  createChannel: (channel: string) => void;
+};
 
 type LeftSidebarState = {
-    user: r.User,
-    channelList: string[],
-    creatingChannel: boolean,
-    currentChannel: string
-    currentServer: string,
-}
-export default class LeftSidebar extends React.Component<LeftSidebarProps, LeftSidebarState>{
+  user: r.User;
+  channelList: string[];
+  creatingChannel: boolean;
+  currentChannel: string;
+  currentServer: string;
+};
+export default class LeftSidebar extends React.Component<
+  LeftSidebarProps,
+  LeftSidebarState
+> {
   constructor(props: LeftSidebarProps) {
     super(props);
 
@@ -46,27 +48,41 @@ export default class LeftSidebar extends React.Component<LeftSidebarProps, LeftS
   }
 
   componentWillReceiveProps(props: LeftSidebarProps) {
-    this.setState({ currentChannel: props.currentChannel, user: props.user, channelList: props.channelList });
+    this.setState({
+      currentChannel: props.currentChannel,
+      user: props.user,
+      channelList: props.channelList,
+    });
   }
 
   render() {
     return (
       <Box id="LeftSidebar">
-        {
-          this.state.user.servers && <ServerList serverList={this.state.user.servers} changeServer={this.props.changeServer} />
-        }
+        {this.state.user.servers && (
+          <ServerList
+            serverList={this.state.user.servers}
+            changeServer={this.props.changeServer}
+          />
+        )}
         <ChannelList
           currentChannel={this.state.currentChannel}
           channelList={this.state.channelList}
           changeChannel={this.props.changeChannel}
           user={this.state.user}
+          createChannel={this.props.createChannel}
         />
       </Box>
     );
   }
 }
 
-function ServerList({ serverList, changeServer }: { serverList: string[], changeServer: (serverId: string) => () => void }) {
+function ServerList({
+  serverList,
+  changeServer,
+}: {
+  serverList: string[];
+  changeServer: (serverId: string) => () => void;
+}) {
   return (
     <Box id="ServerList">
       <List component="nav" aria-label="server-picker">
@@ -82,8 +98,22 @@ function ServerList({ serverList, changeServer }: { serverList: string[], change
   );
 }
 
-function ChannelList({ channelList, currentChannel, changeChannel, user }: {channelList: Array<string>, currentChannel: string, changeChannel: (newChannel: string) => () => void, user: r.User}) {
-  const [creatingChannel, setCreatingChannel] = useState<{name: string} | false>(false);
+function ChannelList({
+  channelList,
+  currentChannel,
+  changeChannel,
+  user,
+  createChannel,
+}: {
+  channelList: Array<string>;
+  currentChannel: string;
+  changeChannel: (newChannel: string) => () => void;
+  user: r.User;
+  createChannel: (channel: string) => void;
+}) {
+  const [creatingChannel, setCreatingChannel] = useState<
+    { name: string } | false
+  >(false);
   return (
     <Box id="channelSelection">
       <List component="nav" aria-label="main channels">
@@ -128,6 +158,7 @@ function ChannelList({ channelList, currentChannel, changeChannel, user }: {chan
             <Button
               onClick={() => {
                 //todo add
+                createChannel(creatingChannel.name);
                 setCreatingChannel(false);
               }}
             >
@@ -140,7 +171,17 @@ function ChannelList({ channelList, currentChannel, changeChannel, user }: {chan
   );
 }
 
-function Popup({ title, desc, children, close }: { title: string, desc: string, children: React.ReactNode, close: () => void }) {
+function Popup({
+  title,
+  desc,
+  children,
+  close,
+}: {
+  title: string;
+  desc: string;
+  children: React.ReactNode;
+  close: () => void;
+}) {
   return (
     <Box className="Popup">
       <Box className="Popup_inside">
