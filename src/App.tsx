@@ -75,6 +75,7 @@ class App extends React.Component<AppProps, AppState> {
         {!this.state.user && <Login />}
         {this.state.user && (
           <LeftSidebar
+            createServer={this.handler.createServer}
             channelList={(this.state.data && this.state.data.channels) || []}
             currentChannel={this.state.currentChannel}
             changeServer={this.handleServerChange}

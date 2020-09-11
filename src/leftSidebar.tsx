@@ -22,6 +22,7 @@ type LeftSidebarProps = {
   changeChannel: (newChannel: string) => () => void;
   changeServer: (serverId: string) => () => void;
   createChannel: (channel: string) => void;
+  createServer: (serverName: string) => void;
 };
 
 type LeftSidebarState = {
@@ -62,6 +63,7 @@ export default class LeftSidebar extends React.Component<
           <ServerList
             serverList={this.state.user.servers}
             changeServer={this.props.changeServer}
+            createServer={this.props.createServer}
           />
         )}
         <ChannelList
@@ -79,10 +81,13 @@ export default class LeftSidebar extends React.Component<
 function ServerList({
   serverList,
   changeServer,
+  createServer
 }: {
   serverList: string[];
   changeServer: (serverId: string) => () => void;
+  createServer: (serverName: string) => void
 }) {
+  const [creatingServer, setCreatingServer] = useState<{ name: string } | false>(false)
   return (
     <Box id="ServerList">
       <List component="nav" aria-label="server-picker">
@@ -93,7 +98,45 @@ function ServerList({
             </ListItemAvatar>
           </ListItem>
         ))}
+        <ListItem button onClick={() => setCreatingServer({name: ""})}>
+          <ListItemAvatar>
+            <Avatar>+</Avatar>
+          </ListItemAvatar>
+        </ListItem>
       </List>
+      {creatingServer && (
+        <Popup
+          title="Create a new server"
+          desc="You are creating a new server no I absolutely didn't reuse code"
+          close={() => setCreatingServer(false)}
+        >
+          <Box>
+            <TextField
+              id="NewServerName"
+              value={creatingServer.name}
+              onChange={(e) =>
+                setCreatingServer({
+                  name: e.target.value,
+                })
+              }
+              variant="outlined"
+              label="Name"
+            />
+            <Button
+              onClick={() => {
+                //todo add
+                if(creatingServer.name){
+                  createServer(creatingServer.name);
+                  setCreatingServer(false);
+                }
+                
+              }}
+            >
+              Create
+            </Button>
+          </Box>
+        </Popup>
+      )}
     </Box>
   );
 }

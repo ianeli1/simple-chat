@@ -19,11 +19,52 @@ export class Handler {
     this.getUser = this.getUser.bind(this);
     this.loadServer = this.loadServer.bind(this);
     this.createChannel = this.createChannel.bind(this);
+    this.createServer = this.createServer.bind(this)
+    this.joinServer = this.joinServer.bind(this)
+  }
+
+  joinServer(serverId: string){
+      if(this.user){
+        const userNode = firebase.database().ref("users/"+this.user.userId+"/servers").push()
+        userNode.set(serverId)
+      }
+    
   }
 
   createChannel(channelName: string) {
     this.user &&
       this.servers[this.currentServer].createChannel(channelName, this.user);
+  }
+
+  createServer(serverName: string){ //use createChannel & joinServer
+    const serverNode = firebase.database().ref("servers").push()
+    const key = Date.now() + String(Math.floor(Math.random() * 9));
+      if(this.user && serverNode.key){
+        let server: {data: r.Server, members: { [key: string]: r.User }, channels: { [x: string]: r.Channel }} = {
+            data: {
+                id: serverNode.key,
+                name: serverName,
+                owner: this.user.userId,
+                channels: ["general"]
+            },
+            members: {
+                [this.user.userId]: this.user
+            },
+            channels: {
+                "general": {
+                    [key]: {
+                        name: this.user.name,
+                        userId: this.user.userId,
+                        message: "[System]: " + this.user.name + " created the channel.",
+                        timestamp: Number(key)
+                      }
+                }
+            }
+        }
+        serverNode.set(server)
+        this.joinServer(serverNode.key)
+      }
+      
   }
 
   signOut() {
@@ -33,13 +74,15 @@ export class Handler {
   getUser(updateUser: (user: r.User | null) => void) {
     firebase.auth().onAuthStateChanged(async (user) => {
       if (user) {
-        this.user = await (
+        const temp = await (
           await firebase
             .database()
             .ref("users/" + user.uid)
             .once("value")
         ).val();
-        this.user && (() => (this.user.userId = user.uid))();
+        temp.userId = user.uid
+        temp.servers = Object.values(temp.servers)
+        this.user = temp
         console.log("Got user:", { user, userData: this.user });
       } else {
         this.user = null;
