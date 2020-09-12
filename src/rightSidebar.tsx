@@ -1,5 +1,5 @@
 import React, {useState} from "react";
-import { Box, Button, IconButton, Avatar, Typography } from "@material-ui/core"
+import { Box, Button, IconButton, Avatar, Typography, Badge, withStyles } from "@material-ui/core"
 import { KeyboardArrowDown, KeyboardArrowUp } from '@material-ui/icons';
 //import { handler } from "./handler"
 import * as r from "./reference"
@@ -14,7 +14,7 @@ import "./rightSidebar.css"
 
 type RightSidebarProps = {
     user: r.User
-    online: {
+    members: {
         [key: string]: r.User
     },
     signOut: () => void
@@ -22,7 +22,7 @@ type RightSidebarProps = {
 
 type RightSidebarState = {
     user: r.User,
-    online: {
+    members: {
         [key: string]: r.User
       }
 }
@@ -32,7 +32,7 @@ export class RightSidebar extends React.Component<RightSidebarProps, RightSideba
         super(props);
         this.state = {
             user: props.user,
-            online: {}
+            members: {}
         }
     }
 
@@ -42,7 +42,7 @@ export class RightSidebar extends React.Component<RightSidebarProps, RightSideba
     componentWillReceiveProps(props: RightSidebarProps){
         this.setState({
             user: props.user,
-            online: props.online
+            members: props.members
         })
     }
 
@@ -51,7 +51,7 @@ export class RightSidebar extends React.Component<RightSidebarProps, RightSideba
         <Box className="RightSidebar">
             <Box className="InnerRightSidebar">
                 <Profile user={this.state.user} signOut={this.props.signOut}/>
-                {this.state.online.length && <Online users={this.state.online} />}
+                {this.state.members && <Members users={this.state.members} />}
             </Box>
         </Box>
         );
@@ -99,7 +99,22 @@ function Profile(props: {user: r.User, signOut: () => void}) {
     );
 }
 
-function Online(props: { users: { [key: string]: r.User }}){
+
+
+function Members(props: { users: { [key: string]: r.User }}){
+
+    const OnlineBadge = withStyles((theme) => ({
+        badge: {
+            backgroundColor: '#44b700',
+            color: '#44b700',
+
+        },
+        dot: {
+            height: "12px",
+            "min-width": "12px",
+            "border-radius": "6px"
+        }
+    }))(Badge);
     
     return (
         <Widget
@@ -107,7 +122,15 @@ function Online(props: { users: { [key: string]: r.User }}){
         >
             {Object.values(props.users).map(x => (
                 <Box className="MessageName">
-                    <Avatar>{x.name[0]}</Avatar>
+                    <OnlineBadge
+                        overlap="circle"
+                        anchorOrigin={{vertical: "bottom", horizontal: "right"}}
+                        variant="dot"
+                        color="primary"
+                    >
+                        <Avatar>{x.name[0]}</Avatar>
+                    </OnlineBadge>
+                    
                 <Typography variant="h5">{x.name}</Typography>
             </Box>
             ))}

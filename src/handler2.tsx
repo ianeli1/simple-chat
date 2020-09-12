@@ -23,7 +23,7 @@ export class Handler {
     this.createChannel = this.createChannel.bind(this);
     this.createServer = this.createServer.bind(this);
     this.joinServer = this.joinServer.bind(this);
-    this.initialize = this.initialize.bind(this)
+    this.initialize = this.initialize.bind(this);
   }
 
   joinServer(serverId: string) {
@@ -93,9 +93,9 @@ export class Handler {
         temp.servers = Object.values(temp.servers);
         this.user = temp;
         console.log("Got user:", { user, userData: this.user });
-        this.initialize(updateUser)
+        this.initialize(updateUser);
       } else {
-        this.userRef.off()
+        this.userRef.off();
         this.user = null;
       }
       updateUser(this.user);
@@ -103,7 +103,7 @@ export class Handler {
   }
 
   initialize(updateUser: (user: r.User) => void) {
-    this.user &&
+    if (this.user) {
       this.userRef
         .child(this.user.userId)
         .on("value", (snap: firebase.database.DataSnapshot) => {
@@ -116,6 +116,20 @@ export class Handler {
               servers: Object.values(temp.servers),
             });
         });
+      const onlineRef = firebase
+        .database()
+        .ref("users/" + this.user.userId + "/status");
+        onlineRef.onDisconnect().set("offline");
+      onlineRef.set("online");
+      
+      if(this.user.servers){
+        for (let elem of this.user.servers) {
+            const tempRef = firebase.database().ref("servers/"+elem+"/members/"+this.user.userId+"/status")
+            tempRef.onDisconnect().set("offline")
+            tempRef.set("online")
+        }
+      }
+    }
   }
 
   loadServer(
