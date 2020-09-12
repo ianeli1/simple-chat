@@ -72,7 +72,7 @@ class App extends React.Component<AppProps, AppState> {
     //this looks hacky, fix
     return (
       <Box className="App">
-        {!this.state.user && <Login />}
+        {!this.state.user && <Login signIn={this.handler.signIn} signUp={this.handler.createUser} />}
         {this.state.user && (
           <LeftSidebar
             createServer={this.handler.createServer}

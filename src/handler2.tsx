@@ -76,6 +76,59 @@ export class Handler {
     }
   }
 
+  signIn(email: string, pass: string, callback: (x: string) => void) {
+    firebase
+      .auth()
+      .signInWithEmailAndPassword(email, pass)
+      .catch((e) => {
+        switch (e.code) {
+          case "auth/invalid-email":
+          case "auth/user-not-found":
+            callback("email");
+            break;
+          case "auth/wrong-password":
+            callback("password");
+            break;
+          default:
+            console.error(e);
+            break;
+        }
+      }); //TODO error callback?
+  }
+
+  createUser(username: string, email: string, pass: string, callback: (x: string) => void) {
+    firebase
+      .auth()
+      .createUserWithEmailAndPassword(email, pass)
+      .then((user) => {
+          if(user.user){
+            firebase
+            .database()
+            .ref("users/" + user.user.uid)
+            .set({
+                name: username,
+                servers: ["123"]
+            });
+          } 
+      })
+      .catch((e) => {
+        switch (e.code) {
+          case "auth/email-already-in-use":
+          case "auth/invalid-email":
+            callback("email");
+            break;
+          case "auth/weak-password":
+            callback("password");
+            break;
+          default:
+            console.log(
+              "An unhandled error ocurred while creating a new user:",
+              e
+            );
+        }
+      });
+  }
+
   signOut() {
     firebase.auth().signOut();
   }

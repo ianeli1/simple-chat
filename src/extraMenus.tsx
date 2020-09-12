@@ -6,7 +6,7 @@ import "./extraMenus.css"
 
 
 
-export default function Login() {
+export default function Login({signIn, signUp}: {signIn: (email: string, pass: string, callback: (x: string) => void) => void, signUp: (username: string, email: string, pass: string, callback: (x: string) => void) => void}) {
     function handleLogin(error: string){
         setPass("")
         switch(error){
@@ -76,10 +76,9 @@ export default function Login() {
                 variant="outlined"
                 disabled={!email.length || !pass.length || (register && !user.length)}
                 onClick={
-                    () => {/*
-                        if(register) handler.createUser(user, email, pass, handleLogin)
-                        else handler.signIn(email, pass, handleLogin)
-                        */
+                    () => {
+                        if(register) signUp(user, email, pass, handleLogin)
+                        else signIn(email, pass, handleLogin)
                     }
                 }
                 >
