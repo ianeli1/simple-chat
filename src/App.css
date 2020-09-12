@@ -130,6 +130,7 @@
 }
 
 .MessageImagePrim {
+  border-radius: 8px;
   height: inherit;
   width: auto;
 }
