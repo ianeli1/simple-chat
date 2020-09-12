@@ -179,6 +179,7 @@ export class Handler {
         for (let elem of this.user.servers) {
             const tempRef = firebase.database().ref("servers/"+elem+"/members/"+this.user.userId+"/status")
             tempRef.onDisconnect().set("offline")
+            tempRef.parent && tempRef.parent.set(this.user)
             tempRef.set("online")
         }
       }
@@ -272,6 +273,18 @@ class Server {
       );
       this.channels[this.currentChannel].initialize(updateChannel);
     }
+  }
+
+  async addEmote(emoteName: string, emote: File){
+        const filename = emoteName + "." + emote.name.split(".").pop()
+        const fileRef = await firebase.storage().ref("servers/"+this.data.id+"/emotes/"+filename)
+        await fileRef.put(emote).then(
+            async (snap) => {
+                const downloadUrl = await fileRef.getDownloadURL()
+                this.ref.child("data/emotes/"+filename).set(downloadUrl)
+            }
+        )
+    this.ref.child("data").child("emotes").child(emoteName) 
   }
 
   createChannel(channel: string, currentUser: r.User) {
