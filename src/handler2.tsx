@@ -3,32 +3,37 @@ import * as firebase from "firebase";
 import { firebaseConfig } from "./secretKey";
 
 firebase.initializeApp(firebaseConfig);
-window.firebase = firebase
+
 export class Handler {
   user: r.User | null;
   servers: {
     [key: string]: Server;
   };
   currentServer: string;
+  private userRef: firebase.database.Reference;
   constructor() {
     this.user = null;
     this.servers = {};
     this.currentServer = "";
+    this.userRef = firebase.database().ref("users");
     this.sendMessage = this.sendMessage.bind(this);
     this.getChannel = this.getChannel.bind(this);
     this.getUser = this.getUser.bind(this);
     this.loadServer = this.loadServer.bind(this);
     this.createChannel = this.createChannel.bind(this);
-    this.createServer = this.createServer.bind(this)
-    this.joinServer = this.joinServer.bind(this)
+    this.createServer = this.createServer.bind(this);
+    this.joinServer = this.joinServer.bind(this);
+    this.initialize = this.initialize.bind(this)
   }
 
-  joinServer(serverId: string){
-      if(this.user){
-        const userNode = firebase.database().ref("users/"+this.user.userId+"/servers").push()
-        userNode.set(serverId)
-      }
-    
+  joinServer(serverId: string) {
+    if (this.user) {
+      const userNode = firebase
+        .database()
+        .ref("users/" + this.user.userId + "/servers")
+        .push();
+      userNode.set(serverId);
+    }
   }
 
   createChannel(channelName: string) {
@@ -36,39 +41,43 @@ export class Handler {
       this.servers[this.currentServer].createChannel(channelName, this.user);
   }
 
-  createServer(serverName: string){ //use createChannel & joinServer
-    const serverNode = firebase.database().ref("servers").push()
+  createServer(serverName: string) {
+    //use createChannel & joinServer
+    const serverNode = firebase.database().ref("servers").push();
     const key = Date.now() + String(Math.floor(Math.random() * 9));
-      if(this.user && serverNode.key){
-        let server: {data: r.Server, members: { [key: string]: r.User }, channels: { [x: string]: r.Channel }} = {
-            data: {
-                id: serverNode.key,
-                name: serverName,
-                owner: this.user.userId,
-                channels: ["general"]
+    if (this.user && serverNode.key) {
+      let server: {
+        data: r.Server;
+        members: { [key: string]: r.User };
+        channels: { [x: string]: r.Channel };
+      } = {
+        data: {
+          id: serverNode.key,
+          name: serverName,
+          owner: this.user.userId,
+          channels: ["general"],
+        },
+        members: {
+          [this.user.userId]: this.user,
+        },
+        channels: {
+          general: {
+            [key]: {
+              name: this.user.name,
+              userId: this.user.userId,
+              message: "[System]: " + this.user.name + " created the channel.",
+              timestamp: Number(key),
             },
-            members: {
-                [this.user.userId]: this.user
-            },
-            channels: {
-                "general": {
-                    [key]: {
-                        name: this.user.name,
-                        userId: this.user.userId,
-                        message: "[System]: " + this.user.name + " created the channel.",
-                        timestamp: Number(key)
-                      }
-                }
-            }
-        }
-        serverNode.set(server)
-        this.joinServer(serverNode.key)
-      }
-      
+          },
+        },
+      };
+      serverNode.set(server);
+      this.joinServer(serverNode.key);
+    }
   }
 
   signOut() {
-      firebase.auth().signOut()
+    firebase.auth().signOut();
   }
 
   getUser(updateUser: (user: r.User | null) => void) {
@@ -80,15 +89,33 @@ export class Handler {
             .ref("users/" + user.uid)
             .once("value")
         ).val();
-        temp.userId = user.uid
-        temp.servers = Object.values(temp.servers)
-        this.user = temp
+        temp.userId = user.uid;
+        temp.servers = Object.values(temp.servers);
+        this.user = temp;
         console.log("Got user:", { user, userData: this.user });
+        this.initialize(updateUser)
       } else {
+        this.userRef.off()
         this.user = null;
       }
       updateUser(this.user);
     });
+  }
+
+  initialize(updateUser: (user: r.User) => void) {
+    this.user &&
+      this.userRef
+        .child(this.user.userId)
+        .on("value", (snap: firebase.database.DataSnapshot) => {
+          const temp = snap.val();
+          this.user &&
+            this.user.userId &&
+            updateUser({
+              ...this.user,
+              ...temp,
+              servers: Object.values(temp.servers),
+            });
+        });
   }
 
   loadServer(
@@ -234,7 +261,7 @@ class Channel {
       .ref("servers/" + this.serverId + "/channels/" + this.name);
     this.isInitialized = false;
     this.isAttached = false;
-    this.sendMessage = this.sendMessage.bind(this)
+    this.sendMessage = this.sendMessage.bind(this);
   }
 
   detach() {
@@ -262,7 +289,7 @@ class Channel {
       .on("child_added", async (snap) => {
         if (snap.key) {
           const temp = snap.val();
-          temp.timestamp = snap.key
+          temp.timestamp = snap.key;
           this.cache[snap.key] = temp;
           if (temp.image) temp.image = await this.getImage(temp.image);
           this.isAttached && updateState(this.cache);
@@ -276,13 +303,17 @@ class Channel {
 
     const writer = this.ref.child(id);
     if (file) {
-        console.log({file})
+      console.log({ file });
       const filename = "servers/" + this.serverId + "/channels/" + this.name;
-      const name = id + "." + file.name.split(".").pop()
-      firebase.storage().ref(filename).child(name).put(file).then(() => writer.set({ ...msg, image: name })).catch(error => console.log(error));
-      
-    }
-    else writer.set(msg);
+      const name = id + "." + file.name.split(".").pop();
+      firebase
+        .storage()
+        .ref(filename)
+        .child(name)
+        .put(file)
+        .then(() => writer.set({ ...msg, image: name }))
+        .catch((error) => console.log(error));
+    } else writer.set(msg);
   }
 
   async getImage(imageId: string) {
