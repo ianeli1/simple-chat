@@ -90,17 +90,18 @@ export default function Login() {
     );
 }
 
-export function File(props: {user: r.User, cancel: any, sendMessage: (msg: r.Message, file?: File) => void}){
-    function handleFirebaseUpload(){
-        if(file){
-            console.log("Uploading...",{file})
-            props.sendMessage({name: props.user.name, message: msg, timestamp: 0}, file)
+export function File(props: {user: r.User, cancel: any, sendMessage: (msg: r.Message, file?: File, updateLoad?: (percentage: Number) => void) => void}){
+    function handleFirebaseUpload(file: File){
+        return () => {
+            if(file){
+                props.sendMessage({name: props.user.name, message: msg, timestamp: 0}, file)
+            }
         }
-        
     }
 
     const [msg, setMsg] = useState("")
     const [file, setFile] = useState<null | File>(null) //change the class for the box element
+    const [progress, setProgress] = useState<Number>(0)
     return (
         <div className="fullscreen">
             <Box className="Login"> 
@@ -108,8 +109,7 @@ export function File(props: {user: r.User, cancel: any, sendMessage: (msg: r.Mes
                     type="file"
                     onChange={
                         (e) => {
-                            console.log(e.target.files)
-                            e.target.hasOwnProperty("files") && e.target.files && setFile(e.target.files[0])
+                            setFile(e.target.files && e.target.files[0])
                         }
                     }
                 />
@@ -122,11 +122,12 @@ export function File(props: {user: r.User, cancel: any, sendMessage: (msg: r.Mes
                 />
                 <Button
                 onClick={
-                    handleFirebaseUpload
+                    (e) => file && handleFirebaseUpload(file)()
                 }
                 variant="contained"
+                disabled={Boolean(progress)}
                 >
-                    Upload
+                    {progress ? progress : "Upload"}
                 </Button>
                 <Button
                 onClick={props.cancel}

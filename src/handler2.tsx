@@ -3,7 +3,7 @@ import * as firebase from "firebase";
 import { firebaseConfig } from "./secretKey";
 
 firebase.initializeApp(firebaseConfig);
-
+window.firebase = firebase
 export class Handler {
   user: r.User | null;
   servers: {
@@ -234,6 +234,7 @@ class Channel {
       .ref("servers/" + this.serverId + "/channels/" + this.name);
     this.isInitialized = false;
     this.isAttached = false;
+    this.sendMessage = this.sendMessage.bind(this)
   }
 
   detach() {
@@ -269,23 +270,19 @@ class Channel {
       });
   }
 
-  async sendMessage(msg: r.Message, file?: File) {
+  sendMessage(msg: r.Message, file?: File) {
     const id = Date.now() + String(Math.floor(Math.random() * 9));
     console.log({ id, msg });
+
     const writer = this.ref.child(id);
     if (file) {
-      const filename =
-        "servers/" +
-        this.serverId +
-        "/channels/" +
-        this.name +
-        "/" +
-        id +
-        file?.name.split(".").pop();
-      await firebase.storage().ref(filename).put(file);
-      await writer.set({ ...msg, image: filename });
+        console.log({file})
+      const filename = "servers/" + this.serverId + "/channels/" + this.name;
+      const name = id + "." + file.name.split(".").pop()
+      firebase.storage().ref(filename).child(name).put(file).then(() => writer.set({ ...msg, image: name })).catch(error => console.log(error));
+      
     }
-    await writer.set(msg);
+    else writer.set(msg);
   }
 
   async getImage(imageId: string) {
