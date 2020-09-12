@@ -16,6 +16,9 @@ servers {
             owner: "userId of the owner",
             typing: ["user1", "user2"...],
             channels: ["channel1", "channel2"]
+            emotes: {
+                "nameOfEmote.extension": "downloadUrl"
+            }
         },
         members: {
             "userId": { //User object
@@ -63,6 +66,9 @@ export interface Server {
     icon?: string,
     owner: string
     typing?: {
+        [key: string]: string
+    },
+    emotes?: {
         [key: string]: string
     }
 }
