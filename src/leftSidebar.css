@@ -1,0 +1,17 @@
+/*Left Sidebar*/
+
+#LeftSidebar {
+    display: flex;
+    flex-direction: row;
+}
+
+/*ServerList*/
+
+#ServerList {
+    width: 4rem;
+}
+
+.ServerIcon {
+    width: 3rem !important;
+    height: 3rem;
+}

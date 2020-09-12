@@ -1,12 +1,15 @@
 import React, {useState} from "react"
 import { Box, Typography, TextField, Button } from "@material-ui/core"
-import {handler} from "./data"
+
+import * as r from "./reference"
 import "./extraMenus.css"
 
-export default function Login(props) {
-    function handleLogin(user){
+
+
+export default function Login({signIn, signUp}: {signIn: (email: string, pass: string, callback: (x: string) => void) => void, signUp: (username: string, email: string, pass: string, callback: (x: string) => void) => void}) {
+    function handleLogin(error: string){
         setPass("")
-        switch(user){
+        switch(error){
             case "email":
                 setEmailError(true);
                 setPassError(false);
@@ -74,8 +77,8 @@ export default function Login(props) {
                 disabled={!email.length || !pass.length || (register && !user.length)}
                 onClick={
                     () => {
-                        if(register) handler.createUser(user, email, pass, handleLogin)
-                        else handler.signIn(email, pass, handleLogin)
+                        if(register) signUp(user, email, pass, handleLogin)
+                        else signIn(email, pass, handleLogin)
                     }
                 }
                 >
@@ -86,15 +89,18 @@ export default function Login(props) {
     );
 }
 
-export function File(props){
-    function handleFirebaseUpload(){
-        console.log("Uploading...",{file})
-        handler.sendMessageWithImage({name: props.user.name, message: msg}, file)
-
+export function File(props: {user: r.User, cancel: any, sendMessage: (msg: r.Message, file?: File, updateLoad?: (percentage: Number) => void) => void}){
+    function handleFirebaseUpload(file: File){
+        return () => {
+            if(file){
+                props.sendMessage({name: props.user.name, message: msg, timestamp: 0}, file)
+            }
+        }
     }
 
     const [msg, setMsg] = useState("")
-    const [file, setFile] = useState(null) //change the class for the box element
+    const [file, setFile] = useState<null | File>(null) //change the class for the box element
+    const [progress, setProgress] = useState<Number>(0)
     return (
         <div className="fullscreen">
             <Box className="Login"> 
@@ -102,8 +108,7 @@ export function File(props){
                     type="file"
                     onChange={
                         (e) => {
-                            console.log(e.target.files)
-                            setFile(e.target.files[0])
+                            setFile(e.target.files && e.target.files[0])
                         }
                     }
                 />
@@ -116,11 +121,12 @@ export function File(props){
                 />
                 <Button
                 onClick={
-                    handleFirebaseUpload
+                    (e) => file && handleFirebaseUpload(file)()
                 }
-                variant="filled"
+                variant="contained"
+                disabled={Boolean(progress)}
                 >
-                    Upload
+                    {progress ? progress : "Upload"}
                 </Button>
                 <Button
                 onClick={props.cancel}
