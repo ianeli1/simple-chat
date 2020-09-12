@@ -128,10 +128,10 @@ function Members(props: { users: { [key: string]: r.User }}){
                         variant="dot"
                         color="primary"
                     >
-                        <Avatar>{x.name[0]}</Avatar>
+                        <Avatar>{x.name && x.name[0] || "X"}</Avatar>
                     </OnlineBadge>
                     
-                <Typography variant="h5">{x.name}</Typography>
+                <Typography variant="h5">{x.name || "USER"}</Typography>
             </Box>
             ))}
 
