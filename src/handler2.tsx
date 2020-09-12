@@ -55,7 +55,7 @@ export class Handler {
           id: serverNode.key,
           name: serverName,
           owner: this.user.userId,
-          channels: ["general"],
+          channels: ["123"],
         },
         members: {
           [this.user.userId]: this.user,
@@ -290,7 +290,7 @@ class Server {
 
   detach() {
     this.isAttached = false;
-    this.channels[this.currentChannel].detach();
+    this.currentChannel.length && this.channels[this.currentChannel].detach();
   }
 
   attach(
