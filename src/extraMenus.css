@@ -28,3 +28,13 @@
 .Login > div {
     margin: 5px 0px;
 }
+
+/*AddEmote*/
+
+.AddEmote {
+    background: darkgray;
+    padding: 20px;
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+}

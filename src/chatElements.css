@@ -1,0 +1,9 @@
+.emoteContainer{
+    height: 40px;
+    max-width: 40px;
+}
+
+.emote {
+    height: inherit;
+    width: auto;
+}

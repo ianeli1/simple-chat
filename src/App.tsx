@@ -72,7 +72,12 @@ class App extends React.Component<AppProps, AppState> {
     //this looks hacky, fix
     return (
       <Box className="App">
-        {!this.state.user && <Login signIn={this.handler.signIn} signUp={this.handler.createUser} />}
+        {!this.state.user && (
+          <Login
+            signIn={this.handler.signIn}
+            signUp={this.handler.createUser}
+          />
+        )}
         {this.state.user && (
           <LeftSidebar
             createServer={this.handler.createServer}
@@ -87,12 +92,20 @@ class App extends React.Component<AppProps, AppState> {
         {this.state.user && (
           <ChatBox
             user={this.state.user}
+            emotes={(this.state.data && this.state.data.emotes) || {}}
             channel={this.state.channel}
             sendMessage={this.handler.sendMessage}
           />
         )}
         {this.state.user && (
-          <RightSidebar user={this.state.user} members={this.state.members} signOut={this.handler.signOut} />
+          <RightSidebar
+            user={this.state.user}
+            members={this.state.members}
+            emotes={(this.state.data && this.state.data.emotes) || {}}
+            addEmote={this.handler.addEmote}
+            signOut={this.handler.signOut}
+            debug={this.handler.getDebug}
+          />
         )}
       </Box>
     );

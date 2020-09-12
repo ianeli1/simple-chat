@@ -35,7 +35,14 @@ servers {
             }
         }
     }
-}*/
+}
+
+When a message contains emotes it will include the
+name of the emote in this format: <:EmoteName:>
+and in the message object will be the dictionary incluiding
+the used emotes
+
+*/
 
 export interface User { 
     name: string,
@@ -56,7 +63,10 @@ export interface Message {
     userId?: string,
     message: string,
     image?: string,
-    timestamp: number //deprecated?
+    timestamp: number, //deprecated?
+    emotes?: {
+        [key: string]: string
+    }
 }
 
 export interface Server {

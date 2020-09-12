@@ -24,6 +24,8 @@ export class Handler {
     this.createServer = this.createServer.bind(this);
     this.joinServer = this.joinServer.bind(this);
     this.initialize = this.initialize.bind(this);
+    this.getDebug = this.getDebug.bind(this);
+    this.addEmote = this.addEmote.bind(this)
   }
 
   joinServer(serverId: string) {
@@ -96,20 +98,25 @@ export class Handler {
       }); //TODO error callback?
   }
 
-  createUser(username: string, email: string, pass: string, callback: (x: string) => void) {
+  createUser(
+    username: string,
+    email: string,
+    pass: string,
+    callback: (x: string) => void
+  ) {
     firebase
       .auth()
       .createUserWithEmailAndPassword(email, pass)
       .then((user) => {
-          if(user.user){
-            firebase
+        if (user.user) {
+          firebase
             .database()
             .ref("users/" + user.user.uid)
             .set({
-                name: username,
-                servers: ["123"]
+              name: username,
+              servers: ["123"],
             });
-          } 
+        }
       })
       .catch((e) => {
         switch (e.code) {
@@ -172,15 +179,19 @@ export class Handler {
       const onlineRef = firebase
         .database()
         .ref("users/" + this.user.userId + "/status");
-        onlineRef.onDisconnect().set("offline");
+      onlineRef.onDisconnect().set("offline");
       onlineRef.set("online");
-      
-      if(this.user.servers){
+
+      if (this.user.servers) {
         for (let elem of this.user.servers) {
-            const tempRef = firebase.database().ref("servers/"+elem+"/members/"+this.user.userId+"/status")
-            tempRef.onDisconnect().set("offline")
-            tempRef.parent && tempRef.parent.set(this.user)
-            tempRef.set("online")
+          const tempRef = firebase
+            .database()
+            .ref(
+              "servers/" + elem + "/members/" + this.user.userId + "/status"
+            );
+          tempRef.onDisconnect().set("offline");
+          tempRef.parent && tempRef.parent.set(this.user);
+          tempRef.set("online");
         }
       }
     }
@@ -199,6 +210,14 @@ export class Handler {
       this.servers[this.currentServer] = new Server(serverId);
       this.servers[this.currentServer].initialize(updateMembers, updateData);
     }
+  }
+
+  addEmote(emoteName: string, emote: File){
+      this.servers[this.currentServer].addEmote(emoteName, emote)
+  }
+
+  getDebug() {
+    this.servers[this.currentServer].getDebug();
   }
 
   getChannel(channel: string, updateChannel: (channel: r.Channel) => void) {
@@ -236,6 +255,7 @@ class Server {
     this.isInitialized = false;
     this.isAttached = false;
     this.ref = firebase.database().ref("servers/" + serverId + "");
+    this.getDebug = this.getDebug.bind(this);
   }
 
   initialize(
@@ -275,16 +295,15 @@ class Server {
     }
   }
 
-  async addEmote(emoteName: string, emote: File){
-        const filename = emoteName + "." + emote.name.split(".").pop()
-        const fileRef = await firebase.storage().ref("servers/"+this.data.id+"/emotes/"+filename)
-        await fileRef.put(emote).then(
-            async (snap) => {
-                const downloadUrl = await fileRef.getDownloadURL()
-                this.ref.child("data/emotes/"+filename).set(downloadUrl)
-            }
-        )
-    this.ref.child("data").child("emotes").child(emoteName) 
+  async addEmote(emoteName: string, emote: File) {
+    const filename = emoteName + "." + emote.name.split(".").pop();
+    const fileRef = await firebase
+      .storage()
+      .ref("servers/" + this.data.id + "/emotes/" + filename);
+    await fileRef.put(emote).then(async (snap) => {
+      const downloadUrl = await fileRef.getDownloadURL();
+      this.ref.child("data/emotes/" + emoteName).set(downloadUrl);
+    });
   }
 
   createChannel(channel: string, currentUser: r.User) {
@@ -299,6 +318,14 @@ class Server {
     });
     const newNode2 = this.ref.child("data").child("channels").push();
     newNode2.set(channel);
+  }
+
+  getDebug() {
+    console.log({
+      data: this.data,
+      members: this.members,
+      channels: this.channels,
+    });
   }
 
   detach() {
