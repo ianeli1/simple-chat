@@ -105,14 +105,21 @@ function Members(props: { users: { [key: string]: r.User }}){
 
     const OnlineBadge = withStyles((theme) => ({
         badge: {
-            backgroundColor: '#44b700',
-            color: '#44b700',
+            
 
         },
         dot: {
             height: "12px",
             "min-width": "12px",
             "border-radius": "6px"
+        },
+        colorPrimary: {
+            backgroundColor: '#44b700',
+            color: '#44b700',
+        },
+        colorSecondary: {
+            backgroundColor: "#ff0000",
+            color: '#ff0000'
         }
     }))(Badge);
     
@@ -126,7 +133,7 @@ function Members(props: { users: { [key: string]: r.User }}){
                         overlap="circle"
                         anchorOrigin={{vertical: "bottom", horizontal: "right"}}
                         variant="dot"
-                        color="primary"
+                        color={x.status == "offline" ? "secondary" : "primary"}
                     >
                         <Avatar>{x.name && x.name[0] || "X"}</Avatar>
                     </OnlineBadge>
