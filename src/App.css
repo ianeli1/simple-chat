@@ -122,15 +122,16 @@
 
 .MessageImage {
   margin: 8px;
-  max-height: 250px;
+  height: 250px;
   max-width: 250px;
   border-radius: 8px;
   background: gray;
+  max-height: 500px;
 }
 
 .MessageImagePrim {
-  height: 100%;
-  width: 100%;
+  height: inherit;
+  width: auto;
 }
 
 .BasicMessage {
