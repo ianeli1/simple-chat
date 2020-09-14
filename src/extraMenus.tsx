@@ -195,7 +195,7 @@ export function File(props: {
 
   const [msg, setMsg] = useState("");
   const [file, setFile] = useState<null | File>(null); //change the class for the box element
-  const [progress, setProgress] = useState<Number>(0);
+  const [progress, setProgress] = useState<Number>(0); //TODO: implement the progress bar
   return (
     <div className="fullscreen">
       <Box className="Login">

@@ -171,6 +171,8 @@ function Message({
                         />
                       );
                     else return <p>{x}</p>;
+                  } else {
+                    return;
                   }
                 });
             }}
@@ -221,7 +223,7 @@ function NewMessage({
   const [isUploading, setIsUploading] = useState(false);
 
   function sendMsg() {
-    const INVITE_REGEX = /<\!invite>(.*?)<\!\/invite>/i;
+    const INVITE_REGEX = /<!invite>(.*?)<!\/invite>/i;
     const EMOTE_REGEX = /<:[a-zA-Z0-9]+:>/gi;
     let messageObj: r.Message = {
       name: user.name,
