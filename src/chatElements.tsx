@@ -88,12 +88,12 @@ export default class ChatBox extends React.Component<
                   <Message
                     key={i}
                     message={x}
-                    joinServer={
-                      (this.state.user.servers &&
-                        x.invite.id in this.state.user.servers &&
-                        (() =>
-                          x.invite && this.props.joinServer(x.invite.id))) ||
-                      undefined
+                    joined={
+                      this.state.user.servers &&
+                      x.invite.id in this.state.user.servers
+                    }
+                    joinServer={() =>
+                      x.invite && this.props.joinServer(x.invite.id)
                     }
                   />
                 ) : (
@@ -127,10 +127,12 @@ function Message({
   key,
   message,
   joinServer,
+  joined,
 }: {
   key: number;
   message: r.Message;
   joinServer?: () => void;
+  joined?: boolean;
 }) {
   return (
     <Box className="Message" key={key}>
@@ -194,13 +196,13 @@ function Message({
         <Box className="MessageInvite">
           <Avatar>{message.invite.name[0]}</Avatar>
           <Typography variant="h5">{message.invite.name}</Typography>
-          {joinServer && message.invite ? (
-            <Button variant="contained" onClick={() => joinServer()}>
-              Join
-            </Button>
-          ) : (
-            <Button variant="contained" disabled={true}>
-              Joined
+          {joinServer && message.invite && (
+            <Button
+              variant="contained"
+              onClick={() => joinServer()}
+              disabled={joined}
+            >
+              {joined ? "Joined" : "Join"}
             </Button>
           )}
         </Box>
