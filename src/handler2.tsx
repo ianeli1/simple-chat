@@ -4,6 +4,11 @@ import { firebaseConfig } from "./secretKey";
 
 firebase.initializeApp(firebaseConfig);
 
+/**
+ * ***The*** Handler
+ * @description
+ * Manages all of the behind the scenes connections to the database
+ */
 export class Handler {
   user: r.User | null;
   servers: {
@@ -11,6 +16,8 @@ export class Handler {
   };
   currentServer: string;
   private userRef: firebase.database.Reference;
+
+  /**Creates a new ***The*** Handler object */
   constructor() {
     this.user = null;
     this.servers = {};
@@ -28,6 +35,11 @@ export class Handler {
     this.addEmote = this.addEmote.bind(this)
   }
 
+  /**
+   * Joins the provided server
+   * @param serverId The ID of the server
+   * @todo Check if the server actually exists
+   */
   joinServer(serverId: string) {
     if (this.user) {
       const userNode = firebase
@@ -38,11 +50,21 @@ export class Handler {
     }
   }
 
+  /**
+   * Creates a new channel in the current server
+   * @param channelName The channel's name
+   */
   createChannel(channelName: string) {
     this.user &&
       this.servers[this.currentServer].createChannel(channelName, this.user);
   }
 
+  /**
+   * Creates a new server
+   * @description
+   * The user *must* be signed in
+   * @param serverName The name of the server
+   */
   createServer(serverName: string) {
     //use createChannel & joinServer
     const serverNode = firebase.database().ref("servers").push();
@@ -78,6 +100,14 @@ export class Handler {
     }
   }
 
+  /**
+   * Attempts to log the user in.
+   * @param email The email of the user, correctly formatted
+   * @param pass A password
+   * @param callback A callback function if there's any problem while creating the user
+   * - `callback("password")` if it's related to the password provided.
+   * - `callback("email")` if it's related to the email.
+   */
   signIn(email: string, pass: string, callback: (x: string) => void) {
     firebase
       .auth()
@@ -98,6 +128,16 @@ export class Handler {
       }); //TODO error callback?
   }
 
+  /**
+   * Creates a new user with the provided credentials
+   * @param username The name of the user
+   * @param email The email of the user, correctly formatted
+   * @param pass A password
+   * @param callback A callback function if there's any problem while creating the user
+   * - `callback("password")` if it's related to the password provided.
+   * - `callback("email")` if it's related to the email.
+   * 
+   */
   createUser(
     username: string,
     email: string,
@@ -136,10 +176,19 @@ export class Handler {
       });
   }
 
+  /**
+   * Logs out the current user
+   */
   signOut() {
     firebase.auth().signOut();
   }
 
+  /**
+   * Initializes the Firebase Auth listener. If there's an user logged in via Firebase, `handler.initialize` will be called
+   * @param updateUser A function pointing to a React setState
+   * @example
+   * handler.getUser((user) => this.setState({user}))
+   */
   getUser(updateUser: (user: r.User | null) => void) {
     firebase.auth().onAuthStateChanged(async (user) => {
       if (user) {
@@ -162,6 +211,13 @@ export class Handler {
     });
   }
 
+  /**
+   * Initializes the listener for the current user's data.
+   * `handler.getUser()` calls this method after a succesful login
+   * @param updateUser A function pointing to a React setState
+   * @example
+   * handler.initialize((user) => this.setState({user}))
+   */
   initialize(updateUser: (user: r.User) => void) {
     if (this.user) {
       this.userRef
@@ -197,6 +253,15 @@ export class Handler {
     }
   }
 
+  /**
+   * Loads a new server into memory
+   * @param serverId The ID of the server to be loaded
+   * @param updateMembers A function pointing to a React setState
+   * @param updateData A function pointing to a React setState
+   * @example
+   * handler.loadServer("123", (members) => this.setState({members})
+   *                    (data) => this.setState({data}))
+   */
   loadServer(
     serverId: string,
     updateMembers: (serverMembers: { [key: string]: r.User }) => void,
@@ -212,24 +277,53 @@ export class Handler {
     }
   }
 
+  /**
+   * Adds a new emote to the current server
+   * @param emoteName The emote's name
+   * @param emote The image file
+   */
   addEmote(emoteName: string, emote: File){
       this.servers[this.currentServer].addEmote(emoteName, emote)
   }
 
+  /**
+   * [***For debug only***] Returns *all* the data saved in this object
+   */
   getDebug() {
     this.servers[this.currentServer].getDebug();
   }
 
+  /**
+   * Loads a new channel into memory
+   * @param channel The channel's name
+   * @param updateChannel A function pointing to a React setState
+   * 
+   * @example
+   * handler.getChannel("coolChannel", (channel: Channel) => this.setState({channel}))
+   * 
+   * @todo Prevent it from loading a non-existant channel
+   */
   getChannel(channel: string, updateChannel: (channel: r.Channel) => void) {
     this.servers[this.currentServer].getChannel(channel, updateChannel);
   }
 
+  /**
+   * Sends a new message to the specified channel
+   * @param msg The message object to be sent, must be in the Message format
+   * @param file [*Optional*] An image file to be sent with the message
+   * 
+   * @todo Use the `this.user` object and not trust the UI
+   */
   sendMessage(msg: r.Message, file?: File) {
     const curr = this.servers[this.currentServer].currentChannel;
     this.servers[this.currentServer].channels[curr].sendMessage(msg, file);
   }
 }
 
+/** The server object
+ * @description
+ * This class depends on the Channel class to function
+ */
 class Server {
   data: r.Server;
   members: {
@@ -242,6 +336,11 @@ class Server {
   currentChannel: string;
   isAttached: boolean;
   private ref: firebase.database.Reference;
+
+  /**
+   * Creates a new Server object
+   * @param serverId A server ID
+   */
   constructor(serverId: string) {
     this.data = {
       id: serverId,
@@ -258,6 +357,14 @@ class Server {
     this.getDebug = this.getDebug.bind(this);
   }
 
+  /**
+   * Initializes the data and members listeners for this server
+   * @param updateMembers A function pointing to a React setState
+   * @param updateData A function pointing to a React setState
+   * @example
+   * server.initialize((members) => this.setState({members}),
+   *                   (data) => this.setState({data}))
+   */
   initialize(
     updateMembers: (serverMembers: { [key: string]: r.User }) => void,
     updateData: (serverData: r.Server) => void
@@ -280,6 +387,14 @@ class Server {
     });
   }
 
+  /**
+   * Loads a certain channel in this server
+   * @param channel The name of the channel
+   * @param updateChannel A function pointing to a React setState
+   * 
+   * @example 
+   * server.getChannel("general", (channel) => this.setState({channel}))
+   */
   getChannel(channel: string, updateChannel: (channel: r.Channel) => void) {
     this.currentChannel.length && this.channels[this.currentChannel].detach();
     this.currentChannel = channel;
@@ -295,6 +410,11 @@ class Server {
     }
   }
 
+  /**
+   * Adds an emote to this server
+   * @param emoteName The name of the emote to be added
+   * @param emote The image file
+   */
   async addEmote(emoteName: string, emote: File) {
     const filename = emoteName + "." + emote.name.split(".").pop();
     const fileRef = await firebase
@@ -306,20 +426,38 @@ class Server {
     });
   }
 
-  createChannel(channel: string, currentUser: r.User) {
+  /**
+   * Creates a new channel in this server
+   * @param channel The name of the channel to be created
+   * @param currentUser [*Optional*] Specifies who that created the channel
+   */
+  createChannel(channel: string, currentUser?: r.User) {
     //TODO: only owners should be able to create channels
     const id = Date.now() + String(Math.floor(Math.random() * 9));
     const newNode = this.ref.child("channels").child(channel).child(id);
-    newNode.set({
-      name: currentUser.name,
-      userId: currentUser.userId,
-      message: "[System]: " + currentUser.name + " created the channel.",
-      timestamp: id,
-    });
+    if(currentUser){
+        newNode.set({
+            name: currentUser.name,
+            userId: currentUser.userId,
+            message: "[System]: " + currentUser.name + " created the channel.",
+            timestamp: id,
+          });
+    }else{
+        newNode.set({
+            name: "unknown",
+            userId: "0",
+            message: "[System]: someone created the channel.",
+            timestamp: id,
+          });
+    }
+    
     const newNode2 = this.ref.child("data").child("channels").push();
     newNode2.set(channel);
   }
 
+  /**
+   * **[For debug only]** Prints all the relevant data contained in this server object
+   */
   getDebug() {
     console.log({
       data: this.data,
@@ -328,11 +466,25 @@ class Server {
     });
   }
 
+  /**
+   * Detaches the server's listeners from the React state
+   */
   detach() {
     this.isAttached = false;
     this.currentChannel.length && this.channels[this.currentChannel].detach();
   }
 
+  /**
+   * Attaches the server's listeners to a React state
+   * @param updateMembers A function pointing to a React setState
+   * @param updateData A function pointing to a React setState
+   * 
+   * @example
+   * server.detach()
+   * //some code
+   * server.attach((members) => this.setState({members}),
+   *               (data) => this.setState({data}))
+   */
   attach(
     updateMembers: (serverMembers: { [key: string]: r.User }) => void,
     updateData: (serverData: r.Server) => void
@@ -343,6 +495,9 @@ class Server {
     //this.channels[this.currentChannel].attach(updateChannel);
   }
 
+  /**
+   * Destroys all the listeners in this server's object (incluiding the channels')
+   */
   destroy() {
     for (let elem of Object.keys(this.channels)) {
       this.channels[elem].destroy();
@@ -351,7 +506,9 @@ class Server {
     this.channels = {};
   }
 }
-
+/**
+ * The channel class
+ */
 class Channel {
   serverId: string;
   name: string;
@@ -359,6 +516,12 @@ class Channel {
   isInitialized: boolean;
   isAttached: boolean;
   private ref: firebase.database.Reference;
+
+  /**
+   * Creates the Channel object
+   * @param serverId The ID of the server this channel is a part of
+   * @param channelName The name of the channel
+   */
   constructor(serverId: string, channelName: string) {
     this.serverId = serverId;
     this.name = channelName;
@@ -371,20 +534,47 @@ class Channel {
     this.sendMessage = this.sendMessage.bind(this);
   }
 
+  /**
+   * Detaches the channel from the React state
+   * 
+   * @example
+   * channel.detach()
+   * //some other code
+   * channel.attach((channel) => this.setState({channel}))
+   */
   detach() {
     this.isAttached = false;
   }
 
-  attach(updateState: (channel: r.Channel) => void) {
-    updateState(this.cache);
+  /**
+   * Attaches the listener to the React setState and inmediately updates the state.
+   * @param updateState A function pointing to a React setState, if not specified the React state will not be updated until the channel is
+   * 
+   * @example
+   * channel.detach()
+   * //some other code
+   * channel.attach((channel) => this.setState({channel}))
+   */
+  attach(updateState?: (channel: r.Channel) => void) {
+    updateState && updateState(this.cache);
     this.isAttached = true;
   }
 
+  /**
+   * Destroys the listener for this channel
+   */
   destroy() {
     this.ref.off();
     this.cache = {};
   }
 
+  /**
+   * Starts listening for new messages on this channel
+   * @param updateState A function pointing to a React setState
+   * 
+   * @example
+   * channel.initialize((channel: Channel) => this.setState({channel}));
+   */
   initialize(updateState: (channel: r.Channel) => void) {
     if (this.isInitialized) {
       this.ref.off();
@@ -404,6 +594,12 @@ class Channel {
       });
   }
 
+  /**
+   * Sends a message in the current channel
+   * 
+   * @param msg An object with the correct Message format
+   * @param [file] The image file to be sent with the message
+   */
   sendMessage(msg: r.Message, file?: File) {
     const id = Date.now() + String(Math.floor(Math.random() * 9));
     console.log({ id, msg });
@@ -423,6 +619,14 @@ class Channel {
     } else writer.set(msg);
   }
 
+  /**
+   * Retrieves the download URL for the specified image
+   * 
+   * @param imageId The ID of the image to obtain
+   * 
+   * @returns The download URL
+   * 
+   */
   async getImage(imageId: string) {
     return await firebase
       .storage()
