@@ -178,7 +178,7 @@ function Message({
       {message.invite && (
         <Box className="MessageInvite">
           <Avatar>{message.invite.name[0]}</Avatar>
-          <Typography variant="h5"></Typography>
+          <Typography variant="h5">{message.invite.name}</Typography>
           {joinServer && message.invite ? (
             <Button variant="contained" onClick={() => joinServer()}>
               Join

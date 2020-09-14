@@ -1,9 +1,69 @@
-.emoteContainer{
-    height: 40px;
-    max-width: 40px;
+.emoteContainer {
+  height: 40px;
+  max-width: 40px;
 }
 
 .emote {
-    height: inherit;
-    width: auto;
+  height: inherit;
+  width: auto;
+}
+
+/*Message*/
+
+.Message {
+  background: cadetblue;
+  border-radius: 4px;
+  margin: 4px;
+  padding: 4px;
+}
+
+.MessageImage {
+  margin: 8px;
+  height: 250px;
+  max-width: 250px;
+  border-radius: 8px;
+  background: gray;
+  max-height: 500px;
+}
+
+.MessageImagePrim {
+  border-radius: 8px;
+  height: inherit;
+  width: auto;
+}
+
+.BasicMessage {
+  display: flex;
+  align-items: center;
+}
+
+.BasicMessage > p {
+  margin-right: 5px;
+}
+
+.MessageName {
+  display: flex;
+  align-items: center;
+  margin: 4px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 20px;
+}
+
+.MessageName > h5 {
+  margin-left: 0.4rem;
+  margin-right: 0.7rem;
+}
+
+.MessageInvite {
+  display: flex;
+  align-content: center;
+  justify-content: flex-start;
+  margin: 4px;
+  padding: 4px;
+  background: gray;
+  border-radius: 4px;
+}
+
+.MessageInvite > h5 {
+  margin-inline: 8px;
 }

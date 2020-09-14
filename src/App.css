@@ -15,7 +15,7 @@
   flex-direction: row;
 }
 
-.lightFont{
+.lightFont {
   font-weight: 100 !important;
 }
 
@@ -28,7 +28,7 @@
   right: 0;
   bottom: 0;
   margin: auto;
-  background-color: rgba(0,0,0,0.7);
+  background-color: rgba(0, 0, 0, 0.7);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -42,7 +42,7 @@
   top: -10px;
 }
 
-.Popup_inside{
+.Popup_inside {
   border-radius: 8px;
   background: gray;
   padding: 20px;
@@ -52,7 +52,6 @@
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-
 }
 
 .PopupInner {
@@ -60,7 +59,7 @@
 }
 
 #channelSelection {
-  background: darkgray ;
+  background: darkgray;
   padding: 8px;
   max-width: 12%;
   min-width: 10rem;
@@ -70,20 +69,19 @@
   overflow-y: auto;
 }
 
-#chatBox{
+#chatBox {
   min-width: 30%;
   align-self: stretch;
   flex-grow: 1;
   display: flex;
   flex-direction: column;
   justify-content: stretch;
-  background: #282c34 ;
+  background: #282c34;
   align-items: flex-start;
   box-sizing: border-box;
-
 }
 
-#messageList{
+#messageList {
   padding: 20px;
   display: flex;
   flex-direction: column;
@@ -94,7 +92,7 @@
   flex: 1;
 }
 
-.newMessage{
+.newMessage {
   margin: 10px 15px;
   padding: 4px 8px;
   border-radius: 8px;
@@ -108,55 +106,6 @@
 #newMessageBox {
   flex: none;
   width: 100%;
-}
-
-
-.Message {
-  background: cadetblue;
-  border-radius: 28px;
-  margin: 2px;
-  padding: 8px;
-  
-
-}
-
-.MessageImage {
-  margin: 8px;
-  height: 250px;
-  max-width: 250px;
-  border-radius: 8px;
-  background: gray;
-  max-height: 500px;
-}
-
-.MessageImagePrim {
-  border-radius: 8px;
-  height: inherit;
-  width: auto;
-}
-
-.BasicMessage {
-  
-  display: flex;
-  align-items: center;
-  
-}
-
-.BasicMessage > p {
-  margin-right: 5px;
-}
-
-.MessageName {
-  display: flex;
-  align-items: center;
-  margin-right: 5px;
-  background: rgba(255,255,255,0.2);
-  border-radius: 20px;
-}
-
-.MessageName > h5 {
-  margin-left: 0.4rem;
-  margin-right: 0.7rem;
 }
 
 @media (prefers-reduced-motion: no-preference) {
