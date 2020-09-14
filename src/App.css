@@ -5,135 +5,55 @@
   background: #282c34;
 }
 
+.Global {
+  height: 100vh;
+  width: 100vw;
+  max-height: 100vh;
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: stretch;
+}
+
 .App {
   flex-grow: 1;
+  max-height: calc(100%-64px);
+  box-sizing: border-box;
   justify-content: space-between;
   text-align: center;
-  max-height: 100vh;
+  max-height: auto;
   align-self: stretch;
   display: flex;
   flex-direction: row;
+  overflow-x: hidden;
 }
 
 .lightFont {
   font-weight: 100 !important;
 }
 
-.Popup {
-  position: fixed;
-  width: 100%;
-  height: 100%;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  margin: auto;
-  background-color: rgba(0, 0, 0, 0.7);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-}
+/*AppToolbar*/
 
-.closePopup {
-  position: relative;
-
-  right: -180px;
-  top: -10px;
-}
-
-.Popup_inside {
-  border-radius: 8px;
-  background: gray;
-  padding: 20px;
-}
-
-.PopupInfo {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-}
-
-.PopupInner {
-  padding: 20px;
-}
-
-#channelSelection {
-  background: darkgray;
-  padding: 8px;
-  max-width: 12%;
-  min-width: 10rem;
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-  overflow-y: auto;
-}
-
-#chatBox {
-  min-width: 30%;
-  align-self: stretch;
-  flex-grow: 1;
-  display: flex;
-  flex-direction: column;
-  justify-content: stretch;
-  background: #282c34;
-  align-items: flex-start;
-  box-sizing: border-box;
-}
-
-#messageList {
-  padding: 20px;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  max-height: calc(100% - 72px);
-  overflow-y: auto;
-  margin-bottom: 8px;
-  flex: 1;
-}
-
-.newMessage {
-  margin: 10px 15px;
-  padding: 4px 8px;
-  border-radius: 8px;
-  background: darkgray;
-  height: 72px;
+.AppToolbar {
+  background: cadetblue;
   display: flex;
   flex-direction: row;
-  align-items: center;
 }
 
-#newMessageBox {
-  flex: none;
-  width: 100%;
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
-}
-
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
+.ToolbarCurrent {
+  margin-inline: 8px;
+  background: gray;
   color: white;
+  border-radius: 4px;
+  padding: 4px;
 }
 
-.App-link {
-  color: #61dafb;
+.ToolbarDummy {
+  flex-grow: 1;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.ToolbarTitle {
+}
+
+.ToolbarButtonRight {
 }
