@@ -81,13 +81,15 @@ export default class LeftSidebar extends React.Component<
 function ServerList({
   serverList,
   changeServer,
-  createServer
+  createServer,
 }: {
   serverList: string[];
   changeServer: (serverId: string) => () => void;
-  createServer: (serverName: string) => void
+  createServer: (serverName: string) => void;
 }) {
-  const [creatingServer, setCreatingServer] = useState<{ name: string } | false>(false)
+  const [creatingServer, setCreatingServer] = useState<
+    { name: string } | false
+  >(false);
   return (
     <Box id="ServerList">
       <List component="nav" aria-label="server-picker">
@@ -98,7 +100,7 @@ function ServerList({
             </ListItemAvatar>
           </ListItem>
         ))}
-        <ListItem button onClick={() => setCreatingServer({name: ""})}>
+        <ListItem button onClick={() => setCreatingServer({ name: "" })}>
           <ListItemAvatar>
             <Avatar>+</Avatar>
           </ListItemAvatar>
@@ -125,11 +127,10 @@ function ServerList({
             <Button
               onClick={() => {
                 //todo add
-                if(creatingServer.name){
+                if (creatingServer.name) {
                   createServer(creatingServer.name);
                   setCreatingServer(false);
                 }
-                
               }}
             >
               Create
@@ -159,27 +160,31 @@ function ChannelList({
   >(false);
   return (
     <Box id="channelSelection">
-      <List component="nav" aria-label="main channels">
-        {channelList.map((x) => (
+      {(channelList.length && (
+        <List component="nav" aria-label="main channels">
+          {channelList.map((x) => (
+            <ListItem
+              button
+              selected={currentChannel === x}
+              onClick={changeChannel(x)}
+            >
+              <ListItemText primary={"#" + x} />
+            </ListItem>
+          ))}
+
           <ListItem
             button
-            selected={currentChannel === x}
-            onClick={changeChannel(x)}
+            onClick={() =>
+              setCreatingChannel({
+                name: "",
+              })
+            }
           >
-            <ListItemText primary={"#" + x} />
+            <ListItemText primary="Add new channel" />
           </ListItem>
-        ))}
-        <ListItem
-          button
-          onClick={() =>
-            setCreatingChannel({
-              name: "",
-            })
-          }
-        >
-          <ListItemText primary="Add new channel" />
-        </ListItem>
-      </List>
+        </List>
+      )) ||
+        ""}
       {creatingChannel && (
         <Popup
           title="Create a new channel"
