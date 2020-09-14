@@ -9,6 +9,7 @@ import {
   ListItemText,
   ListItemAvatar,
   Avatar,
+  ButtonGroup,
 } from "@material-ui/core";
 //import { handler } from "./handler";
 import "./leftSidebar.css";
@@ -23,6 +24,7 @@ type LeftSidebarProps = {
   changeServer: (serverId: string) => () => void;
   createChannel: (channel: string) => void;
   createServer: (serverName: string) => void;
+  openWindow: (window: string) => void;
 };
 
 type LeftSidebarState = {
@@ -72,6 +74,7 @@ export default class LeftSidebar extends React.Component<
           changeChannel={this.props.changeChannel}
           user={this.state.user}
           createChannel={this.props.createChannel}
+          openWindow={this.props.openWindow}
         />
       </Box>
     );
@@ -81,13 +84,15 @@ export default class LeftSidebar extends React.Component<
 function ServerList({
   serverList,
   changeServer,
-  createServer
+  createServer,
 }: {
   serverList: string[];
   changeServer: (serverId: string) => () => void;
-  createServer: (serverName: string) => void
+  createServer: (serverName: string) => void;
 }) {
-  const [creatingServer, setCreatingServer] = useState<{ name: string } | false>(false)
+  const [creatingServer, setCreatingServer] = useState<
+    { name: string } | false
+  >(false);
   return (
     <Box id="ServerList">
       <List component="nav" aria-label="server-picker">
@@ -98,7 +103,7 @@ function ServerList({
             </ListItemAvatar>
           </ListItem>
         ))}
-        <ListItem button onClick={() => setCreatingServer({name: ""})}>
+        <ListItem button onClick={() => setCreatingServer({ name: "" })}>
           <ListItemAvatar>
             <Avatar>+</Avatar>
           </ListItemAvatar>
@@ -125,11 +130,10 @@ function ServerList({
             <Button
               onClick={() => {
                 //todo add
-                if(creatingServer.name){
+                if (creatingServer.name) {
                   createServer(creatingServer.name);
                   setCreatingServer(false);
                 }
-                
               }}
             >
               Create
@@ -147,39 +151,45 @@ function ChannelList({
   changeChannel,
   user,
   createChannel,
+  openWindow,
 }: {
   channelList: Array<string>;
   currentChannel: string;
   changeChannel: (newChannel: string) => () => void;
   user: r.User;
   createChannel: (channel: string) => void;
+  openWindow: (window: string) => void;
 }) {
   const [creatingChannel, setCreatingChannel] = useState<
     { name: string } | false
   >(false);
   return (
     <Box id="channelSelection">
-      <List component="nav" aria-label="main channels">
-        {channelList.map((x) => (
-          <ListItem
-            button
-            selected={currentChannel === x}
-            onClick={changeChannel(x)}
-          >
-            <ListItemText primary={"#" + x} />
-          </ListItem>
-        ))}
-        <ListItem
-          button
-          onClick={() =>
-            setCreatingChannel({
-              name: "",
-            })
-          }
-        >
-          <ListItemText primary="Add new channel" />
-        </ListItem>
-      </List>
+      {(channelList.length && (
+        <ButtonGroup size="small" variant="text">
+          <Button onClick={() => setCreatingChannel({ name: "" })}>
+            Channel
+          </Button>
+          <Button onClick={() => openWindow("Invite")}>Invite</Button>
+          <Button>Leave</Button>
+        </ButtonGroup>
+      )) ||
+        ""}
+      {(channelList.length && (
+        <List component="nav" aria-label="main channels">
+          {channelList.map((x) => (
+            <ListItem
+              button
+              selected={currentChannel === x}
+              onClick={changeChannel(x)}
+            >
+              <ListItemText primary={"#" + x} />
+            </ListItem>
+          ))}
+        </List>
+      )) ||
+        ""}
+
       {creatingChannel && (
         <Popup
           title="Create a new channel"

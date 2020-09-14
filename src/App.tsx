@@ -1,10 +1,17 @@
 import React from "react";
-import { Box } from "@material-ui/core";
+import {
+  Box,
+  AppBar,
+  Toolbar,
+  IconButton,
+  Typography,
+} from "@material-ui/core";
+import { Chat, HorizontalSplit } from "@material-ui/icons";
 import "./App.css";
 import ChatBox from "./chatElements";
 import LeftSidebar from "./leftSidebar";
 import { RightSidebar } from "./rightSidebar";
-import Login from "./extraMenus";
+import Login, { Invite } from "./extraMenus";
 //import {handler} from "./handler"
 import * as r from "./reference";
 import { Handler } from "./handler2";
@@ -20,12 +27,16 @@ type AppProps = {};
 type AppState = {
   loading: boolean;
   currentChannel: string;
+  currentServer: string;
   user: null | r.User; //implement,
   channel: r.Channel;
   members: {
     [key: string]: r.User;
   };
   data: r.Server | null;
+  showRight: boolean;
+  showLeft: boolean;
+  invite: boolean;
 };
 class App extends React.Component<AppProps, AppState> {
   private handler: Handler;
@@ -33,15 +44,20 @@ class App extends React.Component<AppProps, AppState> {
     super(props);
     this.state = {
       loading: true,
-      currentChannel: "exampleChannel",
+      currentChannel: "",
+      currentServer: "",
       user: null,
       channel: {},
       members: {},
       data: null,
+      showRight: true,
+      showLeft: true,
+      invite: false,
     };
     this.handler = new Handler();
     this.handleChannelChange = this.handleChannelChange.bind(this);
     this.handleServerChange = this.handleServerChange.bind(this);
+    this.openWindow = this.openWindow.bind(this);
   }
 
   componentDidMount() {
@@ -54,7 +70,7 @@ class App extends React.Component<AppProps, AppState> {
       this.handler.loadServer(
         newServer,
         (members) => this.setState({ members }),
-        (data) => this.setState({ data })
+        (data) => this.setState({ data, currentServer: newServer })
       );
     };
   }
@@ -63,40 +79,123 @@ class App extends React.Component<AppProps, AppState> {
     return () => {
       if (newChannel !== this.state.currentChannel)
         this.handler.getChannel(newChannel, (channel) =>
-          this.setState({ channel })
+          this.setState({ channel, currentChannel: newChannel })
         );
     };
+  }
+
+  openWindow(window: string) {
+    switch (window) {
+      case "Invite":
+        this.setState({ invite: true });
+        break;
+      default:
+        console.error("App/openWindow: Couldn't find the window " + window);
+    }
   }
 
   render() {
     //this looks hacky, fix
     return (
-      <Box className="App">
-        {!this.state.user && <Login signIn={this.handler.signIn} signUp={this.handler.createUser} />}
+      <Box className="Global">
+        {this.state.invite && this.state.data && (
+          <Invite
+            id={this.state.currentServer}
+            name={this.state.data.name}
+            close={() => this.setState({ invite: false })}
+          />
+        )}
+        {!this.state.user && (
+          <Login
+            signIn={this.handler.signIn}
+            signUp={this.handler.createUser}
+          />
+        )}
         {this.state.user && (
-          <LeftSidebar
-            createServer={this.handler.createServer}
-            channelList={(this.state.data && this.state.data.channels) || []}
+          <AppToolbar
+            currentServer={this.state.currentServer}
             currentChannel={this.state.currentChannel}
-            changeServer={this.handleServerChange}
-            changeChannel={this.handleChannelChange}
-            user={this.state.user}
-            createChannel={this.handler.createChannel}
+            toggleLeft={() => this.setState({ showLeft: !this.state.showLeft })}
+            toggleRight={() =>
+              this.setState({ showRight: !this.state.showRight })
+            }
           />
         )}
-        {this.state.user && (
-          <ChatBox
-            user={this.state.user}
-            channel={this.state.channel}
-            sendMessage={this.handler.sendMessage}
-          />
-        )}
-        {this.state.user && (
-          <RightSidebar user={this.state.user} members={this.state.members} signOut={this.handler.signOut} />
-        )}
+        <Box className="App">
+          {this.state.user && this.state.showLeft && (
+            <LeftSidebar
+              createServer={this.handler.createServer}
+              channelList={(this.state.data && this.state.data.channels) || []}
+              currentChannel={this.state.currentChannel}
+              changeServer={this.handleServerChange}
+              changeChannel={this.handleChannelChange}
+              user={this.state.user}
+              createChannel={this.handler.createChannel}
+              openWindow={this.openWindow}
+            />
+          )}
+          {this.state.user && (
+            <ChatBox
+              joinServer={this.handler.joinServer}
+              user={this.state.user}
+              emotes={(this.state.data && this.state.data.emotes) || {}}
+              channel={this.state.channel}
+              sendMessage={this.handler.sendMessage}
+            />
+          )}
+          {this.state.user && this.state.showRight && (
+            <RightSidebar
+              user={this.state.user}
+              members={this.state.members}
+              emotes={(this.state.data && this.state.data.emotes) || {}}
+              addEmote={this.handler.addEmote}
+              signOut={this.handler.signOut}
+              debug={this.handler.getDebug}
+            />
+          )}
+        </Box>
       </Box>
     );
   }
+}
+
+function AppToolbar({
+  currentServer,
+  currentChannel,
+  toggleLeft,
+  toggleRight,
+}: {
+  currentServer: string;
+  currentChannel: string;
+  toggleLeft: () => void;
+  toggleRight: () => void;
+}) {
+  return (
+    <AppBar position="static">
+      <Toolbar classes={{ root: "AppToolbar" }}>
+        <IconButton edge="start" onClick={toggleLeft}>
+          <Chat />
+        </IconButton>
+        <Typography variant="h6" classes={{ root: "ToolbarTitle" }}>
+          Simple-Chat
+        </Typography>
+        {currentServer && currentChannel && (
+          <Box className="ToolbarCurrent">
+            <Typography variant="h6">
+              {currentServer} - #{currentChannel}
+            </Typography>
+          </Box>
+        )}
+        <div className="ToolbarDummy" />
+        <IconButton
+          classes={{ root: "ToolbarButtonRight" }}
+          onClick={toggleRight}
+        >
+          <HorizontalSplit />
+        </IconButton>
+      </Toolbar>
+    </AppBar>
+  );
 }
 
 export default App;
