@@ -9,6 +9,7 @@ import {
   ListItemText,
   ListItemAvatar,
   Avatar,
+  ButtonGroup,
 } from "@material-ui/core";
 //import { handler } from "./handler";
 import "./leftSidebar.css";
@@ -161,6 +162,16 @@ function ChannelList({
   return (
     <Box id="channelSelection">
       {(channelList.length && (
+        <ButtonGroup size="small" variant="text">
+          <Button onClick={() => setCreatingChannel({ name: "" })}>
+            Channel
+          </Button>
+          <Button>Invite</Button>
+          <Button>Leave</Button>
+        </ButtonGroup>
+      )) ||
+        ""}
+      {(channelList.length && (
         <List component="nav" aria-label="main channels">
           {channelList.map((x) => (
             <ListItem
@@ -171,17 +182,6 @@ function ChannelList({
               <ListItemText primary={"#" + x} />
             </ListItem>
           ))}
-
-          <ListItem
-            button
-            onClick={() =>
-              setCreatingChannel({
-                name: "",
-              })
-            }
-          >
-            <ListItemText primary="Add new channel" />
-          </ListItem>
         </List>
       )) ||
         ""}
