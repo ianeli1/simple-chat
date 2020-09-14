@@ -96,7 +96,7 @@ export default function Login({
 
 export function AddEmote({addEmote, close}:
  { addEmote: (emoteName: string, emote: File) => void,
-  close: (x: any) => void}
+  close: any}
 ) {
   const [file, setFile] = useState<null | File>(null);
   const [emoteName, setEmoteName] = useState("");
@@ -123,7 +123,7 @@ export function AddEmote({addEmote, close}:
         >
           Add emote
         </Button>
-        <Button onClick={() => close(true)} variant="contained">
+        <Button onClick={close} variant="contained">
           Close
         </Button>
       </Box>

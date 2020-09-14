@@ -141,7 +141,7 @@ function EmoteList({
         <Button onClick={() => setAdd(true)} variant="contained">
           Add
         </Button>
-        {add && <AddEmote addEmote={addEmote} close={setAdd} />}
+        {add && <AddEmote addEmote={addEmote} close={() => setAdd(false)} />}
       </Box>
     </Widget>
   );

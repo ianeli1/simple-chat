@@ -123,12 +123,10 @@ function Message({ key, message }: { key: number; message: r.Message }) {
             {() => {
               const regex = /<:[a-zA-Z0-9]+:>/gi;
               let emoteList = message.message.match(regex) || [];
-              console.log({message, emoteList})
               return message.message
                 .split(regex)
                 .map((x) => (x ? x : emoteList.shift()))
                 .map((x) => {
-                  console.log(x)
                   if (x) {
                     if (regex.test(x))
                       return (
