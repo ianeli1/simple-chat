@@ -32,7 +32,7 @@ export class Handler {
     this.joinServer = this.joinServer.bind(this);
     this.initialize = this.initialize.bind(this);
     this.getDebug = this.getDebug.bind(this);
-    this.addEmote = this.addEmote.bind(this)
+    this.addEmote = this.addEmote.bind(this);
   }
 
   /**
@@ -136,7 +136,7 @@ export class Handler {
    * @param callback A callback function if there's any problem while creating the user
    * - `callback("password")` if it's related to the password provided.
    * - `callback("email")` if it's related to the email.
-   * 
+   *
    */
   createUser(
     username: string,
@@ -282,8 +282,8 @@ export class Handler {
    * @param emoteName The emote's name
    * @param emote The image file
    */
-  addEmote(emoteName: string, emote: File){
-      this.servers[this.currentServer].addEmote(emoteName, emote)
+  addEmote(emoteName: string, emote: File) {
+    this.servers[this.currentServer].addEmote(emoteName, emote);
   }
 
   /**
@@ -297,10 +297,10 @@ export class Handler {
    * Loads a new channel into memory
    * @param channel The channel's name
    * @param updateChannel A function pointing to a React setState
-   * 
+   *
    * @example
    * handler.getChannel("coolChannel", (channel: Channel) => this.setState({channel}))
-   * 
+   *
    * @todo Prevent it from loading a non-existant channel
    */
   getChannel(channel: string, updateChannel: (channel: r.Channel) => void) {
@@ -311,7 +311,7 @@ export class Handler {
    * Sends a new message to the specified channel
    * @param msg The message object to be sent, must be in the Message format
    * @param file [*Optional*] An image file to be sent with the message
-   * 
+   *
    * @todo Use the `this.user` object and not trust the UI
    */
   sendMessage(msg: r.Message, file?: File) {
@@ -391,8 +391,8 @@ class Server {
    * Loads a certain channel in this server
    * @param channel The name of the channel
    * @param updateChannel A function pointing to a React setState
-   * 
-   * @example 
+   *
+   * @example
    * server.getChannel("general", (channel) => this.setState({channel}))
    */
   getChannel(channel: string, updateChannel: (channel: r.Channel) => void) {
@@ -435,22 +435,22 @@ class Server {
     //TODO: only owners should be able to create channels
     const id = Date.now() + String(Math.floor(Math.random() * 9));
     const newNode = this.ref.child("channels").child(channel).child(id);
-    if(currentUser){
-        newNode.set({
-            name: currentUser.name,
-            userId: currentUser.userId,
-            message: "[System]: " + currentUser.name + " created the channel.",
-            timestamp: id,
-          });
-    }else{
-        newNode.set({
-            name: "unknown",
-            userId: "0",
-            message: "[System]: someone created the channel.",
-            timestamp: id,
-          });
+    if (currentUser) {
+      newNode.set({
+        name: currentUser.name,
+        userId: currentUser.userId,
+        message: "[System]: " + currentUser.name + " created the channel.",
+        timestamp: id,
+      });
+    } else {
+      newNode.set({
+        name: "unknown",
+        userId: "0",
+        message: "[System]: someone created the channel.",
+        timestamp: id,
+      });
     }
-    
+
     const newNode2 = this.ref.child("data").child("channels").push();
     newNode2.set(channel);
   }
@@ -478,7 +478,7 @@ class Server {
    * Attaches the server's listeners to a React state
    * @param updateMembers A function pointing to a React setState
    * @param updateData A function pointing to a React setState
-   * 
+   *
    * @example
    * server.detach()
    * //some code
@@ -536,7 +536,7 @@ class Channel {
 
   /**
    * Detaches the channel from the React state
-   * 
+   *
    * @example
    * channel.detach()
    * //some other code
@@ -549,7 +549,7 @@ class Channel {
   /**
    * Attaches the listener to the React setState and inmediately updates the state.
    * @param updateState A function pointing to a React setState, if not specified the React state will not be updated until the channel is
-   * 
+   *
    * @example
    * channel.detach()
    * //some other code
@@ -571,7 +571,7 @@ class Channel {
   /**
    * Starts listening for new messages on this channel
    * @param updateState A function pointing to a React setState
-   * 
+   *
    * @example
    * channel.initialize((channel: Channel) => this.setState({channel}));
    */
@@ -596,7 +596,7 @@ class Channel {
 
   /**
    * Sends a message in the current channel
-   * 
+   *
    * @param msg An object with the correct Message format
    * @param [file] The image file to be sent with the message
    */
@@ -621,11 +621,11 @@ class Channel {
 
   /**
    * Retrieves the download URL for the specified image
-   * 
+   *
    * @param imageId The ID of the image to obtain
-   * 
+   *
    * @returns The download URL
-   * 
+   *
    */
   async getImage(imageId: string) {
     return await firebase

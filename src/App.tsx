@@ -91,6 +91,7 @@ class App extends React.Component<AppProps, AppState> {
         )}
         {this.state.user && (
           <ChatBox
+            joinServer={this.handler.joinServer}
             user={this.state.user}
             emotes={(this.state.data && this.state.data.emotes) || {}}
             channel={this.state.channel}

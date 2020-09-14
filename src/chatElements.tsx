@@ -8,17 +8,19 @@ import {
   Typography,
   IconButton,
   TextField,
+  Button,
 } from "@material-ui/core";
 import * as r from "./reference";
-import "./chatElements.css"
+import "./chatElements.css";
 
 type ChatBoxProps = {
   user: r.User;
   channel: r.Channel;
   sendMessage: (msg: r.Message, file?: File) => void;
   emotes: {
-    [key: string]: string
-  }
+    [key: string]: string;
+  };
+  joinServer: (serverId: string) => void;
 };
 
 type ChatBoxState = {
@@ -26,8 +28,8 @@ type ChatBoxState = {
   user: r.User;
   channel: r.Channel;
   emotes: {
-    [key: string]: string
-  }
+    [key: string]: string;
+  };
 };
 
 export default class ChatBox extends React.Component<
@@ -40,7 +42,7 @@ export default class ChatBox extends React.Component<
       loading: true, //TODO use this lmao
       user: props.user,
       channel: props.channel,
-      emotes: {}
+      emotes: {},
     };
     this.handleNewMessage = this.handleNewMessage.bind(this);
   }
@@ -49,7 +51,7 @@ export default class ChatBox extends React.Component<
     this.setState({
       user: props.user,
       channel: props.channel,
-      emotes: props.emotes
+      emotes: props.emotes,
     });
     /*
     this.setState( //all this is innefficient af, leave this work to the handler.
@@ -80,15 +82,23 @@ export default class ChatBox extends React.Component<
           {this.state.channel &&
             Object.values(this.state.channel)
               .sort((a, b) => a.timestamp - b.timestamp || 0)
-              .map((
-                x,
-                i //get rid of the || 0 eventually?
-              ) => (
-                <Message
-                  key={i}
-                  message={x}
-                />
-              ))}
+              .map((x, i) =>
+                x.invite ? (
+                  <Message
+                    key={i}
+                    message={x}
+                    joinServer={
+                      (this.state.user.servers &&
+                        x.invite.id in this.state.user.servers &&
+                        (() =>
+                          x.invite && this.props.joinServer(x.invite.id))) ||
+                      undefined
+                    }
+                  />
+                ) : (
+                  <Message key={i} message={x} />
+                )
+              )}
         </Box>
         <Box id="newMessageBox">
           <NewMessage
@@ -110,7 +120,15 @@ export function Emote({ emoteName, url }: { emoteName: string; url: string }) {
   );
 }
 
-function Message({ key, message }: { key: number; message: r.Message }) {
+function Message({
+  key,
+  message,
+  joinServer,
+}: {
+  key: number;
+  message: r.Message;
+  joinServer?: () => void;
+}) {
   return (
     <Box className="Message" key={key}>
       <Box className="BasicMessage">
@@ -157,6 +175,21 @@ function Message({ key, message }: { key: number; message: r.Message }) {
           />
         </Box>
       )}
+      {message.invite && (
+        <Box className="MessageInvite">
+          <Avatar>{message.invite.name[0]}</Avatar>
+          <Typography variant="h5"></Typography>
+          {joinServer && message.invite ? (
+            <Button variant="contained" onClick={() => joinServer()}>
+              Join
+            </Button>
+          ) : (
+            <Button variant="contained" disabled={true}>
+              Joined
+            </Button>
+          )}
+        </Box>
+      )}
     </Box>
   );
 }
@@ -176,19 +209,21 @@ function NewMessage({
 
   function sendMsg() {
     const regex = /<:[a-zA-Z0-9]+:>/gi;
-    if(regex.test(message)){
-      const emoteList = message.match(regex)?.map(x => x.slice(2,-2))
-      let emoteObj: { [key: string]: string } = {}
-      emoteList && emoteList.forEach(x => x in emotes && (() => emoteObj[x] = emotes[x])())
+    if (regex.test(message)) {
+      const emoteList = message.match(regex)?.map((x) => x.slice(2, -2));
+      let emoteObj: { [key: string]: string } = {};
+      emoteList &&
+        emoteList.forEach(
+          (x) => x in emotes && (() => (emoteObj[x] = emotes[x]))()
+        );
       sendMessage({
         name: user.name,
         userId: user.userId,
         message,
         timestamp: 0,
-        emotes: emoteObj
-      })
-
-    }else{
+        emotes: emoteObj,
+      });
+    } else {
       sendMessage({
         name: user.name,
         userId: user.userId,
