@@ -32,7 +32,7 @@ type RightSidebarProps = {
   };
   signOut: () => void;
   addEmote: (emoteName: string, emote: File) => void;
-  debug: () => void
+  debug: () => void;
 };
 
 type RightSidebarState = {
@@ -54,7 +54,7 @@ export class RightSidebar extends React.Component<
     this.state = {
       user: props.user,
       members: {},
-      emotes: {}
+      emotes: {},
     };
   }
 
@@ -73,8 +73,13 @@ export class RightSidebar extends React.Component<
       <Box className="RightSidebar">
         <Box className="InnerRightSidebar">
           <Profile user={this.state.user} signOut={this.props.signOut} />
-          {this.state.members && <Members users={this.state.members} debug={this.props.debug} />}
-          <EmoteList addEmote={this.props.addEmote} emotes={this.state.emotes} />
+          {this.state.members && (
+            <Members users={this.state.members} debug={this.props.debug} />
+          )}
+          <EmoteList
+            addEmote={this.props.addEmote}
+            emotes={this.state.emotes}
+          />
         </Box>
       </Box>
     );
@@ -147,7 +152,10 @@ function EmoteList({
   );
 }
 
-function Members(props: { users: { [key: string]: r.User }, debug?: () => void }) {
+function Members(props: {
+  users: { [key: string]: r.User };
+  debug?: () => void;
+}) {
   const OnlineBadge = withStyles((theme) => ({
     badge: {},
     dot: {
@@ -173,7 +181,7 @@ function Members(props: { users: { [key: string]: r.User }, debug?: () => void }
             overlap="circle"
             anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
             variant="dot"
-            color={x.status == "offline" ? "secondary" : "primary"}
+            color={x.status === "offline" ? "secondary" : "primary"}
           >
             <Avatar>{(x.name && x.name[0]) || "X"}</Avatar>
           </OnlineBadge>
@@ -181,14 +189,11 @@ function Members(props: { users: { [key: string]: r.User }, debug?: () => void }
           <Typography variant="h5">{x.name || "USER"}</Typography>
         </Box>
       ))}
-      {
-          props.debug && <Button
-          onClick={() => props.debug && props.debug()}
-          >
-              PRINT DEBUG
-          </Button>
-      }
-      
+      {/*props.debug && (
+        <Button onClick={() => props.debug && props.debug()}>
+          PRINT DEBUG
+        </Button>
+      )*/}
     </Widget>
   );
 }
