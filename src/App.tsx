@@ -11,7 +11,7 @@ import "./App.css";
 import ChatBox from "./chatElements";
 import LeftSidebar from "./leftSidebar";
 import { RightSidebar } from "./rightSidebar";
-import Login from "./extraMenus";
+import Login, { Invite } from "./extraMenus";
 //import {handler} from "./handler"
 import * as r from "./reference";
 import { Handler } from "./handler2";
@@ -36,6 +36,7 @@ type AppState = {
   data: r.Server | null;
   showRight: boolean;
   showLeft: boolean;
+  invite: boolean;
 };
 class App extends React.Component<AppProps, AppState> {
   private handler: Handler;
@@ -51,10 +52,12 @@ class App extends React.Component<AppProps, AppState> {
       data: null,
       showRight: true,
       showLeft: true,
+      invite: false,
     };
     this.handler = new Handler();
     this.handleChannelChange = this.handleChannelChange.bind(this);
     this.handleServerChange = this.handleServerChange.bind(this);
+    this.openWindow = this.openWindow.bind(this);
   }
 
   componentDidMount() {
@@ -81,10 +84,27 @@ class App extends React.Component<AppProps, AppState> {
     };
   }
 
+  openWindow(window: string) {
+    switch (window) {
+      case "Invite":
+        this.setState({ invite: true });
+        break;
+      default:
+        console.error("App/openWindow: Couldn't find the window " + window);
+    }
+  }
+
   render() {
     //this looks hacky, fix
     return (
       <Box className="Global">
+        {this.state.invite && this.state.data && (
+          <Invite
+            id={this.state.currentServer}
+            name={this.state.data.name}
+            close={() => this.setState({ invite: false })}
+          />
+        )}
         {!this.state.user && (
           <Login
             signIn={this.handler.signIn}
@@ -111,6 +131,7 @@ class App extends React.Component<AppProps, AppState> {
               changeChannel={this.handleChannelChange}
               user={this.state.user}
               createChannel={this.handler.createChannel}
+              openWindow={this.openWindow}
             />
           )}
           {this.state.user && (

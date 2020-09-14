@@ -115,9 +115,11 @@ export default class ChatBox extends React.Component<
 
 export function Emote({ emoteName, url }: { emoteName: string; url: string }) {
   return (
-    <span className="emoteContainer">
-      <img src={url} alt={emoteName} className="emote" />
-    </span>
+    <Tooltip title={emoteName} arrow placement="top">
+      <span className="emoteContainer">
+        <img src={url} alt={emoteName} className="emote" />
+      </span>
+    </Tooltip>
   );
 }
 
@@ -138,6 +140,8 @@ function Message({
             .split(" ")
             .slice(0, 5)
             .join(" ")}
+          arrow
+          placement="top"
         >
           <Box className="MessageName">
             <Avatar>{message.name[0]}</Avatar>
@@ -217,28 +221,40 @@ function NewMessage({
   const [isUploading, setIsUploading] = useState(false);
 
   function sendMsg() {
-    const regex = /<:[a-zA-Z0-9]+:>/gi;
-    if (regex.test(message)) {
-      const emoteList = message.match(regex)?.map((x) => x.slice(2, -2));
+    const INVITE_REGEX = /<\!invite>(.*?)<\!\/invite>/i;
+    const EMOTE_REGEX = /<:[a-zA-Z0-9]+:>/gi;
+    let messageObj: r.Message = {
+      name: user.name,
+      userId: user.userId,
+      message: message,
+      timestamp: "0",
+    };
+
+    const match = message.match(INVITE_REGEX);
+    if (match) {
+      console.log({ match });
+      try {
+        messageObj.invite = JSON.parse(atob(match[1]));
+      } catch (e) {
+        console.log(e);
+        setMessage("[ERROR] Invite couldn't be parsed!");
+        return;
+      }
+    }
+
+    if (EMOTE_REGEX.test(message)) {
+      const emoteList = message.match(EMOTE_REGEX)?.map((x) => x.slice(2, -2));
       let emoteObj: { [key: string]: string } = {};
       emoteList &&
         emoteList.forEach(
           (x) => x in emotes && (() => (emoteObj[x] = emotes[x]))()
         );
       sendMessage({
-        name: user.name,
-        userId: user.userId,
-        message,
-        timestamp: "0",
+        ...messageObj,
         emotes: emoteObj,
       });
     } else {
-      sendMessage({
-        name: user.name,
-        userId: user.userId,
-        message: message,
-        timestamp: "0",
-      });
+      sendMessage(messageObj);
       setMessage("");
     }
   }

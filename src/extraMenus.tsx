@@ -1,9 +1,9 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { Box, Typography, TextField, Button } from "@material-ui/core";
 
 import * as r from "./reference";
 import "./extraMenus.css";
-
+//TODO: Rewrite all these as Material UI dialogs, ooops
 export default function Login({
   signIn,
   signUp,
@@ -127,6 +127,45 @@ export function AddEmote({
           Add emote
         </Button>
         <Button onClick={close} variant="contained">
+          Close
+        </Button>
+      </Box>
+    </div>
+  );
+}
+
+export function Invite(props: {
+  id: string;
+  name: string;
+  icon?: string;
+  close: () => void;
+}) {
+  function copyToClipboard(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) {
+    textAreaRef.current != null && textAreaRef.current.select();
+    document.execCommand("copy");
+    (e.target as HTMLButtonElement).focus();
+    setCopySuccess("Copied!");
+  }
+  const textAreaRef = useRef<HTMLTextAreaElement>(null);
+  const [copySuccess, setCopySuccess] = useState<string>("Copy");
+  return (
+    <div className="fullscreen">
+      <Box className="InviteWindow">
+        <Typography variant="h5">Copy the following message!</Typography>
+        <TextField
+          inputRef={textAreaRef}
+          multiline
+          value={
+            "<!invite>" +
+            btoa(JSON.stringify({ id: props.id, name: props.name })) +
+            "<!/invite>"
+          }
+          variant="outlined"
+        />
+        <Button onClick={copyToClipboard} variant="contained">
+          {copySuccess}
+        </Button>
+        <Button onClick={props.close} variant="contained">
           Close
         </Button>
       </Box>

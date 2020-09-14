@@ -24,6 +24,7 @@ type LeftSidebarProps = {
   changeServer: (serverId: string) => () => void;
   createChannel: (channel: string) => void;
   createServer: (serverName: string) => void;
+  openWindow: (window: string) => void;
 };
 
 type LeftSidebarState = {
@@ -73,6 +74,7 @@ export default class LeftSidebar extends React.Component<
           changeChannel={this.props.changeChannel}
           user={this.state.user}
           createChannel={this.props.createChannel}
+          openWindow={this.props.openWindow}
         />
       </Box>
     );
@@ -149,12 +151,14 @@ function ChannelList({
   changeChannel,
   user,
   createChannel,
+  openWindow,
 }: {
   channelList: Array<string>;
   currentChannel: string;
   changeChannel: (newChannel: string) => () => void;
   user: r.User;
   createChannel: (channel: string) => void;
+  openWindow: (window: string) => void;
 }) {
   const [creatingChannel, setCreatingChannel] = useState<
     { name: string } | false
@@ -166,7 +170,7 @@ function ChannelList({
           <Button onClick={() => setCreatingChannel({ name: "" })}>
             Channel
           </Button>
-          <Button>Invite</Button>
+          <Button onClick={() => openWindow("Invite")}>Invite</Button>
           <Button>Leave</Button>
         </ButtonGroup>
       )) ||
@@ -185,6 +189,7 @@ function ChannelList({
         </List>
       )) ||
         ""}
+
       {creatingChannel && (
         <Popup
           title="Create a new channel"
