@@ -94,10 +94,13 @@ export default function Login({
   );
 }
 
-export function AddEmote({addEmote, close}:
- { addEmote: (emoteName: string, emote: File) => void,
-  close: any}
-) {
+export function AddEmote({
+  addEmote,
+  close,
+}: {
+  addEmote: (emoteName: string, emote: File) => void;
+  close: any;
+}) {
   const [file, setFile] = useState<null | File>(null);
   const [emoteName, setEmoteName] = useState("");
   return (
@@ -144,7 +147,7 @@ export function File(props: {
     return () => {
       if (file) {
         props.sendMessage(
-          { name: props.user.name, message: msg, timestamp: 0 },
+          { name: props.user.name, message: msg, timestamp: "0" },
           file
         );
       }

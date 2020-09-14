@@ -61,7 +61,7 @@ export interface Message {
   userId?: string;
   message: string;
   image?: string;
-  timestamp: number; //deprecated?
+  timestamp: string; //deprecated?
   emotes?: {
     [key: string]: string;
   };

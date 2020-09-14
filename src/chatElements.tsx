@@ -9,6 +9,7 @@ import {
   IconButton,
   TextField,
   Button,
+  Tooltip,
 } from "@material-ui/core";
 import * as r from "./reference";
 import "./chatElements.css";
@@ -70,7 +71,7 @@ export default class ChatBox extends React.Component<
         name: this.state.user.name,
         userId: this.state.user.userId,
         message: message,
-        timestamp: 0,
+        timestamp: "0",
       });
     };
   }
@@ -81,7 +82,7 @@ export default class ChatBox extends React.Component<
         <Box id="messageList">
           {this.state.channel &&
             Object.values(this.state.channel)
-              .sort((a, b) => a.timestamp - b.timestamp || 0)
+              .sort((a, b) => Number(a.timestamp) - Number(b.timestamp) || 0)
               .map((x, i) =>
                 x.invite ? (
                   <Message
@@ -132,10 +133,18 @@ function Message({
   return (
     <Box className="Message" key={key}>
       <Box className="BasicMessage">
-        <Box className="MessageName">
-          <Avatar>{message.name[0]}</Avatar>
-          <Typography variant="h5">{message.name}</Typography>
-        </Box>
+        <Tooltip
+          title={String(new Date(Number(message.timestamp.slice(0, -1))))
+            .split(" ")
+            .slice(0, 5)
+            .join(" ")}
+        >
+          <Box className="MessageName">
+            <Avatar>{message.name[0]}</Avatar>
+            <Typography variant="h5">{message.name}</Typography>
+          </Box>
+        </Tooltip>
+
         {message.emotes ? (
           <Box>
             {() => {
@@ -220,7 +229,7 @@ function NewMessage({
         name: user.name,
         userId: user.userId,
         message,
-        timestamp: 0,
+        timestamp: "0",
         emotes: emoteObj,
       });
     } else {
@@ -228,7 +237,7 @@ function NewMessage({
         name: user.name,
         userId: user.userId,
         message: message,
-        timestamp: 0,
+        timestamp: "0",
       });
       setMessage("");
     }

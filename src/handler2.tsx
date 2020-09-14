@@ -90,7 +90,7 @@ export class Handler {
               name: this.user.name,
               userId: this.user.userId,
               message: "[System]: " + this.user.name + " created the channel.",
-              timestamp: Number(key),
+              timestamp: key,
             },
           },
         },
