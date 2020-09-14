@@ -44,41 +44,44 @@ the used emotes
 
 */
 
-export interface User { 
-    name: string,
-    userId: string,
-    icon?: string,
-    status?: "online" | "idle" | "dnd" | "offline" //add invisible?
-    servers?: string[]
+export interface User {
+  name: string;
+  userId: string;
+  icon?: string;
+  status?: "online" | "idle" | "dnd" | "offline"; //add invisible?
+  servers?: string[];
 }
 
-
-
 export interface Channel {
-    [key: string]: Message
+  [key: string]: Message;
 }
 
 export interface Message {
-    name: string,
-    userId?: string,
-    message: string,
-    image?: string,
-    timestamp: number, //deprecated?
-    emotes?: {
-        [key: string]: string
-    }
+  name: string;
+  userId?: string;
+  message: string;
+  image?: string;
+  timestamp: number; //deprecated?
+  emotes?: {
+    [key: string]: string;
+  };
+  invite?: {
+    id: string;
+    name: string;
+    icon?: string; //TODO: add icon support
+  };
 }
 
 export interface Server {
-    id: string,
-    channels: string[],
-    name: string,
-    icon?: string,
-    owner: string
-    typing?: {
-        [key: string]: string
-    },
-    emotes?: {
-        [key: string]: string
-    }
+  id: string;
+  channels: string[];
+  name: string;
+  icon?: string;
+  owner: string;
+  typing?: {
+    [key: string]: string;
+  };
+  emotes?: {
+    [key: string]: string;
+  };
 }
