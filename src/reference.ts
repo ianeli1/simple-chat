@@ -42,6 +42,11 @@ name of the emote in this format: <:EmoteName:>
 and in the message object will be the dictionary incluiding
 the used emotes
 
+implement redux! NO! let's use context + hooks
+all emotes should be stored in their store
+users too!
+servers!
+
 */
 
 export interface User {
@@ -56,6 +61,12 @@ export interface Channel {
   [key: string]: Message;
 }
 
+export interface Invite {
+  id: string;
+  name: string;
+  icon?: string; //TODO: add icon support
+}
+
 export interface Message {
   name: string;
   userId?: string;
@@ -65,11 +76,7 @@ export interface Message {
   emotes?: {
     [key: string]: string;
   };
-  invite?: {
-    id: string;
-    name: string;
-    icon?: string; //TODO: add icon support
-  };
+  invite?: Invite;
 }
 
 export interface Server {
