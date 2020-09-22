@@ -174,10 +174,10 @@ export function Invite(props: {
 }
 
 export function File(props: {
-  user: r.User;
+  user: User;
   cancel: any;
   sendMessage: (
-    msg: r.Message,
+    msg: Message,
     file?: File,
     updateLoad?: (percentage: Number) => void
   ) => void;

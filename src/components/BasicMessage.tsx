@@ -1,11 +1,11 @@
 import { Tooltip, Box, Avatar, Typography } from "@material-ui/core";
 import { connect } from "http2";
 import React, { Component } from "react";
-import { Emote } from "../chatElements";
+import { Emote } from "./Emote";
 import * as r from "../reference";
 
 type BasicMessageProps = {
-  message: r.Message;
+  message: Message;
 };
 
 export const BasicMessage = (props: BasicMessageProps) => {

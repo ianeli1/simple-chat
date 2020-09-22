@@ -12,8 +12,6 @@ import ChatBox from "./chatElements";
 import LeftSidebar from "./leftSidebar";
 import { RightSidebar } from "./rightSidebar";
 import Login, { Invite } from "./extraMenus";
-//import {handler} from "./handler"
-import * as r from "./reference";
 import { Handler } from "./handler2";
 
 //APP is supposed to be divided in three parts, the left sidebar(channels, etc)
@@ -28,12 +26,12 @@ type AppState = {
   loading: boolean;
   currentChannel: string;
   currentServer: string;
-  user: null | r.User; //implement,
-  channel: r.Channel;
+  user: null | User; //implement,
+  channel: Channel;
   members: {
-    [key: string]: r.User;
+    [key: string]: User;
   };
-  data: r.Server | null;
+  data: Server | null;
   showRight: boolean;
   showLeft: boolean;
   invite: boolean;

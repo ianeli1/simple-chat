@@ -1,11 +1,10 @@
 import React from "react";
-import * as r from "../reference";
 import { BasicMessage } from "./BasicMessage";
 import { ImageMessage } from "./ImageMessage";
 import InviteMessage from "./InviteMessage";
 type MessageProps = {
   key: number;
-  message: r.Message;
+  message: Message;
   joinServer?: () => void;
   joined?: boolean;
 };

@@ -11,14 +11,14 @@ import {
   Button,
   Tooltip,
 } from "@material-ui/core";
-import * as r from "./reference";
 import "./chatElements.css";
 import { Message } from "./components/Message";
+import { NewMessage } from "./components/NewMessage";
 
 type ChatBoxProps = {
-  user: r.User;
-  channel: r.Channel;
-  sendMessage: (msg: r.Message, file?: File) => void;
+  user: User;
+  channel: Channel;
+  sendMessage: (msg: Message, file?: File) => void;
   emotes: {
     [key: string]: string;
   };
@@ -27,8 +27,8 @@ type ChatBoxProps = {
 
 type ChatBoxState = {
   loading: boolean;
-  user: r.User;
-  channel: r.Channel;
+  user: User;
+  channel: Channel;
   emotes: {
     [key: string]: string;
   };
@@ -112,98 +112,4 @@ export default class ChatBox extends React.Component<
       </Box>
     );
   }
-}
-
-export function Emote({ emoteName, url }: { emoteName: string; url: string }) {
-  return (
-    <Tooltip title={emoteName} arrow placement="top">
-      <span className="emoteContainer">
-        <img src={url} alt={emoteName} className="emote" />
-      </span>
-    </Tooltip>
-  );
-}
-
-function NewMessage({
-  emotes,
-  user,
-  sendMessage,
-}: {
-  emotes: { [key: string]: string };
-  user: r.User;
-  sendMessage: (msg: r.Message, file?: File) => void;
-}) {
-  //handle the submit function
-  const [message, setMessage] = useState("");
-  const [isUploading, setIsUploading] = useState(false);
-
-  function sendMsg() {
-    const INVITE_REGEX = /<!invite>(.*?)<!\/invite>/i;
-    const EMOTE_REGEX = /<:[a-zA-Z0-9]+:>/gi;
-    let messageObj: r.Message = {
-      name: user.name,
-      userId: user.userId,
-      message: message,
-      timestamp: "0",
-    };
-
-    const match = message.match(INVITE_REGEX);
-    if (match) {
-      console.log({ match });
-      try {
-        messageObj.invite = JSON.parse(atob(match[1]));
-      } catch (e) {
-        console.log(e);
-        setMessage("[ERROR] Invite couldn't be parsed!");
-        return;
-      }
-    }
-
-    if (EMOTE_REGEX.test(message)) {
-      const emoteList = message.match(EMOTE_REGEX)?.map((x) => x.slice(2, -2));
-      let emoteObj: { [key: string]: string } = {};
-      emoteList &&
-        emoteList.forEach(
-          (x) => x in emotes && (() => (emoteObj[x] = emotes[x]))()
-        );
-      sendMessage({
-        ...messageObj,
-        emotes: emoteObj,
-      });
-    } else {
-      sendMessage(messageObj);
-      setMessage("");
-    }
-  }
-  return (
-    <Box className="newMessage">
-      {isUploading && (
-        <File
-          user={user}
-          cancel={() => setIsUploading(false)}
-          sendMessage={sendMessage}
-        />
-      )}
-      <IconButton
-        onClick={
-          //get file
-          () => setIsUploading(true)
-        }
-      >
-        <AddPhotoAlternate />
-      </IconButton>
-      <TextField
-        id="messageInput"
-        style={{ flexGrow: 1 }}
-        value={message}
-        onChange={(e) => setMessage(e.target.value)}
-        onKeyDown={(e) => e.key === "Enter" && sendMsg()}
-        variant="outlined"
-        label="Message"
-      />
-      <IconButton onClick={() => message.length && sendMsg()}>
-        <Send />
-      </IconButton>
-    </Box>
-  );
 }

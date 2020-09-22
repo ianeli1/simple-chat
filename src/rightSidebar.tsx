@@ -12,7 +12,7 @@ import { KeyboardArrowDown, KeyboardArrowUp } from "@material-ui/icons";
 //import { handler } from "./handler"
 import * as r from "./reference";
 import "./rightSidebar.css";
-import { Emote } from "./chatElements";
+import { Emote } from "./components/Emote";
 import { AddEmote } from "./extraMenus";
 
 /*Ideas for the epic toolbar
@@ -23,9 +23,9 @@ import { AddEmote } from "./extraMenus";
 */
 
 type RightSidebarProps = {
-  user: r.User;
+  user: User;
   members: {
-    [key: string]: r.User;
+    [key: string]: User;
   };
   emotes: {
     [key: string]: string;
@@ -36,9 +36,9 @@ type RightSidebarProps = {
 };
 
 type RightSidebarState = {
-  user: r.User;
+  user: User;
   members: {
-    [key: string]: r.User;
+    [key: string]: User;
   };
   emotes: {
     [key: string]: string;
@@ -104,7 +104,7 @@ function Widget(props: { title: string; children: React.ReactNode }) {
   );
 }
 
-function Profile(props: { user: r.User; signOut: () => void }) {
+function Profile(props: { user: User; signOut: () => void }) {
   return (
     <Widget title="Profile">
       <Box className="Profile">
@@ -153,7 +153,7 @@ function EmoteList({
 }
 
 function Members(props: {
-  users: { [key: string]: r.User };
+  users: { [key: string]: User };
   debug?: () => void;
 }) {
   const OnlineBadge = withStyles((theme) => ({

@@ -1,9 +1,8 @@
 import { Avatar, Typography, Button } from "@material-ui/core";
 import React from "react";
-import * as r from "../reference";
 
 type InviteMessageProps = {
-  invite: r.Invite;
+  invite: Invite;
   joined: boolean;
   joinServer: () => void;
 };

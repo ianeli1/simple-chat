@@ -17,7 +17,7 @@ import * as r from "./reference";
 //TODO divide everything into components
 
 type LeftSidebarProps = {
-  user: r.User;
+  user: User;
   currentChannel: string;
   channelList: string[];
   changeChannel: (newChannel: string) => () => void;
@@ -28,7 +28,7 @@ type LeftSidebarProps = {
 };
 
 type LeftSidebarState = {
-  user: r.User;
+  user: User;
   channelList: string[];
   creatingChannel: boolean;
   currentChannel: string;
@@ -156,7 +156,7 @@ function ChannelList({
   channelList: Array<string>;
   currentChannel: string;
   changeChannel: (newChannel: string) => () => void;
-  user: r.User;
+  user: User;
   createChannel: (channel: string) => void;
   openWindow: (window: string) => void;
 }) {

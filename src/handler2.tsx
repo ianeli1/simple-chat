@@ -1,4 +1,3 @@
-import * as r from "./reference";
 import * as firebase from "firebase";
 import { firebaseConfig } from "./secretKey";
 
@@ -10,9 +9,9 @@ firebase.initializeApp(firebaseConfig);
  * Manages all of the behind the scenes connections to the database
  */
 export class Handler {
-  user: r.User | null;
+  user: User | null;
   servers: {
-    [key: string]: Server;
+    [key: string]: ServerObject;
   };
   currentServer: string;
   private userRef: firebase.database.Reference;
@@ -71,9 +70,9 @@ export class Handler {
     const key = Date.now() + String(Math.floor(Math.random() * 9));
     if (this.user && serverNode.key) {
       let server: {
-        data: r.Server;
-        members: { [key: string]: r.User };
-        channels: { [x: string]: r.Channel };
+        data: Server;
+        members: { [key: string]: User };
+        channels: { [x: string]: Channel };
       } = {
         data: {
           id: serverNode.key,
@@ -189,7 +188,7 @@ export class Handler {
    * @example
    * handler.getUser((user) => this.setState({user}))
    */
-  getUser(updateUser: (user: r.User | null) => void) {
+  getUser(updateUser: (user: User | null) => void) {
     firebase.auth().onAuthStateChanged(async (user) => {
       if (user) {
         const temp = await (
@@ -218,7 +217,7 @@ export class Handler {
    * @example
    * handler.initialize((user) => this.setState({user}))
    */
-  initialize(updateUser: (user: r.User) => void) {
+  initialize(updateUser: (user: User) => void) {
     if (this.user) {
       this.userRef
         .child(this.user.userId)
@@ -264,15 +263,15 @@ export class Handler {
    */
   loadServer(
     serverId: string,
-    updateMembers: (serverMembers: { [key: string]: r.User }) => void,
-    updateData: (serverData: r.Server) => void
+    updateMembers: (serverMembers: { [key: string]: User }) => void,
+    updateData: (serverData: Server) => void
   ) {
     this.currentServer.length && this.servers[this.currentServer].detach();
     this.currentServer = serverId;
     if (Object.keys(this.servers).includes(serverId)) {
       this.servers[this.currentServer].attach(updateMembers, updateData);
     } else {
-      this.servers[this.currentServer] = new Server(serverId);
+      this.servers[this.currentServer] = new ServerObject(serverId);
       this.servers[this.currentServer].initialize(updateMembers, updateData);
     }
   }
@@ -303,7 +302,7 @@ export class Handler {
    *
    * @todo Prevent it from loading a non-existant channel
    */
-  getChannel(channel: string, updateChannel: (channel: r.Channel) => void) {
+  getChannel(channel: string, updateChannel: (channel: Channel) => void) {
     this.servers[this.currentServer].getChannel(channel, updateChannel);
   }
 
@@ -314,7 +313,7 @@ export class Handler {
    *
    * @todo Use the `this.user` object and not trust the UI
    */
-  sendMessage(msg: r.Message, file?: File) {
+  sendMessage(msg: Message, file?: File) {
     const curr = this.servers[this.currentServer].currentChannel;
     this.servers[this.currentServer].channels[curr].sendMessage(msg, file);
   }
@@ -324,13 +323,14 @@ export class Handler {
  * @description
  * This class depends on the Channel class to function
  */
-class Server {
-  data: r.Server;
+
+class ServerObject {
+  data: Server;
   members: {
-    [key: string]: r.User;
+    [key: string]: User;
   };
   channels: {
-    [key: string]: Channel;
+    [key: string]: ChannelObject;
   };
   isInitialized: boolean;
   currentChannel: string;
@@ -366,8 +366,8 @@ class Server {
    *                   (data) => this.setState({data}))
    */
   initialize(
-    updateMembers: (serverMembers: { [key: string]: r.User }) => void,
-    updateData: (serverData: r.Server) => void
+    updateMembers: (serverMembers: { [key: string]: User }) => void,
+    updateData: (serverData: Server) => void
   ) {
     if (this.isInitialized) {
       this.ref.off();
@@ -395,14 +395,14 @@ class Server {
    * @example
    * server.getChannel("general", (channel) => this.setState({channel}))
    */
-  getChannel(channel: string, updateChannel: (channel: r.Channel) => void) {
+  getChannel(channel: string, updateChannel: (channel: Channel) => void) {
     this.currentChannel.length && this.channels[this.currentChannel].detach();
     this.currentChannel = channel;
     if (Object.keys(this.channels).includes(channel)) {
       console.log("Attaching channel...", channel);
       this.channels[this.currentChannel].attach(updateChannel);
     } else {
-      this.channels[this.currentChannel] = new Channel(
+      this.channels[this.currentChannel] = new ChannelObject(
         this.data.id,
         this.currentChannel
       );
@@ -431,7 +431,7 @@ class Server {
    * @param channel The name of the channel to be created
    * @param currentUser [*Optional*] Specifies who that created the channel
    */
-  createChannel(channel: string, currentUser?: r.User) {
+  createChannel(channel: string, currentUser?: User) {
     //TODO: only owners should be able to create channels
     const id = Date.now() + String(Math.floor(Math.random() * 9));
     const newNode = this.ref.child("channels").child(channel).child(id);
@@ -486,8 +486,8 @@ class Server {
    *               (data) => this.setState({data}))
    */
   attach(
-    updateMembers: (serverMembers: { [key: string]: r.User }) => void,
-    updateData: (serverData: r.Server) => void
+    updateMembers: (serverMembers: { [key: string]: User }) => void,
+    updateData: (serverData: Server) => void
   ) {
     this.isAttached = true;
     updateMembers(this.members);
@@ -509,10 +509,10 @@ class Server {
 /**
  * The channel class
  */
-class Channel {
+class ChannelObject {
   serverId: string;
   name: string;
-  cache: r.Channel;
+  cache: Channel;
   isInitialized: boolean;
   isAttached: boolean;
   private ref: firebase.database.Reference;
@@ -555,7 +555,7 @@ class Channel {
    * //some other code
    * channel.attach((channel) => this.setState({channel}))
    */
-  attach(updateState?: (channel: r.Channel) => void) {
+  attach(updateState?: (channel: Channel) => void) {
     updateState && updateState(this.cache);
     this.isAttached = true;
   }
@@ -575,7 +575,7 @@ class Channel {
    * @example
    * channel.initialize((channel: Channel) => this.setState({channel}));
    */
-  initialize(updateState: (channel: r.Channel) => void) {
+  initialize(updateState: (channel: Channel) => void) {
     if (this.isInitialized) {
       this.ref.off();
     }
@@ -600,7 +600,7 @@ class Channel {
    * @param msg An object with the correct Message format
    * @param [file] The image file to be sent with the message
    */
-  sendMessage(msg: r.Message, file?: File) {
+  sendMessage(msg: Message, file?: File) {
     const id = Date.now() + String(Math.floor(Math.random() * 9));
     console.log({ id, msg });
 

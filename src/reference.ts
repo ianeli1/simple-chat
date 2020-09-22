@@ -48,47 +48,54 @@ users too!
 servers!
 
 */
+export const TypescriptIsAnnoyingSometimes = true;
 
-export interface User {
-  name: string;
-  userId: string;
-  icon?: string;
-  status?: "online" | "idle" | "dnd" | "offline"; //add invisible?
-  servers?: string[];
-}
+declare global {
+  interface User {
+    name: string;
+    userId: string;
+    icon?: string;
+    status?: "online" | "idle" | "dnd" | "offline"; //add invisible?
+    servers?: string[];
+  }
 
-export interface Channel {
-  [key: string]: Message;
-}
+  interface Channel {
+    [key: string]: Message;
+  }
 
-export interface Invite {
-  id: string;
-  name: string;
-  icon?: string; //TODO: add icon support
-}
+  interface Invite {
+    id: string;
+    name: string;
+    icon?: string; //TODO: add icon support
+  }
 
-export interface Message {
-  name: string;
-  userId?: string;
-  message: string;
-  image?: string;
-  timestamp: string; //deprecated?
-  emotes?: {
+  interface Message {
+    name: string;
+    userId?: string;
+    message: string;
+    image?: string;
+    timestamp: string; //deprecated?
+    emotes?: {
+      [key: string]: string;
+    };
+    invite?: Invite;
+  }
+
+  interface Emotes {
     [key: string]: string;
-  };
-  invite?: Invite;
-}
+  }
 
-export interface Server {
-  id: string;
-  channels: string[];
-  name: string;
-  icon?: string;
-  owner: string;
-  typing?: {
-    [key: string]: string;
-  };
-  emotes?: {
-    [key: string]: string;
-  };
+  interface Server {
+    id: string;
+    channels: string[];
+    name: string;
+    icon?: string;
+    owner: string;
+    typing?: {
+      [key: string]: string;
+    };
+    emotes?: {
+      [key: string]: string;
+    };
+  }
 }

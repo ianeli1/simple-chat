@@ -1,5 +1,4 @@
 import React, { FunctionComponent } from "react";
-import * as r from "../reference";
 
 export function ImageMessage(props: { imageUrl: string }) {
   const imageUrl = props.imageUrl;
