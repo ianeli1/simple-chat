@@ -32,6 +32,11 @@
   font-weight: 100 !important;
 }
 
+.drawerPaper {
+  background: rgba(50, 50, 50, 0.2) !important;
+  top: unset !important;
+}
+
 /*AppToolbar*/
 
 .AppToolbar {

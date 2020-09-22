@@ -5,6 +5,8 @@ import {
   Toolbar,
   IconButton,
   Typography,
+  Hidden,
+  Drawer,
 } from "@material-ui/core";
 import { Chat, HorizontalSplit } from "@material-ui/icons";
 import "./css/App.css";
@@ -49,7 +51,7 @@ class App extends React.Component<AppProps, AppState> {
       members: {},
       data: null,
       showRight: true,
-      showLeft: true,
+      showLeft: false,
       invite: false,
     };
     this.handler = new Handler();
@@ -94,6 +96,20 @@ class App extends React.Component<AppProps, AppState> {
 
   render() {
     //this looks hacky, fix
+    const leftSidebar = this.state.user && (
+      <LeftSidebar
+        createServer={this.handler.createServer}
+        channelList={(this.state.data && this.state.data.channels) || []}
+        currentChannel={this.state.currentChannel}
+        changeServer={this.handleServerChange}
+        changeChannel={this.handleChannelChange}
+        user={this.state.user}
+        createChannel={this.handler.createChannel}
+        openWindow={this.openWindow}
+      />
+    );
+    const container =
+      window !== undefined ? () => window.document.body : undefined;
     return (
       <Box className="Global">
         {this.state.invite && this.state.data && (
@@ -120,18 +136,28 @@ class App extends React.Component<AppProps, AppState> {
           />
         )}
         <Box className="App">
-          {this.state.user && this.state.showLeft && (
-            <LeftSidebar
-              createServer={this.handler.createServer}
-              channelList={(this.state.data && this.state.data.channels) || []}
-              currentChannel={this.state.currentChannel}
-              changeServer={this.handleServerChange}
-              changeChannel={this.handleChannelChange}
-              user={this.state.user}
-              createChannel={this.handler.createChannel}
-              openWindow={this.openWindow}
-            />
-          )}
+          <Hidden smUp>
+            <Drawer
+              container={container}
+              variant="temporary"
+              anchor="left"
+              open={this.state.showLeft}
+              onClose={() => this.setState({ showLeft: false })}
+              ModalProps={{ keepMounted: true }}
+              classes={{ paper: "drawerPaper" }}
+            >
+              {leftSidebar}
+            </Drawer>
+          </Hidden>
+          <Hidden xsDown>
+            <Drawer
+              variant="persistent"
+              open={this.state.showLeft}
+              classes={{ paper: "drawerPaper" }}
+            >
+              {leftSidebar}
+            </Drawer>
+          </Hidden>
           {this.state.user && (
             <ChatBox
               joinServer={this.handler.joinServer}
@@ -141,16 +167,17 @@ class App extends React.Component<AppProps, AppState> {
               sendMessage={this.handler.sendMessage}
             />
           )}
-          {this.state.user && this.state.showRight && (
-            <RightSidebar
-              user={this.state.user}
-              members={this.state.members}
-              emotes={(this.state.data && this.state.data.emotes) || {}}
-              addEmote={this.handler.addEmote}
-              signOut={this.handler.signOut}
-              debug={this.handler.getDebug}
-            />
-          )}
+          {this.state.user &&
+            this.state.showRight && ( //idea: on mobile, make the bg of the drawer transparent
+              <RightSidebar
+                user={this.state.user}
+                members={this.state.members}
+                emotes={(this.state.data && this.state.data.emotes) || {}}
+                addEmote={this.handler.addEmote}
+                signOut={this.handler.signOut}
+                debug={this.handler.getDebug}
+              />
+            )}
         </Box>
       </Box>
     );
