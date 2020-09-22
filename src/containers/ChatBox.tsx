@@ -1,19 +1,8 @@
-import React, { useState } from "react";
-//import { handler } from "./handler";
-import { Send, AddPhotoAlternate } from "@material-ui/icons";
-import { File } from "./extraMenus";
-import {
-  Box,
-  Avatar,
-  Typography,
-  IconButton,
-  TextField,
-  Button,
-  Tooltip,
-} from "@material-ui/core";
+import React from "react";
+import { Box } from "@material-ui/core";
 import "./chatElements.css";
-import { Message } from "./components/Message";
-import { NewMessage } from "./components/NewMessage";
+import { Message } from "../components/Message";
+import { NewMessage } from "../components/NewMessage";
 
 type ChatBoxProps = {
   user: User;
