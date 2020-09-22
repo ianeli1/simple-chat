@@ -13,6 +13,7 @@ import {
 } from "@material-ui/core";
 import * as r from "./reference";
 import "./chatElements.css";
+import { Message } from "./components/Message";
 
 type ChatBoxProps = {
   user: r.User;
@@ -120,94 +121,6 @@ export function Emote({ emoteName, url }: { emoteName: string; url: string }) {
         <img src={url} alt={emoteName} className="emote" />
       </span>
     </Tooltip>
-  );
-}
-
-function Message({
-  key,
-  message,
-  joinServer,
-  joined,
-}: {
-  key: number;
-  message: r.Message;
-  joinServer?: () => void;
-  joined?: boolean;
-}) {
-  return (
-    <Box className="Message" key={key}>
-      <Box className="BasicMessage">
-        <Tooltip
-          title={String(new Date(Number(message.timestamp.slice(0, -1))))
-            .split(" ")
-            .slice(0, 5)
-            .join(" ")}
-          arrow
-          placement="top"
-        >
-          <Box className="MessageName">
-            <Avatar>{message.name[0]}</Avatar>
-            <Typography variant="h5">{message.name}</Typography>
-          </Box>
-        </Tooltip>
-
-        {message.emotes ? (
-          <Box>
-            {() => {
-              const regex = /<:[a-zA-Z0-9]+:>/gi;
-              let emoteList = message.message.match(regex) || [];
-              return message.message
-                .split(regex)
-                .map((x) => (x ? x : emoteList.shift()))
-                .map((x) => {
-                  if (x) {
-                    if (regex.test(x))
-                      return (
-                        <Emote
-                          emoteName={x.slice(2, -2)}
-                          url={
-                            (message.emotes &&
-                              message.emotes[x.slice(2, -2)]) ||
-                            ""
-                          }
-                        />
-                      );
-                    else return <p>{x}</p>;
-                  } else {
-                    return;
-                  }
-                });
-            }}
-          </Box>
-        ) : (
-          <Typography variant="body1">{message.message}</Typography>
-        )}
-      </Box>
-      {message.image && (
-        <Box className="MessageImage">
-          <img
-            className="MessageImagePrim"
-            src={message.image}
-            alt="[Loading...]"
-          />
-        </Box>
-      )}
-      {message.invite && (
-        <Box className="MessageInvite">
-          <Avatar>{message.invite.name[0]}</Avatar>
-          <Typography variant="h5">{message.invite.name}</Typography>
-          {joinServer && message.invite && (
-            <Button
-              variant="contained"
-              onClick={() => joinServer()}
-              disabled={joined}
-            >
-              {joined ? "Joined" : "Join"}
-            </Button>
-          )}
-        </Box>
-      )}
-    </Box>
   );
 }
 
