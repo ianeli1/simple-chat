@@ -48,7 +48,130 @@ users too!
 servers!
 
 */
-export const TypescriptIsAnnoyingSometimes = true;
+export declare class Handler {
+  user: User | null;
+  currentServer: string;
+
+  constructor();
+
+  /**
+   * Joins the provided server
+   * @param serverId The ID of the server
+   * @todo Check if the server actually exists
+   */
+  public joinServer(serverId: string): void;
+
+  /**
+   * Creates a new channel in the current server
+   * @param channelName The channel's name
+   */
+  createChannel(channelName: string): void;
+
+  /**
+   * Creates a new server
+   * @description
+   * The user *must* be signed in
+   * @param serverName The name of the server
+   */
+  createServer(serverName: string): void;
+
+  /**
+   * Attempts to log the user in.
+   * @param email The email of the user, correctly formatted
+   * @param pass A password
+   * @param callback A callback function if there's any problem while creating the user
+   * - `callback("password")` if it's related to the password provided.
+   * - `callback("email")` if it's related to the email.
+   */
+  signIn(email: string, pass: string, callback: (x: string) => void): void;
+
+  /**
+   * Creates a new user with the provided credentials
+   * @param username The name of the user
+   * @param email The email of the user, correctly formatted
+   * @param pass A password
+   * @param callback A callback function if there's any problem while creating the user
+   * - `callback("password")` if it's related to the password provided.
+   * - `callback("email")` if it's related to the email.
+   *
+   */
+  createUser(
+    username: string,
+    email: string,
+    pass: string,
+    callback: (x: string) => void
+  ): void;
+
+  /**
+   * Logs out the current user
+   */
+  signOut(): void;
+
+  /**
+   * Initializes the Firebase Auth listener. If there's an user logged in via Firebase, `handler.initialize` will be called
+   * @param updateUser A function pointing to a React setState
+   * @example
+   * handler.getUser((user) => this.setState({user}))
+   */
+  getUser(updateUser: (user: User | null) => void): void;
+
+  /**
+   * Initializes the listener for the current user's data.
+   * `handler.getUser()` calls this method after a succesful login
+   * @param updateUser A function pointing to a React setState
+   * @example
+   * handler.initialize((user) => this.setState({user}))
+   */
+  initialize(updateUser: (user: User) => void): void;
+
+  /**
+   * Loads a new server into memory
+   * @param serverId The ID of the server to be loaded
+   * @param updateMembers A function pointing to a React setState
+   * @param updateData A function pointing to a React setState
+   * @example
+   * handler.loadServer("123", (members) => this.setState({members})
+   *                    (data) => this.setState({data}))
+   */
+  loadServer(
+    serverId: string,
+    updateMembers: (serverMembers: { [key: string]: User }) => void,
+    updateData: (serverData: Server) => void
+  ): void;
+
+  /**
+   * Adds a new emote to the current server
+   * @param emoteName The emote's name
+   * @param emote The image file
+   */
+  addEmote(emoteName: string, emote: File): void;
+
+  /**
+   * [***For debug only***] Returns *all* the data saved in this object
+   */
+  getDebug(): void;
+
+  /**
+   * Loads a new channel into memory
+   * @param channel The channel's name
+   * @param updateChannel A function pointing to a React setState
+   *
+   * @example
+   * handler.getChannel("coolChannel", (channel: Channel) => this.setState({channel}))
+   *
+   * @todo Prevent it from loading a non-existant channel
+   */
+  getChannel(channel: string, updateChannel: (channel: Channel) => void): void;
+
+  /**
+   * Sends a new message to the specified channel
+   * @param msg The message object to be sent, must be in the Message format
+   * @param file [*Optional*] An image file to be sent with the message
+   *
+   * @todo Use the `this.user` object and not trust the UI
+   */
+  sendMessage(msg: Message, file?: File): void;
+}
 
 declare global {
   interface User {

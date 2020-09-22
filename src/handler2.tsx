@@ -1,5 +1,6 @@
 import * as firebase from "firebase";
 import { firebaseConfig } from "./secretKey";
+import * as r from "./reference";
 
 firebase.initializeApp(firebaseConfig);
 
@@ -8,9 +9,9 @@ firebase.initializeApp(firebaseConfig);
  * @description
  * Manages all of the behind the scenes connections to the database
  */
-export class Handler {
+export class Handler implements r.Handler {
   user: User | null;
-  servers: {
+  private servers: {
     [key: string]: ServerObject;
   };
   currentServer: string;

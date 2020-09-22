@@ -1,6 +1,5 @@
 import * as r from "../reference";
 import React, { Component } from "react";
-import { Handler } from "../handler2";
 import { File } from "../extraMenus";
 import { IconButton, TextField } from "@material-ui/core";
 import { AddPhotoAlternate, Send } from "@material-ui/icons";
@@ -8,7 +7,7 @@ import { AddPhotoAlternate, Send } from "@material-ui/icons";
 interface NewPostProps {
   emotes: Emotes;
   user: User;
-  sendMessage: typeof Handler.prototype.sendMessage;
+  sendMessage: typeof r.Handler.prototype.sendMessage;
 }
 
 interface NewPostState {
@@ -16,7 +15,6 @@ interface NewPostState {
   message: string;
   isUploading: boolean;
 }
-
 /*
 TODO: Add inline emote support
 TODO: Regex check for emote and invite patterns on every textfield change
