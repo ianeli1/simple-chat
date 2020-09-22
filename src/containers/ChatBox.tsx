@@ -27,6 +27,7 @@ export default class ChatBox extends React.Component<
   ChatBoxProps,
   ChatBoxState
 > {
+  endMessage: HTMLDivElement | null;
   constructor(props: ChatBoxProps) {
     super(props);
     this.state = {
@@ -35,24 +36,21 @@ export default class ChatBox extends React.Component<
       channel: props.channel,
       emotes: {},
     };
+    this.endMessage = null;
     this.handleNewMessage = this.handleNewMessage.bind(this);
   }
 
   componentWillReceiveProps(props: ChatBoxProps) {
-    this.setState({
-      user: props.user,
-      channel: props.channel,
-      emotes: props.emotes,
-    });
-    /*
-    this.setState( //all this is innefficient af, leave this work to the handler.
+    this.setState(
       {
         user: props.user,
-        currentChannel: props.currentChannel,
-        channel: {},
+        channel: props.channel,
+        emotes: props.emotes,
       },
-      () => this.state.currentChannel && handler.initializeChannel(this.state.currentChannel, (channel: r.Channel) => this.setState({channel})))
-      */
+      () =>
+        this.endMessage &&
+        this.endMessage.scrollIntoView({ behavior: "smooth" })
+    );
   }
 
   handleNewMessage(message: string): () => void {
@@ -90,6 +88,7 @@ export default class ChatBox extends React.Component<
                   <Message key={i} message={x} />
                 )
               )}
+          <div style={{ float: "left" }} ref={(el) => (this.endMessage = el)} />
         </Box>
         <Box id="newMessageBox">
           <NewMessage
