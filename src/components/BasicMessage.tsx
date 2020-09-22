@@ -1,8 +1,6 @@
 import { Tooltip, Box, Avatar, Typography } from "@material-ui/core";
-import { connect } from "http2";
-import React, { Component } from "react";
+import React from "react";
 import { Emote } from "./Emote";
-import * as r from "../reference";
 
 type BasicMessageProps = {
   message: Message;

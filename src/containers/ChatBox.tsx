@@ -1,6 +1,6 @@
 import React from "react";
 import { Box } from "@material-ui/core";
-import "./chatElements.css";
+import "../css/chatElements.css";
 import { Message } from "../components/Message";
 import { NewMessage } from "../components/NewMessage";
 

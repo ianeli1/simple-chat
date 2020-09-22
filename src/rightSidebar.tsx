@@ -11,7 +11,7 @@ import {
 import { KeyboardArrowDown, KeyboardArrowUp } from "@material-ui/icons";
 //import { handler } from "./handler"
 import * as r from "./reference";
-import "./rightSidebar.css";
+import "./css/rightSidebar.css";
 import { Emote } from "./components/Emote";
 import { AddEmote } from "./extraMenus";
 

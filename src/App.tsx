@@ -7,8 +7,8 @@ import {
   Typography,
 } from "@material-ui/core";
 import { Chat, HorizontalSplit } from "@material-ui/icons";
-import "./App.css";
-import ChatBox from "./chatElements";
+import "./css/App.css";
+import ChatBox from "./containers/ChatBox";
 import LeftSidebar from "./leftSidebar";
 import { RightSidebar } from "./rightSidebar";
 import Login, { Invite } from "./extraMenus";

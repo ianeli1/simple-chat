@@ -12,7 +12,7 @@ import {
   ButtonGroup,
 } from "@material-ui/core";
 //import { handler } from "./handler";
-import "./leftSidebar.css";
+import "./css/leftSidebar.css";
 import * as r from "./reference";
 //TODO divide everything into components
 
