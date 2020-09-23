@@ -2,7 +2,8 @@ import * as r from "../reference";
 import React, { Component } from "react";
 import { File } from "../extraMenus";
 import { IconButton, TextField } from "@material-ui/core";
-import { AddPhotoAlternate, Send } from "@material-ui/icons";
+import { AddPhotoAlternate, InsertEmoticon, Send } from "@material-ui/icons";
+import EmotePopper from "./EmotePopper";
 
 interface NewPostProps {
   emotes: Emotes;
@@ -14,20 +15,24 @@ interface NewPostState {
   user: User;
   message: string;
   isUploading: boolean;
+  showEmote: boolean;
 }
 /*
 TODO: Add inline emote support
 TODO: Regex check for emote and invite patterns on every textfield change
 */
 export class NewMessage extends Component<NewPostProps, NewPostState> {
+  emojiRef: React.RefObject<HTMLButtonElement>;
   constructor(props: NewPostProps) {
     super(props);
     this.state = {
       user: props.user,
       message: "",
       isUploading: false,
+      showEmote: false,
     };
     this.sendMsg = this.sendMsg.bind(this);
+    this.emojiRef = React.createRef();
   }
 
   sendMsg() {
@@ -83,6 +88,23 @@ export class NewMessage extends Component<NewPostProps, NewPostState> {
             sendMessage={this.props.sendMessage}
           />
         )}
+        <EmotePopper
+          anchor={this.emojiRef.current}
+          open={this.state.showEmote}
+          emotes={this.props.emotes}
+          onClose={() => this.setState({ showEmote: false })}
+          onEmoteClick={(emoteName: string) =>
+            this.setState({
+              message: this.state.message + "<:" + emoteName + ":>",
+            })
+          }
+        />
+        <IconButton
+          onClick={() => this.setState({ showEmote: !this.state.showEmote })}
+          ref={this.emojiRef}
+        >
+          <InsertEmoticon />
+        </IconButton>
         <IconButton
           onClick={
             //get file
