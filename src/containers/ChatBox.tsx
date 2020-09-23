@@ -90,13 +90,15 @@ export default class ChatBox extends React.Component<
               )}
           <div style={{ float: "left" }} ref={(el) => (this.endMessage = el)} />
         </Box>
-        <Box id="newMessageBox">
-          <NewMessage
-            sendMessage={this.props.sendMessage}
-            user={this.state.user}
-            emotes={this.state.emotes}
-          />
-        </Box>
+        {Object.keys(this.state.channel).length && (
+          <Box id="newMessageBox">
+            <NewMessage
+              sendMessage={this.props.sendMessage}
+              user={this.state.user}
+              emotes={this.state.emotes}
+            />
+          </Box>
+        )}
       </Box>
     );
   }
