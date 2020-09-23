@@ -47,13 +47,25 @@ type Props = {
 
 export default function EmotePopper(props: Props) {
   const classes = useStyles();
+  const firstEmoteRef = React.useRef<HTMLSpanElement>(null);
   const emotes = (
     <div className={classes.emotes}>
-      {Object.entries(props.emotes).map(([emoteName, url]) => (
-        <Emote {...{ emoteName, url }} onClick={props.onEmoteClick} />
+      {Object.entries(props.emotes).map(([emoteName, url], i) => (
+        <Emote
+          {...{ emoteName, url }}
+          onClick={props.onEmoteClick}
+          ref={i == 0 ? firstEmoteRef : undefined}
+        />
       ))}
     </div>
   );
+  React.useEffect(() => {
+    //TODO: focus on the first element when it's first rendered
+    if (firstEmoteRef.current) {
+      console.log("Focused!");
+      firstEmoteRef.current.focus();
+    }
+  }, []);
   return (
     props.anchor && (
       <Popover
