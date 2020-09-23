@@ -72,6 +72,7 @@ export class NewMessage extends Component<NewPostProps, NewPostState> {
         ...messageObj,
         emotes: emoteObj,
       });
+      this.setState({ message: "" });
     } else {
       this.props.sendMessage(messageObj);
       this.setState({ message: "" });
