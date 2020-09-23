@@ -7,6 +7,26 @@ type BasicMessageProps = {
 };
 
 export const BasicMessage = (props: BasicMessageProps) => {
+  function splitByRegex(
+    regex: RegExp,
+    x: string,
+    createThis: (x: string) => any
+  ) {
+    let index = 0;
+    let output = [];
+    let result: RegExpExecArray | null = regex.exec(x);
+    while (result) {
+      if (index !== result.index) {
+        output.push(x.slice(index, result.index));
+      }
+      index = result.index + result[0].length;
+      output.push(createThis(result[1]));
+      result = regex.exec(x);
+    }
+    return output;
+  }
+  const EMOTE_REGEX = /<:(.*?):>/gi;
+
   const { message } = props;
   return (
     <div className="BasicMessage">
@@ -27,32 +47,12 @@ export const BasicMessage = (props: BasicMessageProps) => {
       {message.message &&
         (message.emotes ? (
           <Box>
-            {() => {
-              //there HAS to be a better way of doing this
-              const regex = /<:[a-zA-Z0-9]+:>/gi;
-              let emoteList = message.message.match(regex) || [];
-              return message.message
-                .split(regex)
-                .map((x) => (x ? x : emoteList.shift()))
-                .map((x) => {
-                  if (x) {
-                    if (regex.test(x))
-                      return (
-                        <Emote
-                          emoteName={x.slice(2, -2)}
-                          url={
-                            (message.emotes &&
-                              message.emotes[x.slice(2, -2)]) ||
-                            ""
-                          }
-                        />
-                      );
-                    else return <p>{x}</p>;
-                  } else {
-                    return;
-                  }
-                });
-            }}
+            {splitByRegex(EMOTE_REGEX, message.message, (x) => (
+              <Emote
+                emoteName={x}
+                url={(message.emotes && message.emotes[x]) || ""}
+              />
+            ))}
           </Box>
         ) : (
           <Typography variant="body1">{message.message}</Typography>
