@@ -96,13 +96,15 @@ function ServerList({
   return (
     <Box id="ServerList">
       <List component="nav" aria-label="server-picker">
-        {serverList.map((x) => (
-          <ListItem button onClick={changeServer(x)}>
-            <ListItemAvatar>
-              <Avatar>{x}</Avatar>
-            </ListItemAvatar>
-          </ListItem>
-        ))}
+        {serverList &&
+          serverList.length &&
+          serverList.map((x) => (
+            <ListItem button onClick={changeServer(x)}>
+              <ListItemAvatar>
+                <Avatar>{x}</Avatar>
+              </ListItemAvatar>
+            </ListItem>
+          ))}
         <ListItem button onClick={() => setCreatingServer({ name: "" })}>
           <ListItemAvatar>
             <Avatar>+</Avatar>

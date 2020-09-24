@@ -33,7 +33,7 @@ export default class ChatBox extends React.Component<
     this.state = {
       loading: true, //TODO use this lmao
       user: props.user,
-      channel: props.channel,
+      channel: props.channel || {},
       emotes: {},
     };
     this.endMessage = null;

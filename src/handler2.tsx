@@ -11,7 +11,7 @@ firebase.initializeApp(firebaseConfig);
  */
 export class Handler implements r.Handler {
   user: User | null;
-  private servers: {
+  servers: {
     [key: string]: ServerObject;
   };
   currentServer: string;
@@ -66,12 +66,13 @@ export class Handler implements r.Handler {
    * @param serverName The name of the server
    */
   createServer(serverName: string) {
+    //should this be handled by Cloud Fns?
     //use createChannel & joinServer
     const serverNode = firebase.database().ref("servers").push();
     const key = Date.now() + String(Math.floor(Math.random() * 9));
     if (this.user && serverNode.key) {
       let server: {
-        data: Server;
+        data: ServerData;
         members: { [key: string]: User };
         channels: { [x: string]: Channel };
       } = {
@@ -265,7 +266,7 @@ export class Handler implements r.Handler {
   loadServer(
     serverId: string,
     updateMembers: (serverMembers: { [key: string]: User }) => void,
-    updateData: (serverData: Server) => void
+    updateData: (serverData: ServerData) => void
   ) {
     this.currentServer.length && this.servers[this.currentServer].detach();
     this.currentServer = serverId;
@@ -325,8 +326,8 @@ export class Handler implements r.Handler {
  * This class depends on the Channel class to function
  */
 
-class ServerObject {
-  data: Server;
+export class ServerObject {
+  data: ServerData;
   members: {
     [key: string]: User;
   };
@@ -368,7 +369,7 @@ class ServerObject {
    */
   initialize(
     updateMembers: (serverMembers: { [key: string]: User }) => void,
-    updateData: (serverData: Server) => void
+    updateData: (serverData: ServerData) => void
   ) {
     if (this.isInitialized) {
       this.ref.off();
@@ -488,7 +489,7 @@ class ServerObject {
    */
   attach(
     updateMembers: (serverMembers: { [key: string]: User }) => void,
-    updateData: (serverData: Server) => void
+    updateData: (serverData: ServerData) => void
   ) {
     this.isAttached = true;
     updateMembers(this.members);
@@ -510,7 +511,7 @@ class ServerObject {
 /**
  * The channel class
  */
-class ChannelObject {
+export class ChannelObject {
   serverId: string;
   name: string;
   cache: Channel;

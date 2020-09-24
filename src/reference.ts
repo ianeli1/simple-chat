@@ -136,7 +136,7 @@ export declare class Handler {
   loadServer(
     serverId: string,
     updateMembers: (serverMembers: { [key: string]: User }) => void,
-    updateData: (serverData: Server) => void
+    updateData: (serverData: ServerData) => void
   ): void;
 
   /**
@@ -208,7 +208,7 @@ declare global {
     [key: string]: string;
   }
 
-  interface Server {
+  interface ServerData {
     id: string;
     channels: string[];
     name: string;
