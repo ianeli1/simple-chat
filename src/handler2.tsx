@@ -61,7 +61,7 @@ export class Handler {
           id: serverNode.key,
           name: serverName,
           owner: this.user.userId,
-          channels: ["123"],
+          channels: ["general"],
         },
         members: {
           [this.user.userId]: this.user,
