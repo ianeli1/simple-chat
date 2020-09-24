@@ -1,7 +1,7 @@
 import React, { Component, createContext } from "react";
 import { Handler } from "../handler2";
 
-interface Context {
+export interface Context {
   user: User | null;
   currentServer: string | null;
   currentChannel: string | null;
@@ -38,6 +38,14 @@ export interface Functions {
   createServer: (serverName: string) => void;
   joinServer: (serverId: string) => void;
   getChannel: (channel: string) => void;
+  signIn: (email: string, pass: string, callback: (x: string) => void) => void;
+  signOut: () => void;
+  createUser: (
+    username: string,
+    email: string,
+    pass: string,
+    callback: (x: string) => void
+  ) => void;
 }
 
 export const context = createContext<{ state: Context; functions: Functions }>(
@@ -141,6 +149,7 @@ export class ContextProvider extends Component<{}, Context> {
       (members) => this.updateMembers(members, id),
       (data) => this.updateData(data, id)
     );
+    this.setState({ currentServer: id, currentChannel: null });
   }
 
   getCurrentServer() {
@@ -158,6 +167,7 @@ export class ContextProvider extends Component<{}, Context> {
         this.setState(
           (state) =>
             (state.currentServer && {
+              currentChannel: channel,
               servers: {
                 [state.currentServer]: {
                   ...state.servers[state.currentServer],
@@ -204,6 +214,9 @@ export class ContextProvider extends Component<{}, Context> {
       createServer: this.createServer,
       joinServer: this.joinServer,
       getChannel: this.getChannel,
+      signIn: this.signIn,
+      signOut: this.signOut,
+      createUser: this.createUser,
     };
     return (
       <context.Provider value={{ state: this.state, functions }}>
