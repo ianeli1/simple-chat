@@ -221,4 +221,9 @@ declare global {
       [key: string]: string;
     };
   }
+
+  interface ChannelTuple {
+    server: string;
+    channel: string;
+  }
 }

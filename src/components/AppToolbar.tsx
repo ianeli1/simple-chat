@@ -16,7 +16,9 @@ export function AppToolbar({
   toggleLeft: () => void;
   toggleRight: () => void;
 }) {
-  const { currentServer, currentChannel } = useContext(context).state;
+  const { lastServer: currentServer, lastChannel: currentChannel } = useContext(
+    context
+  ).state;
 
   return (
     <AppBar position="static">
@@ -30,7 +32,7 @@ export function AppToolbar({
         {currentServer && currentChannel && (
           <Box className="ToolbarCurrent">
             <Typography variant="h6">
-              {currentServer} - #{currentChannel}
+              {currentServer} - #{currentChannel.channel}
             </Typography>
           </Box>
         )}

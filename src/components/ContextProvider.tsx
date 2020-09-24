@@ -1,10 +1,10 @@
 import React, { Component, createContext } from "react";
-import { Handler } from "../handler2";
+import { Handler, ServerObject } from "../handler2";
 
 export interface Context {
   user: User | null;
-  currentServer: string | null;
-  currentChannel: string | null;
+  lastServer: string | null;
+  lastChannel: ChannelTuple | null; //tuple or null
   servers: {
     [key: string]: {
       data: ServerData;
@@ -24,20 +24,25 @@ export interface Context {
 
 const INITIAL_STATE: Context = {
   user: null,
-  currentChannel: null,
-  currentServer: null,
+  lastChannel: null,
+  lastServer: null,
   servers: {},
   globalEmotes: {},
 };
 
 export interface Functions {
-  addEmote: (emoteName: string, emote: File) => void;
-  sendMessage: (msg: Message, file?: File | undefined) => void;
-  loadServer: (id: string) => void;
-  createChannel: (channelName: string) => void;
+  addEmote(serverId: string, emoteName: string, emote: File): void;
+  sendMessage(
+    serverId: string,
+    channel: string,
+    msg: Message,
+    file?: File | undefined
+  ): void;
+  loadServer(serverId: string): boolean;
+  createChannel(channelName: string, serverId: string): void;
   createServer: (serverName: string) => void;
   joinServer: (serverId: string) => void;
-  getChannel: (channel: string) => void;
+  getChannel(serverId: string, channel: string): void;
   signIn: (email: string, pass: string, callback: (x: string) => void) => void;
   signOut: () => void;
   createUser: (
@@ -54,11 +59,15 @@ export const context = createContext<{ state: Context; functions: Functions }>(
 
 export class ContextProvider extends Component<{}, Context> {
   handler: Handler;
+  servers: {
+    [key: string]: ServerObject;
+  };
   constructor() {
     super({});
     this.state = INITIAL_STATE;
     this.handler = new Handler();
     this.handler.getUser((user) => void this.setState({ user }));
+    this.servers = {};
     this.sendMessage = this.sendMessage.bind(this);
     this.getChannel = this.getChannel.bind(this);
     this.loadServer = this.loadServer.bind(this);
@@ -81,9 +90,19 @@ export class ContextProvider extends Component<{}, Context> {
     this.handler.joinServer(serverId);
   }
 
-  createChannel(channelName: string) {
+  createChannel(channelName: string, serverId: string) {
     //ui updates itself?
-    this.handler.createChannel(channelName);
+    if (this.state.user?.servers?.includes(serverId)) {
+      if (!Object.keys(this.servers).includes(serverId)) {
+        this.loadServer(serverId);
+      }
+      this.servers[serverId].createChannel(channelName, this.state.user);
+    } else {
+      //TODO: better error reporting?
+      console.log(
+        `This user is not allowed to create the channel "${channelName}" in the server "${serverId}"`
+      );
+    }
   }
 
   createServer(serverName: string) {
@@ -110,9 +129,24 @@ export class ContextProvider extends Component<{}, Context> {
     this.handler.signOut();
   }
 
-  addEmote(emoteName: string, emote: File) {
-    //specify where?
-    this.handler.addEmote(emoteName, emote);
+  /**
+   * Adds a new emote to the current server
+   * @param serverId The server to which the emote will be added
+   * @param emoteName The emote's name
+   * @param emote The image file
+   */
+  addEmote(serverId: string, emoteName: string, emote: File) {
+    if (Object.keys(this.servers).includes(serverId)) {
+      this.servers[serverId].addEmote(emoteName, emote);
+    } else {
+      if (this.loadServer(serverId)) {
+        this.servers[serverId].addEmote(emoteName, emote);
+      } else {
+        console.log(
+          `Error, couldn't add the emote "${emoteName}" to "${serverId}"`
+        );
+      }
+    }
   }
 
   updateMembers(members: { [key: string]: User }, serverId: string) {
@@ -142,69 +176,111 @@ export class ContextProvider extends Component<{}, Context> {
     }));
   }
 
-  loadServer(id: string) {
+  /**
+   * Loads a new server into memory
+   * @param serverId The ID of the server to be loaded
+   * @example
+   * functions.loadServer("123")
+   */
+  loadServer(serverId: string): boolean {
     //TODO: disable the detachment feature in handler2 as it's no longer needed
-    this.handler.loadServer(
-      id,
-      (members) => this.updateMembers(members, id),
-      (data) => this.updateData(data, id)
-    );
-    this.setState({ currentServer: id, currentChannel: null });
+    if (this.state.user?.servers?.includes(serverId)) {
+      if (!Object.keys(this.servers).includes(serverId)) {
+        //TODO: implement a server stack, limit
+        this.servers[serverId] = new ServerObject(serverId);
+        this.servers[serverId].initialize(
+          (members) => this.updateMembers(members, serverId),
+          (data) => this.updateData(data, serverId)
+        );
+      }
+      this.setState({ lastServer: serverId, lastChannel: null }); //loading a server should not reset the chatbox //timing issue?
+      /*
+      if (this.servers[serverId].data?.channels[0]) {
+        console.log(`First channel: ${this.servers[serverId].data?.channels}`);
+        this.getChannel(serverId, this.servers[serverId].data?.channels[0]);
+      }*/ return true;
+    } else {
+      console.log(
+        `This user doesn't have permission to load the server "${serverId}"`
+      );
+      return false;
+    }
   }
 
-  getCurrentServer() {
-    return this.handler.currentServer;
-  }
-
-  setCurrentServer(id: string) {
-    this.loadServer(id);
-  }
-
-  getChannel(channel: string) {
-    //disable detachment
-    this.state.currentServer &&
-      this.handler.getChannel(channel, (channelObj) =>
-        this.setState(
-          (state) =>
-            (state.currentServer && {
-              currentChannel: channel,
-              servers: {
-                [state.currentServer]: {
-                  ...state.servers[state.currentServer],
-                  channels: {
-                    ...state.servers[state.currentServer].channels,
-                    [channel]: channelObj,
-                  },
-                },
+  updateChannel(serverId: string, channel: string, channelObj: Channel) {
+    this.setState(
+      (state) =>
+        (state.lastServer && {
+          servers: {
+            [state.lastServer]: {
+              ...state.servers[state.lastServer],
+              channels: {
+                ...state.servers[state.lastServer].channels,
+                [channel]: channelObj,
               },
-            }) ||
-            null
-        )
-      ); //don't update state if there's no currentserver selected
-  }
-
-  sendMessage(msg: Message, file?: File) {
-    this.handler.sendMessage(msg, file);
-  }
-
-  /*
-  addChannel(channel: Channel, serverId: string, id: string) {
-    this.setState((state) => ({
-      currentServer: serverId,
-      currentChannel: id,
-      servers: {
-        ...state.servers,
-        [serverId]: {
-          ...state.servers[serverId],
-          channels: {
-            ...state.servers[serverId].channels,
-            [id]: channel,
+            },
           },
-        },
-      },
-    }));
+        }) ||
+        null
+    );
   }
-  */
+
+  /**
+   * Loads a new channel into memory
+   * @param serverId The server id that owns the channel
+   * @param channel The channel's name
+   *
+   * @example
+   * handler.getChannel("coolServer", "coolChannel")
+   *
+   */
+  getChannel(serverId: string, channel: string) {
+    //disable detachment
+
+    if (this.state.user) {
+      if (!Object.keys(this.servers).includes(serverId)) {
+        if (
+          this.loadServer(serverId) &&
+          this.state.servers[serverId]?.data?.channels.includes(channel)
+        ) {
+          this.servers[serverId].getChannel(channel, (channelObj) =>
+            this.updateChannel(serverId, channel, channelObj)
+          );
+        } else {
+          console.log(
+            `An error ocurred while getting the channel "${channel}" in "${serverId}"`
+          );
+        }
+      } else {
+        this.servers[serverId].getChannel(channel, (channelObj) =>
+          this.updateChannel(serverId, channel, channelObj)
+        );
+      }
+    } else {
+      console.log(
+        `Couldn't get the channel "${channel}", user is NOT logged in.`
+      );
+    }
+    this.setState({ lastChannel: { server: serverId, channel: channel } });
+  }
+
+  sendMessage(serverId: string, channel: string, msg: Message, file?: File) {
+    //am i making too many checks?
+    if (Object.keys(this.servers).includes(serverId)) {
+      const thisServer = this.servers[serverId];
+      if (Object.keys(this.servers[serverId].channels).includes(channel)) {
+        this.servers[serverId].channels[channel].sendMessage(msg, file);
+      }
+    } else {
+      if (
+        this.loadServer(serverId) &&
+        this.state.servers[serverId]?.data?.channels.includes(serverId)
+      ) {
+        this.servers[serverId].channels[channel].sendMessage(msg, file);
+      }
+    }
+  }
+
   render() {
     const functions = {
       addEmote: this.addEmote,
@@ -225,48 +301,3 @@ export class ContextProvider extends Component<{}, Context> {
     );
   }
 }
-
-/*
-const reducer = (state: Context, action: Action): Context => {
-    switch(action.type){
-        case ACT.SET_USER:
-            if(action.user){
-                return {...state, user: action.user}
-            }else{
-                return state
-            }
-        case ACT.ADD_SERVER:
-            if(action.id && action.server){
-                return {...state, 
-                    currentServer: action.id,
-                    servers: {
-                        ...state.servers,
-                        [action.id]:{
-                            data: action.server,
-                            channels: {}
-                        } 
-                    }
-                }
-            }else return state
-        case ACT.ADD_CHANNEL:
-            if(action.id && action.id2 && action.channel){ //id=serverName, id2=channelName
-                return {...state,
-                    currentServer: action.id,
-                    currentChannel: action.id2,
-                    servers: {
-                        ...state.servers,
-                        [action.id]: {
-                            ...state.servers[action.id],
-                            channels: {
-                                ...state.servers[action.id].channels,
-                                [action.id2]: action.channel
-                            }
-                        }
-                    }
-                }
-            }else return state
-        default:
-            throw Error("Context Error:"+action.type||"unknown"+" is not a valid action type")
-            
-    }
-}*/

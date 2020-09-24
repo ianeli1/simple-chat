@@ -10,12 +10,9 @@ type LeftSidebarProps = {
 
 export default function LeftSidebar(props: LeftSidebarProps) {
   const { state, functions } = useContext(context);
-  const channelList =
-    (state.currentServer &&
-      state.servers[state.currentServer] &&
-      state.servers[state.currentServer].data &&
-      state.servers[state.currentServer].data.channels) ||
-    [];
+  const channelList = state.lastServer
+    ? state.servers[state.lastServer]?.data?.channels || []
+    : [];
   return (
     state.user && (
       <div id="LeftSidebar">
@@ -26,16 +23,24 @@ export default function LeftSidebar(props: LeftSidebarProps) {
             createServer={functions.createServer}
           />
         )}
-        {
+        {state.lastServer && (
           <ChannelList
-            currentChannel={state.currentChannel}
+            currentChannel={
+              state.lastChannel ? state.lastChannel.channel : null
+            }
             channelList={channelList}
-            changeChannel={functions.getChannel}
+            changeChannel={(channel) =>
+              state.lastServer &&
+              functions.getChannel(state.lastServer, channel)
+            }
             user={state.user}
-            createChannel={functions.createChannel}
+            createChannel={(channel) =>
+              state.lastServer &&
+              functions.createChannel(channel, state.lastServer)
+            }
             openWindow={props.openWindow}
           />
-        }
+        )}
       </div>
     )
   );
