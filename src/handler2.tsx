@@ -4,35 +4,25 @@ import * as r from "./reference";
 
 firebase.initializeApp(firebaseConfig);
 
+//TODO: make firebase callers into async functions
+
 /**
  * ***The*** Handler
  * @description
  * Manages all of the behind the scenes connections to the database
  */
-export class Handler implements r.Handler {
+export class Handler {
   user: User | null;
-  private servers: {
-    [key: string]: ServerObject;
-  };
-  currentServer: string;
   private userRef: firebase.database.Reference;
 
   /**Creates a new ***The*** Handler object */
   constructor() {
     this.user = null;
-    this.servers = {};
-    this.currentServer = "";
     this.userRef = firebase.database().ref("users");
-    this.sendMessage = this.sendMessage.bind(this);
-    this.getChannel = this.getChannel.bind(this);
     this.getUser = this.getUser.bind(this);
-    this.loadServer = this.loadServer.bind(this);
-    this.createChannel = this.createChannel.bind(this);
     this.createServer = this.createServer.bind(this);
     this.joinServer = this.joinServer.bind(this);
     this.initialize = this.initialize.bind(this);
-    this.getDebug = this.getDebug.bind(this);
-    this.addEmote = this.addEmote.bind(this);
   }
 
   /**
@@ -51,27 +41,19 @@ export class Handler implements r.Handler {
   }
 
   /**
-   * Creates a new channel in the current server
-   * @param channelName The channel's name
-   */
-  createChannel(channelName: string) {
-    this.user &&
-      this.servers[this.currentServer].createChannel(channelName, this.user);
-  }
-
-  /**
    * Creates a new server
    * @description
    * The user *must* be signed in
    * @param serverName The name of the server
    */
   createServer(serverName: string) {
+    //should this be handled by Cloud Fns?
     //use createChannel & joinServer
     const serverNode = firebase.database().ref("servers").push();
     const key = Date.now() + String(Math.floor(Math.random() * 9));
     if (this.user && serverNode.key) {
       let server: {
-        data: Server;
+        data: ServerData;
         members: { [key: string]: User };
         channels: { [x: string]: Channel };
       } = {
@@ -254,70 +236,12 @@ export class Handler implements r.Handler {
   }
 
   /**
-   * Loads a new server into memory
-   * @param serverId The ID of the server to be loaded
-   * @param updateMembers A function pointing to a React setState
-   * @param updateData A function pointing to a React setState
-   * @example
-   * handler.loadServer("123", (members) => this.setState({members})
-   *                    (data) => this.setState({data}))
-   */
-  loadServer(
-    serverId: string,
-    updateMembers: (serverMembers: { [key: string]: User }) => void,
-    updateData: (serverData: Server) => void
-  ) {
-    this.currentServer.length && this.servers[this.currentServer].detach();
-    this.currentServer = serverId;
-    if (Object.keys(this.servers).includes(serverId)) {
-      this.servers[this.currentServer].attach(updateMembers, updateData);
-    } else {
-      this.servers[this.currentServer] = new ServerObject(serverId);
-      this.servers[this.currentServer].initialize(updateMembers, updateData);
-    }
-  }
-
-  /**
-   * Adds a new emote to the current server
-   * @param emoteName The emote's name
-   * @param emote The image file
-   */
-  addEmote(emoteName: string, emote: File) {
-    this.servers[this.currentServer].addEmote(emoteName, emote);
-  }
-
-  /**
-   * [***For debug only***] Returns *all* the data saved in this object
-   */
-  getDebug() {
-    this.servers[this.currentServer].getDebug();
-  }
-
-  /**
-   * Loads a new channel into memory
-   * @param channel The channel's name
-   * @param updateChannel A function pointing to a React setState
-   *
-   * @example
-   * handler.getChannel("coolChannel", (channel: Channel) => this.setState({channel}))
-   *
-   * @todo Prevent it from loading a non-existant channel
-   */
-  getChannel(channel: string, updateChannel: (channel: Channel) => void) {
-    this.servers[this.currentServer].getChannel(channel, updateChannel);
-  }
-
-  /**
    * Sends a new message to the specified channel
    * @param msg The message object to be sent, must be in the Message format
    * @param file [*Optional*] An image file to be sent with the message
    *
    * @todo Use the `this.user` object and not trust the UI
    */
-  sendMessage(msg: Message, file?: File) {
-    const curr = this.servers[this.currentServer].currentChannel;
-    this.servers[this.currentServer].channels[curr].sendMessage(msg, file);
-  }
 }
 
 /** The server object
@@ -325,8 +249,8 @@ export class Handler implements r.Handler {
  * This class depends on the Channel class to function
  */
 
-class ServerObject {
-  data: Server;
+export class ServerObject {
+  data: ServerData;
   members: {
     [key: string]: User;
   };
@@ -368,7 +292,7 @@ class ServerObject {
    */
   initialize(
     updateMembers: (serverMembers: { [key: string]: User }) => void,
-    updateData: (serverData: Server) => void
+    updateData: (serverData: ServerData) => void
   ) {
     if (this.isInitialized) {
       this.ref.off();
@@ -488,7 +412,7 @@ class ServerObject {
    */
   attach(
     updateMembers: (serverMembers: { [key: string]: User }) => void,
-    updateData: (serverData: Server) => void
+    updateData: (serverData: ServerData) => void
   ) {
     this.isAttached = true;
     updateMembers(this.members);
@@ -510,7 +434,7 @@ class ServerObject {
 /**
  * The channel class
  */
-class ChannelObject {
+export class ChannelObject {
   serverId: string;
   name: string;
   cache: Channel;
