@@ -1,5 +1,5 @@
 import * as r from "../reference";
-import React, { Component, useState } from "react";
+import React, { Component, useRef, useState } from "react";
 import { File } from "../extraMenus";
 import { IconButton, TextField } from "@material-ui/core";
 import { AddPhotoAlternate, InsertEmoticon, Send } from "@material-ui/icons";
@@ -27,7 +27,7 @@ export function NewMessage(props: NewPostProps) {
   const [message, setMessage] = useState("");
   const [sendingImage, setSendingImage] = useState(false);
   const [showEmote, setShowEmote] = useState(false);
-  const emojiRef = React.createRef<HTMLButtonElement>();
+  const emojiRef = useRef<HTMLButtonElement>(null);
   const { sendMessage } = React.useContext(context).functions;
 
   const sendMsg = () => {
@@ -90,7 +90,7 @@ export function NewMessage(props: NewPostProps) {
           setMessage(`${message} <:${emoteName}:>`)
         }
       />
-      <IconButton onClick={() => setShowEmote(!showEmote)} ref={emojiRef}>
+      <IconButton onClick={() => setShowEmote(true)} ref={emojiRef}>
         <InsertEmoticon />
       </IconButton>
       <IconButton
