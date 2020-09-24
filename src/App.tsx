@@ -33,7 +33,7 @@ type AppState = {
   members: {
     [key: string]: User;
   };
-  data: Server | null;
+  data: ServerData | null;
   showRight: boolean;
   showLeft: boolean;
   invite: boolean;
