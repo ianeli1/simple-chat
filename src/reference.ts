@@ -226,4 +226,34 @@ declare global {
     server: string;
     channel: string;
   }
+
+  interface Reference {
+    db: firebase.database.Reference;
+    storage: firebase.storage.Reference;
+  }
+
+  interface Data {
+    [serverId: string]: {
+      data: ServerData;
+      members: {
+        [userId: string]: User;
+      };
+      channels: {
+        [channel: string]: Channel;
+      };
+    };
+  }
+
+  interface Action {
+    type: number;
+    serverId?: string;
+    channelName?: string;
+    data?: ServerData;
+    members?: {
+      [userId: string]: User;
+    };
+    channel?: Channel;
+    user?: User;
+    current?: string;
+  }
 }

@@ -21,30 +21,23 @@ export default function App() {
   const [inviting, setInviting] = useState(false);
   const [showRight, setShowRight] = useState(false);
   const [showLeft, setShowLeft] = useState(false);
-  const data =
-    state.lastServer && //WTFFFFFFF
-    state.servers[state.lastServer] &&
-    state.servers[state.lastServer].data;
+  const data = state.currentServer && state.servers[state.currentServer]?.data;
   const members =
-    state.lastServer &&
-    state.servers[state.lastServer] &&
-    state.servers[state.lastServer].members;
+    state.currentServer && state.servers[state.currentServer].members;
   console.log(JSON.stringify(state, null, 2));
   const currChannel =
-    state.lastChannel && state.servers[state.lastChannel.server].channels
-      ? state.servers[state.lastChannel.server].channels[
-          state.lastChannel.channel
-        ]
-      : null;
+    state.currentChannel &&
+    state.currentServer &&
+    state.servers[state.currentServer]?.channels[state.currentChannel];
 
   const container =
     window !== undefined ? () => window.document.body : undefined;
   const leftSidebar = state.user && <LeftSidebar openWindow={openWindow} />;
   return (
     <Box className="Global">
-      {inviting && data && state.lastServer && (
+      {inviting && data && state.currentServer && (
         <Invite
-          id={state.lastServer}
+          id={state.currentServer}
           name={data.name}
           close={() => setInviting(false)}
         />
@@ -88,13 +81,7 @@ export default function App() {
             emotes={(data && data.emotes) || {} /*TODO: use global emotes*/}
             channel={currChannel}
             sendMessage={(message, file) =>
-              state.lastChannel &&
-              functions.sendMessage(
-                state.lastChannel.server,
-                state.lastChannel.channel,
-                message,
-                file
-              )
+              functions.sendMessage(message, file)
             }
           />
         )}
@@ -107,8 +94,7 @@ export default function App() {
               members={members}
               emotes={(data && data.emotes) || {}}
               addEmote={(emoteName, emote) =>
-                state.lastServer &&
-                functions.addEmote(state.lastServer, emoteName, emote)
+                functions.addEmote(emoteName, emote)
               }
               signOut={functions.signOut}
               debug={() => void null}

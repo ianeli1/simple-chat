@@ -29,10 +29,10 @@ export function NewMessage(props: NewPostProps) {
   const [showEmote, setShowEmote] = useState(false);
   const emojiRef = useRef<HTMLButtonElement>(null);
   const { sendMessage } = React.useContext(context).functions;
-  const { lastChannel } = React.useContext(context).state;
+  const { currentChannel, currentServer } = React.useContext(context).state;
 
   const sendMsg = () => {
-    if (lastChannel) {
+    if (currentChannel) {
       const INVITE_REGEX = /<!invite>(.*?)<!\/invite>/i;
       const EMOTE_REGEX = /<:[a-zA-Z0-9]+:>/gi;
       let messageObj: Message = {
@@ -63,13 +63,13 @@ export function NewMessage(props: NewPostProps) {
               (x) =>
                 x in props.emotes && (() => (emoteObj[x] = props.emotes[x]))()
             );
-        sendMessage(lastChannel.server, lastChannel.channel, {
+        sendMessage({
           ...messageObj,
           emotes: emoteObj,
         });
         setMessage("");
       } else {
-        sendMessage(lastChannel.server, lastChannel.channel, messageObj);
+        sendMessage(messageObj);
         setMessage("");
       }
     }
@@ -81,10 +81,7 @@ export function NewMessage(props: NewPostProps) {
         <File
           user={props.user}
           cancel={() => setSendingImage(false)}
-          sendMessage={(message, file) =>
-            lastChannel &&
-            sendMessage(lastChannel.server, lastChannel.channel, message, file)
-          }
+          sendMessage={(message, file) => sendMessage(message, file)}
         />
       )}
       <EmotePopper
