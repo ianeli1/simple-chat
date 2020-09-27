@@ -6,8 +6,25 @@ import {
   Box,
 } from "@material-ui/core";
 import { Chat, HorizontalSplit } from "@material-ui/icons";
-import React, { useContext } from "react";
-import { context } from "./ContextProvider";
+import React, { useContext, useEffect, useState } from "react";
+import { dataContext } from "./Intermediary";
+
+function useChannelChange() {
+  const [state] = useContext(dataContext);
+  const [currentChannel, setCurrentChannel] = useState<string | null>(null);
+  const [currentServer, setCurrentServer] = useState<string | null>(null);
+  useEffect(() => {
+    setCurrentChannel(null);
+    setCurrentServer(state.misc.currentServer);
+  }, [state.misc.currentServer]);
+
+  useEffect(() => {
+    setCurrentChannel(state.misc.currentChannel);
+    setCurrentServer(state.misc.currentServer);
+  }, [state.misc.currentChannel]);
+
+  return [currentChannel, currentServer];
+}
 
 export function AppToolbar({
   toggleLeft,
@@ -16,7 +33,7 @@ export function AppToolbar({
   toggleLeft: () => void;
   toggleRight: () => void;
 }) {
-  const { currentServer, currentChannel } = useContext(context).state;
+  const [currentChannel, currentServer] = useChannelChange();
 
   return (
     <AppBar position="static">

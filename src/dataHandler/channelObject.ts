@@ -2,7 +2,6 @@
  * The channel class
  */
 export class ChannelObject {
-  name: string;
   cache: Channel;
   isInitialized: boolean;
   isAttached: boolean;
@@ -13,13 +12,9 @@ export class ChannelObject {
    * @param serverId The ID of the server this channel is a part of
    * @param channelName The name of the channel
    */
-  constructor(serverRef: Reference, channelName: string) {
-    this.name = channelName;
+  constructor(channelRef: Reference) {
     this.cache = {};
-    this.ref = {
-      db: serverRef.db.child(`channels/${channelName}`),
-      storage: serverRef.storage.child(`channels/${channelName}`),
-    };
+    this.ref = channelRef;
     this.isInitialized = false;
     this.isAttached = false;
     this.sendMessage = this.sendMessage.bind(this);
@@ -66,28 +61,25 @@ export class ChannelObject {
    * @example
    * channel.initialize((channel: Channel) => this.setState({channel}));
    */
-  async initialize(updateState: (channel: Channel) => void): Promise<boolean> {
+  initialize(updateState: (channel: Channel) => void): boolean {
     try {
       if (this.isInitialized) {
         this.ref.db.off();
       }
       this.isAttached = true;
+      this.ref.db
+        .orderByKey()
+        .limitToLast(15)
+        .on("child_added", async (snap) => {
+          if (snap.key) {
+            const temp = snap.val();
+            temp.timestamp = snap.key;
+            this.cache[snap.key] = temp;
+            if (temp.image) temp.image = await this.getImage(temp.image);
+            this.isAttached && updateState(this.cache);
+          }
+        });
 
-      await new Promise((resolve, reject) => {
-        this.ref.db
-          .orderByKey()
-          .limitToLast(15)
-          .on("child_added", async (snap) => {
-            if (snap.key) {
-              const temp = snap.val();
-              temp.timestamp = snap.key;
-              this.cache[snap.key] = temp;
-              if (temp.image) temp.image = await this.getImage(temp.image);
-              this.isAttached && updateState(this.cache);
-              resolve();
-            }
-          });
-      });
       return true;
     } catch (e) {
       console.log("An error ocurred while initializing the channel", e);

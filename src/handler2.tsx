@@ -279,7 +279,7 @@ export class Handler implements r.Handler {
    * handler.loadServer("123", (members) => this.setState({members})
    *                    (data) => this.setState({data}))
    */
-  loadServer(serverId: string) {
+  async loadServer(serverId: string) {
     this.currentServer.length && this.servers[this.currentServer].detach();
     this.currentServer = serverId;
     if (Object.keys(this.servers).includes(serverId)) {
@@ -297,7 +297,7 @@ export class Handler implements r.Handler {
       this.servers[this.currentServer] = new ServerObject(
         this.createRef(serverId)
       );
-      this.servers[this.currentServer].initialize(
+      await this.servers[this.currentServer].initialize(
         (members) =>
           void this.dispatch({
             type: serverACT.SET_MEMBERS,
@@ -307,6 +307,7 @@ export class Handler implements r.Handler {
         (data) =>
           void this.dispatch({ type: serverACT.SET_DATA, serverId, data })
       );
+      this.dispatch({ type: MiscACT.SET_CURRENT_SERVER, current: serverId });
     }
   }
 
@@ -345,6 +346,10 @@ export class Handler implements r.Handler {
         channel: channelObj,
       })
     );
+    this.dispatch({
+      type: MiscACT.SET_CURRENT_CHANNEL,
+      current: channel,
+    });
   }
 
   /**
@@ -355,7 +360,9 @@ export class Handler implements r.Handler {
    * @todo Use the `this.user` object and not trust the UI
    */
   sendMessage(msg: Message, file?: File) {
-    const curr = this.servers[this.currentServer].currentChannel;
-    this.servers[this.currentServer].channels[curr].sendMessage(msg, file);
+    if (this.user) {
+      const curr = this.servers[this.currentServer].currentChannel;
+      this.servers[this.currentServer].channels[curr].sendMessage(msg, file);
+    }
   }
 }

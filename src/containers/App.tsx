@@ -1,10 +1,10 @@
 import { Box, Hidden, Drawer } from "@material-ui/core";
 import React, { useState } from "react";
 import { AppToolbar } from "../components/AppToolbar";
-import { context } from "../components/ContextProvider";
+import { Intermediary, dataContext } from "../components/Intermediary";
 import Login, { Invite } from "../extraMenus";
 import { RightSidebar } from "../rightSidebar";
-import ChatBox from "./ChatBox";
+import { ChatBox } from "./ChatBox";
 import LeftSidebar from "./LeftSidebar";
 import "../css/App.css";
 
@@ -17,40 +17,27 @@ export default function App() {
       console.log("what??? when did i write this function");
     }
   }
-  const { state, functions } = React.useContext(context);
+  const [state, dispatch] = React.useContext(dataContext);
   const [inviting, setInviting] = useState(false);
   const [showRight, setShowRight] = useState(false);
   const [showLeft, setShowLeft] = useState(false);
-  const data = state.currentServer && state.servers[state.currentServer]?.data;
-  const members =
-    state.currentServer && state.servers[state.currentServer].members;
-  console.log(JSON.stringify(state, null, 2));
-  const currChannel =
-    state.currentChannel &&
-    state.currentServer &&
-    state.servers[state.currentServer]?.channels[state.currentChannel];
-
   const container =
     window !== undefined ? () => window.document.body : undefined;
-  const leftSidebar = state.user && <LeftSidebar openWindow={openWindow} />;
+  const leftSidebar = state.misc.user && (
+    <LeftSidebar openWindow={openWindow} />
+  );
   return (
     <Box className="Global">
-      {inviting && data && state.currentServer && (
-        <Invite
-          id={state.currentServer}
-          name={data.name}
-          close={() => setInviting(false)}
-        />
+      {inviting && state.misc.currentServer && (
+        <Invite close={() => setInviting(false)} />
       )}
-      {!state.user && (
-        <Login signIn={functions.signIn} signUp={functions.createUser} />
-      )}
-      {state.user && (
-        <AppToolbar
-          toggleLeft={() => setShowLeft(!showLeft)}
-          toggleRight={() => setShowRight(!showRight)}
-        />
-      )}
+      {!state.misc.user && <Login />}
+
+      <AppToolbar
+        toggleLeft={() => setShowLeft(!showLeft)}
+        toggleRight={() => setShowRight(!showRight)}
+      />
+
       <Box className="App">
         <Hidden smUp>
           <Drawer
@@ -74,32 +61,10 @@ export default function App() {
             {leftSidebar}
           </Drawer>
         </Hidden>
-        {state.user && currChannel && (
-          <ChatBox
-            joinServer={functions.joinServer}
-            user={state.user}
-            emotes={(data && data.emotes) || {} /*TODO: use global emotes*/}
-            channel={currChannel}
-            sendMessage={(message, file) =>
-              functions.sendMessage(message, file)
-            }
-          />
-        )}
-        {state.user &&
-          data &&
-          members &&
-          showRight && ( //idea: on mobile, make the bg of the drawer transparent
-            <RightSidebar
-              user={state.user}
-              members={members}
-              emotes={(data && data.emotes) || {}}
-              addEmote={(emoteName, emote) =>
-                functions.addEmote(emoteName, emote)
-              }
-              signOut={functions.signOut}
-              debug={() => void null}
-            />
-          )}
+        <ChatBox />
+        {/*
+          showRight && <RightSidebar /> //idea: on mobile, make the bg of the drawer transparent
+        */}
       </Box>
     </Box>
   );

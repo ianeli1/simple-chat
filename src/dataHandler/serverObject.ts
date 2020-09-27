@@ -41,36 +41,29 @@ export class ServerObject {
    * server.initialize((members) => this.setState({members}),
    *                   (data) => this.setState({data}))
    */
-  async initialize(
+  initialize(
     updateMembers: (serverMembers: { [key: string]: User }) => void,
     updateData: (serverData: ServerData) => void
-  ): Promise<boolean> {
+  ): boolean {
     try {
       if (this.isInitialized) {
         this.ref.db.off();
       }
       this.isInitialized = true;
       this.isAttached = true;
-      await new Promise((resolve, reject) => {
-        //wait until the first value
-        this.ref.db.child("data").on("value", (snap) => {
-          const firebaseReply = snap.val();
-          this.data = {
-            ...firebaseReply,
-            channels: Object.values(firebaseReply.channels),
-          };
-          console.log({ data: this.data });
-          this.isAttached && this.data && updateData(this.data);
-          resolve();
-        });
+      this.ref.db.child("data").on("value", (snap) => {
+        const firebaseReply = snap.val();
+        this.data = {
+          ...firebaseReply,
+          channels: Object.values(firebaseReply.channels),
+        };
+        console.log({ data: this.data });
+        this.isAttached && this.data && updateData(this.data);
       });
-      await new Promise((resolve, reject) => {
-        this.ref.db.child("members").on("value", (snap) => {
-          this.members = snap.val();
-          console.log({ members: this.members });
-          this.isAttached && updateMembers(this.members);
-          resolve();
-        });
+      this.ref.db.child("members").on("value", (snap) => {
+        this.members = snap.val();
+        console.log({ members: this.members });
+        this.isAttached && updateMembers(this.members);
       });
       return true;
     } catch (e) {
@@ -87,10 +80,10 @@ export class ServerObject {
    * @example
    * server.getChannel("general", (channel) => this.setState({channel}))
    */
-  async getChannel(
+  getChannel(
     channel: string,
     updateChannel: (channel: Channel) => void
-  ): Promise<boolean> {
+  ): boolean {
     if (this.data) {
       this.currentChannel.length && this.channels[this.currentChannel].detach();
       this.currentChannel = channel;
@@ -99,14 +92,12 @@ export class ServerObject {
         this.channels[this.currentChannel].attach(updateChannel);
         return true;
       } else {
-        this.channels[this.currentChannel] = new ChannelObject(
-          {
-            db: this.ref.db.child(`channels/${channel}`),
-            storage: this.ref.storage.child(`channels/${channel}`),
-          },
-          this.currentChannel
-        );
-        await this.channels[this.currentChannel].initialize(updateChannel);
+        console.log("Creating channel object...");
+        this.channels[this.currentChannel] = new ChannelObject({
+          db: this.ref.db.child(`channels/${channel}`),
+          storage: this.ref.storage.child(`channels/${channel}`),
+        });
+        this.channels[this.currentChannel].initialize(updateChannel);
         return true;
       }
     } else return false;

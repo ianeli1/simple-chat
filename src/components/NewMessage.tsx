@@ -1,10 +1,16 @@
 import * as r from "../reference";
-import React, { Component, useRef, useState } from "react";
+import React, {
+  Component,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import { File } from "../extraMenus";
 import { IconButton, TextField } from "@material-ui/core";
 import { AddPhotoAlternate, InsertEmoticon, Send } from "@material-ui/icons";
 import EmotePopper from "./EmotePopper";
-import { context, Functions } from "./ContextProvider";
+import { dataContext, sendMessage } from "./Intermediary";
 
 interface NewPostProps {
   emotes: Emotes;
@@ -23,21 +29,56 @@ TODO: Add inline emote support
 TODO: Regex check for emote and invite patterns on every textfield change
 */
 
-export function NewMessage(props: NewPostProps) {
+function useNewMessage() {
+  const [state] = useContext(dataContext);
+  const [user, setUser] = useState<User | null>(null);
+  const [emotes, setEmotes] = useState<Emotes>({});
+  const [currentChannel, setCurrentChannel] = useState("");
+
+  useEffect(() => {
+    const k = state.misc.user;
+    if (k) {
+      setUser(k);
+    } else {
+      setUser(null);
+    }
+  }, [state.misc.user]);
+
+  useEffect(() => {
+    const curr = state.misc.currentServer;
+    if (curr) {
+      setEmotes(state.servers[curr]?.data?.emotes || {}); //TODO: global emotes!!
+    } else {
+      setEmotes({});
+    }
+  }, [state.misc.currentServer]);
+
+  useEffect(() => {
+    const curr = state.misc.currentChannel;
+    if (curr) {
+      setCurrentChannel(curr);
+    } else {
+      setCurrentChannel("");
+    }
+  }, [state.misc.currentChannel]);
+
+  return { user, emotes, currentChannel };
+}
+
+export function NewMessage() {
   const [message, setMessage] = useState("");
   const [sendingImage, setSendingImage] = useState(false);
   const [showEmote, setShowEmote] = useState(false);
   const emojiRef = useRef<HTMLButtonElement>(null);
-  const { sendMessage } = React.useContext(context).functions;
-  const { currentChannel, currentServer } = React.useContext(context).state;
+  const { user, emotes, currentChannel } = useNewMessage();
 
   const sendMsg = () => {
-    if (currentChannel) {
+    if (currentChannel && user) {
       const INVITE_REGEX = /<!invite>(.*?)<!\/invite>/i;
       const EMOTE_REGEX = /<:[a-zA-Z0-9]+:>/gi;
       let messageObj: Message = {
-        name: props.user.name,
-        userId: props.user.userId,
+        name: user.name,
+        userId: user.userId,
         message,
         timestamp: "0",
       };
@@ -59,10 +100,7 @@ export function NewMessage(props: NewPostProps) {
         emoteList &&
           emoteList
             .map((x) => x.slice(2, -2))
-            .forEach(
-              (x) =>
-                x in props.emotes && (() => (emoteObj[x] = props.emotes[x]))()
-            );
+            .forEach((x) => x in emotes && (() => (emoteObj[x] = emotes[x]))());
         sendMessage({
           ...messageObj,
           emotes: emoteObj,
@@ -77,9 +115,9 @@ export function NewMessage(props: NewPostProps) {
 
   return (
     <div className="newMessage">
-      {sendingImage && (
+      {sendingImage && user && (
         <File
-          user={props.user}
+          user={user}
           cancel={() => setSendingImage(false)}
           sendMessage={(message, file) => sendMessage(message, file)}
         />
@@ -87,7 +125,7 @@ export function NewMessage(props: NewPostProps) {
       <EmotePopper
         anchor={emojiRef.current}
         open={showEmote}
-        emotes={props.emotes}
+        emotes={emotes}
         onClose={() => setShowEmote(false)}
         onEmoteClick={(emoteName: string) =>
           setMessage(`${message} <:${emoteName}:>`)

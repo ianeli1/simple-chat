@@ -62,6 +62,10 @@ function rootReducer(state: rootState, action: Action) {
   } else return state;
 }
 
+export enum func {
+  SEND_MESSAGE = 100,
+}
+
 function dispatchMiddleware(dispatch: React.Dispatch<Action>) {
   return (action: Action) => {
     switch (action.type) {
@@ -74,7 +78,17 @@ function dispatchMiddleware(dispatch: React.Dispatch<Action>) {
 export const dataContext = createContext<[rootState, React.Dispatch<Action>]>(
   undefined!
 );
+
 const handler = new Handler();
+
+export const sendMessage = handler.sendMessage;
+export const signIn = handler.signIn;
+export const signUp = handler.createUser;
+export const joinServer = handler.joinServer;
+export const loadServer = handler.loadServer;
+export const createServer = handler.createServer;
+export const getChannel = handler.getChannel;
+export const createChannel = handler.createChannel;
 export function Intermediary(props: { children: React.ReactNode }) {
   const [state, dispatch] = useReducer(rootReducer, {
     misc: {

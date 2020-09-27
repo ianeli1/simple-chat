@@ -1,21 +1,11 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect, useContext } from "react";
 import { Box, Typography, TextField, Button } from "@material-ui/core";
 
 import * as r from "./reference";
 import "./css/extraMenus.css";
+import { dataContext, signIn, signUp } from "./components/Intermediary";
 //TODO: Rewrite all these as Material UI dialogs, ooops
-export default function Login({
-  signIn,
-  signUp,
-}: {
-  signIn: (email: string, pass: string, callback: (x: string) => void) => void;
-  signUp: (
-    username: string,
-    email: string,
-    pass: string,
-    callback: (x: string) => void
-  ) => void;
-}) {
+export default function Login() {
   function handleLogin(error: string) {
     setPass("");
     switch (error) {
@@ -134,18 +124,31 @@ export function AddEmote({
   );
 }
 
-export function Invite(props: {
-  id: string;
-  name: string;
-  icon?: string;
-  close: () => void;
-}) {
+function useServerChange() {
+  const [state] = useContext(dataContext);
+  const [serverId, setServerId] = useState<string | null>(null);
+  const [serverName, setServerName] = useState<string | null>(null);
+
+  useEffect(() => {
+    const curr = state.misc.currentServer;
+    if (curr) {
+      setServerId(curr);
+      setServerName(state.servers[curr]?.data?.name || null);
+    }
+  }, [state.misc.currentServer]);
+
+  return [serverId, serverName];
+}
+
+export function Invite(props: { close: () => void }) {
   function copyToClipboard(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) {
     textAreaRef.current != null && textAreaRef.current.select();
     document.execCommand("copy");
     (e.target as HTMLButtonElement).focus();
     setCopySuccess("Copied!");
   }
+
+  const [serverId, serverName] = useServerChange();
   const textAreaRef = useRef<HTMLTextAreaElement>(null);
   const [copySuccess, setCopySuccess] = useState<string>("Copy");
   return (
@@ -156,9 +159,10 @@ export function Invite(props: {
           inputRef={textAreaRef}
           multiline
           value={
-            "<!invite>" +
-            btoa(JSON.stringify({ id: props.id, name: props.name })) +
-            "<!/invite>"
+            "<!invite>" + (serverId && serverName)
+              ? btoa(JSON.stringify({ id: serverId, name: serverName }))
+              : "AN ERROR OCURRED" + //TODO: handle this
+                "<!/invite>"
           }
           variant="outlined"
         />
