@@ -106,16 +106,14 @@ export default function LeftSidebar(props: LeftSidebarProps) {
             createServer={createServer}
           />
         )}
-        {currentServer && (
-          <ChannelList
-            currentChannel={currentChannel}
-            channelList={channelList}
-            changeChannel={(channel) => getChannel(channel)}
-            user={user}
-            createChannel={(channel) => createChannel(channel)}
-            openWindow={props.openWindow}
-          />
-        )}
+        <ChannelList
+          currentChannel={currentChannel}
+          channelList={channelList || []}
+          changeChannel={(channel) => getChannel(channel)}
+          user={user}
+          createChannel={(channel) => createChannel(channel)}
+          openWindow={props.openWindow}
+        />
       </div>
     )
   );

@@ -9,7 +9,7 @@ import LeftSidebar from "./LeftSidebar";
 import "../css/App.css";
 
 function smUp() {
-  // https://stackoverflow.com/a/8876069
+  //stack overflow hack haha
   const width = Math.max(
     document.documentElement.clientWidth,
     window.innerWidth || 0
