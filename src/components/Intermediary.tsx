@@ -89,6 +89,8 @@ export const loadServer = handler.loadServer;
 export const createServer = handler.createServer;
 export const getChannel = handler.getChannel;
 export const createChannel = handler.createChannel;
+export const signOut = handler.signOut;
+export const addEmote = handler.addEmote;
 export function Intermediary(props: { children: React.ReactNode }) {
   const [state, dispatch] = useReducer(rootReducer, {
     misc: {
