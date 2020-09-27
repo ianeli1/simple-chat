@@ -34,7 +34,7 @@ function useNewMessage() {
   const [user, setUser] = useState<User | null>(null);
   const [emotes, setEmotes] = useState<Emotes>({});
   const [currentChannel, setCurrentChannel] = useState("");
-
+  const curr = state.misc.currentChannel;
   useEffect(() => {
     const k = state.misc.user;
     if (k) {
@@ -51,16 +51,15 @@ function useNewMessage() {
     } else {
       setEmotes({});
     }
-  }, [state.misc.currentServer]);
+  }, [curr]);
 
   useEffect(() => {
-    const curr = state.misc.currentChannel;
     if (curr) {
       setCurrentChannel(curr);
     } else {
       setCurrentChannel("");
     }
-  }, [state.misc.currentChannel]);
+  }, [curr]);
 
   return { user, emotes, currentChannel };
 }
