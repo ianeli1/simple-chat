@@ -3,10 +3,11 @@ import React, { useRef, useState } from "react";
 import { AppToolbar } from "../components/AppToolbar";
 import { dataContext } from "../components/Intermediary";
 import Login, { Invite } from "../extraMenus";
-import { RightSidebar } from "../rightSidebar";
+
 import { ChatBox } from "./ChatBox";
 import LeftSidebar from "./LeftSidebar";
 import "../css/App.css";
+import { RightSidebar } from "./RightSidebar";
 
 function smUp() {
   //stack overflow hack haha
@@ -73,9 +74,9 @@ export default function App() {
           <div className={showLeft ? "LeftShow" : "LeftHide"} />
         </Hidden>
         <ChatBox />
-        {/*
+        {
           showRight && <RightSidebar /> //idea: on mobile, make the bg of the drawer transparent
-        */}
+        }
       </div>
     </Box>
   );
