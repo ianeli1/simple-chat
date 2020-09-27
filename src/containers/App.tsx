@@ -1,7 +1,7 @@
-import { Box, Hidden, Drawer } from "@material-ui/core";
-import React, { useState } from "react";
+import { Box, Hidden, Drawer, makeStyles, Theme } from "@material-ui/core";
+import React, { useRef, useState } from "react";
 import { AppToolbar } from "../components/AppToolbar";
-import { Intermediary, dataContext } from "../components/Intermediary";
+import { dataContext } from "../components/Intermediary";
 import Login, { Invite } from "../extraMenus";
 import { RightSidebar } from "../rightSidebar";
 import { ChatBox } from "./ChatBox";
@@ -21,6 +21,7 @@ export default function App() {
   const [inviting, setInviting] = useState(false);
   const [showRight, setShowRight] = useState(false);
   const [showLeft, setShowLeft] = useState(false);
+  const divRef = useRef<HTMLDivElement>(null);
   const container =
     window !== undefined ? () => window.document.body : undefined;
   const leftSidebar = state.misc.user && (
@@ -38,7 +39,7 @@ export default function App() {
         toggleRight={() => setShowRight(!showRight)}
       />
 
-      <Box className="App">
+      <div className={"App"}>
         <Hidden smUp>
           <Drawer
             container={container}
@@ -60,12 +61,14 @@ export default function App() {
           >
             {leftSidebar}
           </Drawer>
+
+          <div className={showLeft ? "LeftShow" : "LeftHide"} />
         </Hidden>
         <ChatBox />
         {/*
           showRight && <RightSidebar /> //idea: on mobile, make the bg of the drawer transparent
         */}
-      </Box>
+      </div>
     </Box>
   );
 }
