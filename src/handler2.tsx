@@ -207,7 +207,7 @@ export class Handler implements r.Handler {
    */
   getUser() {
     firebase.auth().onAuthStateChanged(async (user) => {
-      if (user) {
+      if (user?.uid) {
         const temp = await (
           await firebase
             .database()
