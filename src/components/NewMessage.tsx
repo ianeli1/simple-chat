@@ -150,6 +150,7 @@ export function NewMessage() {
         onKeyDown={(e) => e.key === "Enter" && sendMsg()}
         variant="outlined"
         label="Message"
+        autoComplete="off"
       />
       <IconButton onClick={() => message.length && sendMsg()}>
         <Send />

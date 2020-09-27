@@ -8,6 +8,15 @@ import { ChatBox } from "./ChatBox";
 import LeftSidebar from "./LeftSidebar";
 import "../css/App.css";
 
+function smUp() {
+  // https://stackoverflow.com/a/8876069
+  const width = Math.max(
+    document.documentElement.clientWidth,
+    window.innerWidth || 0
+  );
+  return width > 768;
+}
+
 export default function App() {
   function openWindow(window: string) {
     //TODO: replace this trash, use dialog/popover
@@ -17,11 +26,10 @@ export default function App() {
       console.log("what??? when did i write this function");
     }
   }
-  const [state, dispatch] = React.useContext(dataContext);
+  const [state] = React.useContext(dataContext);
   const [inviting, setInviting] = useState(false);
   const [showRight, setShowRight] = useState(false);
-  const [showLeft, setShowLeft] = useState(false);
-  const divRef = useRef<HTMLDivElement>(null);
+  const [showLeft, setShowLeft] = useState(smUp());
   const container =
     window !== undefined ? () => window.document.body : undefined;
   const leftSidebar = state.misc.user && (
