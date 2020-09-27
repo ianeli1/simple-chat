@@ -28,8 +28,24 @@
   overflow-x: hidden;
 }
 
+.LeftShow {
+  min-width: 250px;
+  transition: min-width 195ms cubic-bezier(0, 0, 0.2, 1) 0ms;
+}
+
+.LeftHide {
+  min-width: 0px;
+  transition: min-width 225ms cubic-bezier(0.4, 0, 0.6, 1) 0ms;
+}
+
 .lightFont {
   font-weight: 100 !important;
+}
+
+.drawerPaper {
+  background: rgba(50, 50, 50, 0.2) !important;
+  top: unset !important;
+  width: 250px;
 }
 
 /*AppToolbar*/
