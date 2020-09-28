@@ -1,5 +1,5 @@
-#Simple-Chat v0.5
-###For simple chatting!
+# Simple-Chat v0.5
+### For simple chatting!
 
 This project was built using:
 
