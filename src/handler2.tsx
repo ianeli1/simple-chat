@@ -314,16 +314,26 @@ export class Handler implements r.Handler {
       this.userRef
         .child(this.user.userId)
         .on("value", (snap: firebase.database.DataSnapshot) => {
-          const temp = snap.val();
-          this.dispatch({
-            type: MiscACT.SET_USER,
-            user: {
-              ...this.user,
-              ...temp,
-              servers: Object.values(temp.servers),
-              friends: temp.friends || this.user?.friends || {},
-            },
-          });
+          if (snap.exists()) {
+            const temp = snap.val();
+            this.dispatch({
+              type: MiscACT.SET_USER,
+              user: {
+                ...this.user,
+                ...temp,
+                servers: Object.values(temp.servers),
+                friends:
+                  (temp.friends && Object.values(temp.friends)) ||
+                  this.user?.friends ||
+                  [],
+              },
+            });
+            const serverList = Object.values((temp.servers as string[]) || []);
+            console.table(temp.servers);
+            for (const server of serverList) {
+              this.loadServer(server, false);
+            }
+          }
         });
       const onlineRef = firebase
         .database()
@@ -349,15 +359,15 @@ export class Handler implements r.Handler {
   /**
    * Loads a new server into memory
    * @param serverId The ID of the server to be loaded
-   * @param updateMembers A function pointing to a React setState
-   * @param updateData A function pointing to a React setState
+   * @param update Optional, set to false to prevent changing the current server
    * @example
    * handler.loadServer("123", (members) => this.setState({members})
    *                    (data) => this.setState({data}))
    */
-  async loadServer(serverId: string) {
+  async loadServer(serverId: string, update: boolean = true) {
     this.currentServer.length && this.servers[this.currentServer].detach();
     this.currentServer = serverId;
+
     if (Object.keys(this.servers).includes(serverId)) {
       this.servers[this.currentServer].attach(
         (members) =>
@@ -369,6 +379,9 @@ export class Handler implements r.Handler {
         (data) =>
           void this.dispatch({ type: serverACT.SET_DATA, serverId, data })
       );
+
+      update &&
+        this.dispatch({ type: MiscACT.SET_CURRENT_SERVER, current: serverId });
     } else {
       this.servers[this.currentServer] = new ServerObject(
         this.createRef(serverId)
@@ -383,7 +396,8 @@ export class Handler implements r.Handler {
         (data) =>
           void this.dispatch({ type: serverACT.SET_DATA, serverId, data })
       );
-      this.dispatch({ type: MiscACT.SET_CURRENT_SERVER, current: serverId });
+      update &&
+        this.dispatch({ type: MiscACT.SET_CURRENT_SERVER, current: serverId });
     }
   }
 
