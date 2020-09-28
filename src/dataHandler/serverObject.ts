@@ -52,13 +52,17 @@ export class ServerObject {
       this.isInitialized = true;
       this.isAttached = true;
       this.ref.db.child("data").on("value", (snap) => {
-        const firebaseReply = snap.val();
-        this.data = {
-          ...firebaseReply,
-          channels: Object.values(firebaseReply.channels),
-        };
-        console.log({ data: this.data });
-        this.isAttached && this.data && updateData(this.data);
+        if (snap.exists()) {
+          const firebaseReply = snap.val();
+          this.data = {
+            ...firebaseReply,
+            channels: firebaseReply.channels
+              ? Object.values(firebaseReply.channels)
+              : [],
+          };
+          console.log({ data: this.data });
+          this.isAttached && this.data && updateData(this.data);
+        }
       });
       this.ref.db.child("members").on("value", (snap) => {
         this.members = snap.val();
