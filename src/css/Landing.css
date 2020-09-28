@@ -1,0 +1,13 @@
+.LandingRoot {
+  flex: 1;
+  padding: 20px;
+}
+
+.LandingCard {
+  margin: 20px 0;
+  background: darkgray;
+}
+
+.LandingCard > div {
+  background: darkgray;
+}

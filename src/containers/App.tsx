@@ -8,6 +8,7 @@ import { ChatBox } from "./ChatBox";
 import LeftSidebar from "./LeftSidebar";
 import "../css/App.css";
 import { RightSidebar } from "./RightSidebar";
+import { Landing } from "./Landing";
 
 function smUp() {
   //stack overflow hack haha
@@ -27,7 +28,7 @@ export default function App() {
       console.log("what??? when did i write this function");
     }
   }
-  const [state] = React.useContext(dataContext);
+  const [state] = React.useContext(dataContext); //TODO: write a hook
   const [inviting, setInviting] = useState(false);
   const [showRight, setShowRight] = useState(false);
   const [showLeft, setShowLeft] = useState(smUp());
@@ -73,7 +74,7 @@ export default function App() {
 
           <div className={showLeft ? "LeftShow" : "LeftHide"} />
         </Hidden>
-        <ChatBox />
+        {state.misc.currentChannel ? <ChatBox /> : <Landing />}
         {
           showRight && <RightSidebar /> //idea: on mobile, make the bg of the drawer transparent
         }
