@@ -180,6 +180,10 @@ declare global {
     icon?: string;
     status?: "online" | "idle" | "dnd" | "offline"; //add invisible?
     servers?: string[];
+    friends?: string[];
+    friendReq?: {
+      [userId: string]: string | number;
+    };
   }
 
   interface Channel {
@@ -220,11 +224,6 @@ declare global {
     emotes?: {
       [key: string]: string;
     };
-  }
-
-  interface ChannelTuple {
-    server: string;
-    channel: string;
   }
 
   interface Reference {

@@ -37,6 +37,10 @@ export class Handler implements r.Handler {
     this.initialize = this.initialize.bind(this);
     this.getDebug = this.getDebug.bind(this);
     this.addEmote = this.addEmote.bind(this);
+    this.getProfile = this.getProfile.bind(this);
+    this.acceptFriendRequest = this.acceptFriendRequest.bind(this);
+    this.sendFriendRequest = this.sendFriendRequest.bind(this);
+    this.removeFriend = this.removeFriend.bind(this);
   }
 
   connect(dispatch: React.Dispatch<Action>) {
@@ -227,6 +231,77 @@ export class Handler implements r.Handler {
     });
   }
 
+  async getProfile(userId: string): Promise<User | null> {
+    const snap = await firebase.database().ref(`users/${userId}`).once("value");
+    if (snap.exists()) {
+      const data = snap.val();
+      return {
+        name: data.name,
+        userId,
+        icon: data.icon,
+        status: data.status,
+      };
+    } else return null;
+  }
+
+  async sendFriendRequest(userId: string) {
+    //TODO: prevent users from sending multiple reqs
+    if (this.user) {
+      await firebase
+        .database()
+        .ref(`users/${userId}/friendReq/${this.user.userId}`)
+        .set(Date.now());
+      return true;
+    } else {
+      console.trace("Error: tried to send a friend request without logging in");
+      return false;
+    }
+  }
+
+  async acceptFriendRequest(userId: string) {
+    if (this.user?.friendReq && this.user.friendReq[userId]) {
+      //TODO: Cloud function time
+      await firebase
+        .database()
+        .ref(`users/${this.user.userId}/friendReq/${userId}`)
+        .remove();
+      await firebase
+        .database()
+        .ref(`users/${this.user.userId}/friends/${userId}`)
+        .set(Date.now());
+      await firebase
+        .database()
+        .ref(`users/${userId}/friends/${this.user.userId}`)
+        .set(Date.now());
+      return true;
+    } else {
+      console.trace(
+        "Error: tried to accept a friend request without logging in"
+      );
+      return false;
+    }
+  }
+
+  async removeFriend(userId: string) {
+    if (
+      this.user?.friends &&
+      Object.values(this.user.friends).includes(userId)
+    ) {
+      await firebase
+        .database()
+        .ref(`users/${this.user.userId}/friends/${userId}`)
+        .remove();
+      await firebase
+        .database()
+        .ref(`users/${userId}/friends/${this.user.userId}`)
+        .remove();
+      return true;
+    } else {
+      console.trace("Error: tried to remove a friend while not logged in");
+      return false;
+    }
+  }
+
   /**
    * Initializes the listener for the current user's data.
    * `handler.getUser()` calls this method after a succesful login
@@ -246,6 +321,7 @@ export class Handler implements r.Handler {
               ...this.user,
               ...temp,
               servers: Object.values(temp.servers),
+              friends: temp.friends || this.user?.friends || {},
             },
           });
         });
@@ -362,7 +438,10 @@ export class Handler implements r.Handler {
   sendMessage(msg: Message, file?: File) {
     if (this.user) {
       const curr = this.servers[this.currentServer].currentChannel;
-      this.servers[this.currentServer].channels[curr].sendMessage(msg, file);
+      this.servers[this.currentServer].channels[curr].sendMessage(
+        { ...msg, userId: this.user.userId, name: this.user.name },
+        file
+      );
     }
   }
 }
