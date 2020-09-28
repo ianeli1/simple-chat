@@ -158,12 +158,11 @@ export function Invite(props: { close: () => void }) {
         <TextField
           inputRef={textAreaRef}
           multiline
-          value={
-            "<!invite>" + (serverId && serverName)
+          value={`<!invite>${
+            serverId && serverName
               ? btoa(JSON.stringify({ id: serverId, name: serverName }))
-              : "AN ERROR OCURRED" + //TODO: handle this
-                "<!/invite>"
-          }
+              : "AN ERROR OCURRED"
+          }<!/invite>`}
           variant="outlined"
         />
         <Button onClick={copyToClipboard} variant="contained">
