@@ -1,5 +1,13 @@
 .ANC {
+  display: flex;
+  background: rgba(169, 169, 169, 0.5);
+  padding: 4px;
+  border-radius: 32px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
 }
 
 .ANCText {
+  padding: 0 10px;
 }

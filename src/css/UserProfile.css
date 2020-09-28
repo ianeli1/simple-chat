@@ -1,0 +1,46 @@
+.UserProfile {
+}
+
+.UserProfileTitle {
+  background: cadetblue;
+  box-shadow: 0 2px 10px gray;
+  z-index: 100;
+}
+
+.UserProfileContent {
+  background: darkgray;
+  min-width: 400px;
+  min-height: 100px;
+  padding: 0 !important;
+}
+
+.UserProfileContentInner {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-evenly;
+  align-items: center;
+  height: auto;
+  box-sizing: content-box;
+  width: auto;
+}
+
+.UserProfileContentInner > div {
+  box-sizing: border-box;
+  min-width: 40%;
+}
+
+.UserProfileContentInner > hr {
+  min-height: 70px;
+  position: relative;
+  top: 15px;
+}
+
+.UserProfileLeft {
+  padding: 10px 0;
+}
+
+.UserProfileRight {
+  padding: 20px 20px;
+  display: flex;
+  flex-direction: column;
+}
