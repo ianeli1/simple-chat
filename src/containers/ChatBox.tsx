@@ -1,9 +1,16 @@
-import React, { useContext, useEffect, useState, useRef } from "react";
+import React, {
+  useContext,
+  useEffect,
+  useState,
+  useRef,
+  useCallback,
+} from "react";
 import { Box } from "@material-ui/core";
 import "../css/chatElements.css";
 import { Message } from "../components/Message";
 import { NewMessage } from "../components/NewMessage";
 import { dataContext, joinServer } from "../components/Intermediary";
+import { UserProfile } from "../components/UserProfile";
 
 function useChatBox() {
   const [state] = useContext(dataContext);
@@ -28,12 +35,26 @@ function useChatBox() {
 
 export function ChatBox() {
   const { channel, user } = useChatBox();
+  const [showProfile, setShowProfile] = useState<null | string>(null);
   const endMessage = useRef<HTMLDivElement>(null);
   useEffect(() => {
     endMessage.current?.scrollIntoView({ behavior: "smooth" });
   });
+  const setProfileId = useCallback((userId: string) => setShowProfile(userId), [
+    setShowProfile,
+  ]);
+  const joinServ = useCallback(
+    (invite: Invite | undefined) => void (invite && joinServer(invite.id)),
+    [joinServer]
+  );
+
   return (
     <Box id="chatBox" bgcolor="primary.main">
+      <UserProfile
+        close={() => setShowProfile(null)}
+        open={Boolean(showProfile)}
+        userId={showProfile}
+      />
       <Box id="messageList">
         {channel &&
           Object.values(channel)
@@ -49,10 +70,11 @@ export function ChatBox() {
                         false
                       : false
                   }
-                  joinServer={() => x.invite && joinServer(x.invite.id)}
+                  joinServer={() => joinServ(x.invite)}
+                  onProfileClick={setProfileId}
                 />
               ) : (
-                <Message key={i} message={x} />
+                <Message key={i} message={x} onProfileClick={setProfileId} />
               )
             )}
         <div style={{ float: "left" }} ref={endMessage} />

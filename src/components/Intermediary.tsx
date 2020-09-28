@@ -91,6 +91,10 @@ export const getChannel = handler.getChannel;
 export const createChannel = handler.createChannel;
 export const signOut = handler.signOut;
 export const addEmote = handler.addEmote;
+export const getProfile = handler.getProfile;
+export const sendFriendRequest = handler.sendFriendRequest;
+export const acceptFriendRequest = handler.acceptFriendRequest;
+export const removeFriend = handler.removeFriend;
 export function Intermediary(props: { children: React.ReactNode }) {
   const [state, dispatch] = useReducer(rootReducer, {
     misc: {
