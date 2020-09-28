@@ -7,17 +7,21 @@ import {
   TextField,
   Button,
   Typography,
+  ListItemIcon,
 } from "@material-ui/core";
+import { Home } from "@material-ui/icons";
 import React, { useState } from "react";
 
 export function ServerList({
   serverList,
   changeServer,
   createServer,
+  goHome,
 }: {
   serverList: string[];
   changeServer: (id: string) => void;
   createServer: (serverName: string) => void;
+  goHome: () => void;
 }) {
   const [creatingServer, setCreatingServer] = useState<
     { name: string } | false
@@ -25,6 +29,11 @@ export function ServerList({
   return (
     <Box id="ServerList">
       <List component="nav" aria-label="server-picker">
+        <ListItem button onClick={goHome}>
+          <ListItemIcon>
+            <Home />
+          </ListItemIcon>
+        </ListItem>
         {serverList &&
           serverList.length &&
           serverList.map((x) => (
