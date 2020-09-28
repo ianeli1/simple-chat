@@ -31,7 +31,7 @@ function miscReducer(state: MiscData, action: Action) {
         };
       } else return state;
     case MiscACT.SET_CURRENT_SERVER:
-      if (action.current) {
+      if (action.current || action.current === null) {
         return {
           ...state,
           currentChannel: null,
