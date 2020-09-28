@@ -133,11 +133,7 @@ export declare class Handler {
    * handler.loadServer("123", (members) => this.setState({members})
    *                    (data) => this.setState({data}))
    */
-  loadServer(
-    serverId: string,
-    updateMembers: (serverMembers: { [key: string]: User }) => void,
-    updateData: (serverData: ServerData) => void
-  ): void;
+  loadServer(serverId: string, update?: boolean): void;
 
   /**
    * Adds a new emote to the current server
@@ -253,6 +249,6 @@ declare global {
     };
     channel?: Channel;
     user?: User;
-    current?: string;
+    current?: string | null;
   }
 }
