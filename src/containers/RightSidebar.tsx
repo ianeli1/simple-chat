@@ -4,51 +4,33 @@ import { EmoteList } from "../components/EmoteList";
 import { Members } from "../components/Members";
 import { Profile } from "../components/Profile";
 import "../css/rightSidebar.css";
+import { useMembers } from "../dataHandler/hooks";
+import { createAddEmote, signOut } from "../dataHandler/stateLessFunctions";
 
 export const a = 1;
-/*
-function useRightSidebar() {
-  const [user, setUser] = useState<User | null>(null);
-  const [members, setMembers] = useState<{ [key: string]: User }>({});
-  const [emotes, setEmotes] = useState<Emotes>({});
-  const curr = state.misc.currentChannel;
-  const server = state.misc.currentServer;
-  useEffect(() => {
-    if (server && state.servers[server]) {
-      setMembers(state.servers[server]?.members || {});
-    }
-    if (curr) {
-      setEmotes(state.servers[curr]?.data?.emotes || {}); //TODO: global emotes!!
-    } else {
-      setEmotes({});
-    }
-  }, [curr]);
 
-  useEffect(() => {
-    const k = state.misc.user;
-    if (k) {
-      setUser(k);
-    } else {
-      setUser(null);
-    }
-  }, [state.misc.user]);
-
-  return { user, members, emotes };
+interface RightSidebarProps {
+  user: User | null;
+  emotes: Emotes;
+  addEmote: ReturnType<typeof createAddEmote> | null;
+  currentServer: string | null;
 }
 
-export function RightSidebar() {
-  const { user, members, emotes } = useRightSidebar();
+export function RightSidebar(props: RightSidebarProps) {
+  const { members } = useMembers(props.currentServer || undefined);
 
   return (
-    user && (
+    props.user && (
       <Box className="RightSidebar">
         <Box className="InnerRightSidebar">
-          <Profile user={user} signOut={signOut} />
+          <Profile user={props.user} signOut={signOut} />
           {members && <Members users={members} />}
-          <EmoteList addEmote={addEmote} emotes={emotes} />
+          <EmoteList
+            addEmote={props.addEmote || (() => null)}
+            emotes={props.emotes}
+          />
         </Box>
       </Box>
     )
   );
 }
-*/

@@ -22,7 +22,7 @@ interface ChatBoxProps {
   currentChannel: string;
   joinServer: ReturnType<typeof createJoinServer> | null;
   user: User | null;
-
+  emotes: Emotes;
   friendFunctions: ReturnType<typeof createFriendRequestFuncs> | null;
 }
 
@@ -96,7 +96,7 @@ export function ChatBox(props: ChatBoxProps) {
             {...{ sendMessage }}
             user={props.user}
             currentChannel={props.currentChannel}
-            emotes={{}}
+            emotes={props.emotes}
           />
         </Box>
       )}

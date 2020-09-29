@@ -9,6 +9,7 @@ import "../css/App.css";
 //import { RightSidebar } from "./RightSidebar";
 import { Landing } from "./Landing";
 import { useServer, useUser } from "../dataHandler/hooks";
+import { RightSidebar } from "./RightSidebar";
 
 function smUp() {
   //stack overflow hack haha
@@ -98,6 +99,7 @@ export default function App() {
         </Hidden>
         {currentChannel && currentServer ? (
           <ChatBox
+            emotes={serverData?.emotes || {}}
             {...{
               currentChannel,
               currentServer,
@@ -109,9 +111,14 @@ export default function App() {
         ) : (
           <Landing {...{ user, setCurrentServer }} />
         )}
-        {/*
-          showRight && <RightSidebar /> //idea: on mobile, make the bg of the drawer transparent
-        */}
+        {
+          showRight && (
+            <RightSidebar
+              {...{ user, addEmote, currentServer }}
+              emotes={serverData?.emotes || {}}
+            />
+          ) //idea: on mobile, make the bg of the drawer transparent
+        }
       </div>
     </Box>
   );
