@@ -1,46 +1,57 @@
-import React, { useCallback, useContext, useEffect, useState } from "react";
+import React, {
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 import { ChannelList } from "../components/ChannelList";
+import {
+  currentContext,
+  serverContext,
+  userContext,
+} from "../components/Intermediary";
 import { ServerList } from "../components/ServerList";
 import "../css/leftSidebar.css";
 
 type LeftSidebarProps = {
   openWindow: (window: string) => void;
-  currentServer: string | null;
-  currentChannel: string | null;
-  setCurrentServer: (idk: string | null) => void;
-  setCurrentChannel: (idk: string | null) => void;
-  serverList: string[] | null;
-  channelList: string[] | null;
-  createChannel: ((channel: string) => void) | null;
-  createServer: ((serverName: string) => void) | null;
 };
 
 export default function LeftSidebar(props: LeftSidebarProps) {
+  const { currentChannel, setCurrentChannel, setCurrentServer } = useContext(
+    currentContext
+  );
+  const { serverData, createChannel } = useContext(serverContext);
+  const { user, createServer } = useContext(userContext);
   function goHome() {
-    props.setCurrentChannel(null);
-    props.setCurrentServer(null);
+    setCurrentChannel(null);
+    setCurrentServer(null);
   }
-  return (
-    <div id="LeftSidebar">
-      {props.serverList && (
-        <ServerList
-          serverList={props.serverList}
-          changeServer={props.setCurrentServer}
-          createServer={(serverName) =>
-            props.createServer && props.createServer(serverName)
-          }
-          goHome={goHome}
-        />
-      )}
-      <ChannelList
-        currentChannel={props.currentChannel}
-        channelList={props.channelList || []}
-        changeChannel={props.setCurrentChannel}
-        createChannel={(channel) =>
-          props.createChannel && props.createChannel(channel)
-        }
-        openWindow={props.openWindow}
-      />
-    </div>
+  return useMemo(
+    () => (
+      <section id="LeftSidebarRoot">
+        <div id="LeftSidebar">
+          {user && (
+            <ServerList
+              serverList={user.servers || []}
+              changeServer={setCurrentServer}
+              createServer={(serverName) =>
+                createServer && createServer(serverName)
+              }
+              goHome={goHome}
+            />
+          )}
+          <ChannelList
+            currentChannel={currentChannel}
+            channelList={serverData?.channels || []}
+            changeChannel={setCurrentChannel}
+            createChannel={(channel) => createChannel && createChannel(channel)}
+            openWindow={props.openWindow}
+          />
+        </div>
+      </section>
+    ),
+    [user?.servers, serverData?.channels]
   );
 }

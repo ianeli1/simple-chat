@@ -1,6 +1,11 @@
 import { Box } from "@material-ui/core";
 import React, { useContext, useEffect, useState } from "react";
 import { EmoteList } from "../components/EmoteList";
+import {
+  currentContext,
+  serverContext,
+  userContext,
+} from "../components/Intermediary";
 import { Members } from "../components/Members";
 import { Profile } from "../components/Profile";
 import "../css/rightSidebar.css";
@@ -9,25 +14,24 @@ import { createAddEmote, signOut } from "../dataHandler/stateLessFunctions";
 
 export const a = 1;
 
-interface RightSidebarProps {
-  user: User | null;
-  emotes: Emotes;
-  addEmote: ReturnType<typeof createAddEmote> | null;
-  currentServer: string | null;
-}
+interface RightSidebarProps {}
 
 export function RightSidebar(props: RightSidebarProps) {
-  const { members } = useMembers(props.currentServer || undefined);
+  //TODO: useMemo
+  const { user } = useContext(userContext);
+  const { addEmote, serverData } = useContext(serverContext);
+  const { currentServer } = useContext(currentContext);
+  const { members } = useMembers(currentServer || undefined);
 
   return (
-    props.user && (
+    user && (
       <Box className="RightSidebar">
         <Box className="InnerRightSidebar">
-          <Profile user={props.user} signOut={signOut} />
+          <Profile user={user} signOut={signOut} />
           {members && <Members users={members} />}
           <EmoteList
-            addEmote={props.addEmote || (() => null)}
-            emotes={props.emotes}
+            addEmote={addEmote || (() => null)}
+            emotes={serverData?.emotes || {}}
           />
         </Box>
       </Box>

@@ -2,12 +2,15 @@ import React from "react";
 import ReactDOM from "react-dom";
 import "./css/index.css";
 import App from "./containers/App";
+import { Intermediary } from "./components/Intermediary";
 
 window.react = {};
 
 ReactDOM.render(
   <React.StrictMode>
-    <App />
+    <Intermediary>
+      <App />
+    </Intermediary>
   </React.StrictMode>,
   document.getElementById("root")
 );

@@ -16,21 +16,20 @@ import {
   ToTimestamp,
 } from "../dataHandler/stateLessFunctions";
 import { useChannel } from "../dataHandler/hooks";
+import {
+  channelContext,
+  currentContext,
+  serverContext,
+  userContext,
+} from "../components/Intermediary";
 
-interface ChatBoxProps {
-  currentServer: string;
-  currentChannel: string;
-  joinServer: ReturnType<typeof createJoinServer> | null;
-  user: User | null;
-  emotes: Emotes;
-  friendFunctions: ReturnType<typeof createFriendRequestFuncs> | null;
-}
+interface ChatBoxProps {}
 
 export function ChatBox(props: ChatBoxProps) {
-  const { channel, sendMessage } = useChannel(
-    props.currentServer,
-    props.currentChannel
-  );
+  const { channel, sendMessage } = useContext(channelContext);
+  const { joinServer, friendFunctions, user } = useContext(userContext);
+  const { serverData } = useContext(serverContext);
+  const { currentChannel } = useContext(currentContext);
   const [showProfile, setShowProfile] = useState<null | string>(null);
   const endMessage = useRef<HTMLDivElement>(null);
   useEffect(() => {
@@ -41,15 +40,15 @@ export function ChatBox(props: ChatBoxProps) {
   ]);
   const joinServ = useCallback(
     (invite: Invite | undefined) =>
-      void (invite && props.joinServer && props.joinServer(invite.id)),
-    [props.currentServer]
+      void (invite && joinServer && joinServer(invite.id)),
+    [user?.userId]
   );
 
   return (
     <Box id="chatBox" bgcolor="primary.main">
       <UserProfile
-        friendFunctions={props.friendFunctions}
-        user={props.user}
+        friendFunctions={friendFunctions}
+        user={user}
         close={() => setShowProfile(null)}
         open={Boolean(showProfile)}
         profileId={showProfile}
@@ -64,9 +63,8 @@ export function ChatBox(props: ChatBoxProps) {
                   key={i}
                   message={x}
                   joined={
-                    props.user
-                      ? (props.user.servers &&
-                          props.user.servers.includes(x.invite.id)) ||
+                    user
+                      ? (user.servers && user.servers.includes(x.invite.id)) ||
                         false
                       : false
                   }
@@ -94,9 +92,9 @@ export function ChatBox(props: ChatBoxProps) {
         <Box id="newMessageBox">
           <NewMessage
             {...{ sendMessage }}
-            user={props.user}
-            currentChannel={props.currentChannel}
-            emotes={props.emotes}
+            user={user}
+            currentChannel={currentChannel}
+            emotes={serverData?.emotes || {}}
           />
         </Box>
       )}

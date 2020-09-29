@@ -8,6 +8,7 @@ import {
 
 import * as r from "./reference";
 import "./css/extraMenus.css";
+import { serverContext } from "./components/Intermediary";
 //TODO: Rewrite all these as Material UI dialogs, ooops
 export default function Login() {
   function handleLogin(error: string) {
@@ -130,8 +131,6 @@ export function AddEmote({
 
 interface InviteProps {
   close: () => void;
-  serverName: string | null;
-  serverId: string | null;
 }
 
 export function Invite(props: InviteProps) {
@@ -141,6 +140,7 @@ export function Invite(props: InviteProps) {
     (e.target as HTMLButtonElement).focus();
     setCopySuccess("Copied!");
   }
+  const { serverData } = useContext(serverContext);
   const textAreaRef = useRef<HTMLTextAreaElement>(null);
   const [copySuccess, setCopySuccess] = useState<string>("Copy");
   return (
@@ -151,9 +151,9 @@ export function Invite(props: InviteProps) {
           inputRef={textAreaRef}
           multiline
           value={`<!invite>${
-            props.serverId && props.serverName
+            serverData?.id && serverData?.name
               ? btoa(
-                  JSON.stringify({ id: props.serverId, name: props.serverName })
+                  JSON.stringify({ id: serverData?.id, name: serverData?.name })
                 )
               : "AN ERROR OCURRED"
           }<!/invite>`}

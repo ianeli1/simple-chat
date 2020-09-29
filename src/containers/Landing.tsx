@@ -1,6 +1,7 @@
 import { Card, CardContent, Typography } from "@material-ui/core";
 import React, { useContext, useEffect, useState } from "react";
 import { ASElement, AvatarScroller } from "../components/AvatarScroller";
+import { currentContext, userContext } from "../components/Intermediary";
 import "../css/Landing.css";
 
 interface LandingCardProps {
@@ -21,18 +22,18 @@ function LandingCard(props: LandingCardProps) {
   );
 }
 
-interface LandingProps {
-  user: User | null;
-  setCurrentServer: (serverId: string | null) => void;
-}
+interface LandingProps {}
 
 export function Landing(props: LandingProps) {
-  const friendList: ASElement[] = props.user
-    ? props.user.friends?.map((name, key) => ({ key: String(key), name })) ||
+  const { setCurrentServer } = useContext(currentContext);
+  const { user } = useContext(userContext);
+
+  const friendList: ASElement[] = user
+    ? user.friends?.map((name, key) => ({ key: String(key), name })) ||
       ([] as ASElement[])
     : [];
-  const serverList: ASElement[] = props.user
-    ? props.user.servers?.map((name, key) => ({ key: name, name })) || []
+  const serverList: ASElement[] = user
+    ? user.servers?.map((name) => ({ key: name, name })) || []
     : [];
   return (
     <div className="LandingRoot">
@@ -40,7 +41,7 @@ export function Landing(props: LandingProps) {
         <AvatarScroller
           size={50}
           elements={serverList}
-          onElementClick={props.setCurrentServer}
+          onElementClick={setCurrentServer}
         />
       </LandingCard>
 
