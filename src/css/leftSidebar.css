@@ -6,6 +6,13 @@
   flex-grow: 1;
 }
 
+#LeftSidebarRoot {
+  display: flex;
+  flex-direction: column;
+  height: calc(100% - 64px);
+  background: #777777;
+}
+
 /*ServerList*/
 
 #ServerList {
@@ -22,12 +29,14 @@
 #channelSelection {
   background: darkgray;
   padding: 8px;
-  max-width: 12%;
-  min-width: 11rem;
+  margin: 8px;
+  border-radius: 8px;
+  width: 180px;
   display: flex;
   flex-direction: column;
   flex: 1;
   overflow-y: auto;
+  box-sizing: content-box;
 }
 
 /* Popup */

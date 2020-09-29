@@ -11,8 +11,10 @@ import {
   serverContext,
   userContext,
 } from "../components/Intermediary";
+import { ProfileFooter } from "../components/ProfileFooter";
 import { ServerList } from "../components/ServerList";
 import "../css/leftSidebar.css";
+import { Settings } from "./Settings";
 
 type LeftSidebarProps = {
   openWindow: (window: string) => void;
@@ -24,6 +26,7 @@ export default function LeftSidebar(props: LeftSidebarProps) {
   );
   const { serverData, createChannel } = useContext(serverContext);
   const { user, createServer } = useContext(userContext);
+  const [showSettings, setShowSettings] = useState(false);
   function goHome() {
     setCurrentChannel(null);
     setCurrentServer(null);
@@ -31,6 +34,7 @@ export default function LeftSidebar(props: LeftSidebarProps) {
   return useMemo(
     () => (
       <section id="LeftSidebarRoot">
+        <Settings isOpen={showSettings} close={() => setShowSettings(false)} />
         <div id="LeftSidebar">
           {user && (
             <ServerList
@@ -50,8 +54,9 @@ export default function LeftSidebar(props: LeftSidebarProps) {
             openWindow={props.openWindow}
           />
         </div>
+        <ProfileFooter onSettings={() => setShowSettings(true)} />
       </section>
     ),
-    [user?.servers, serverData?.channels]
+    [user?.servers, serverData?.channels, showSettings]
   );
 }

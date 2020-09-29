@@ -1,0 +1,38 @@
+.Settings {
+  z-index: 13000 !important;
+}
+
+.SettingsBar {
+  display: flex;
+  flex-direction: row;
+  background-color: cadetblue;
+}
+
+.SettingsContent {
+  background: #282c34;
+  margin-top: 64px;
+  display: flex;
+  flex-direction: row;
+  flex-grow: 1;
+}
+
+.SettingsSidebar {
+  width: 200px;
+  background: #141617;
+  margin: 8px !important;
+  color: darkgray;
+  font-weight: 300;
+  border-radius: 8px;
+}
+
+.SettingsCurrent {
+  background: #141617;
+  margin: 8px;
+  border-radius: 8px;
+  padding: 16px;
+  flex-grow: 1;
+  color: darkgray;
+}
+
+.SettingsElementContainer {
+}
