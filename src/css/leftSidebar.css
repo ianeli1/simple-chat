@@ -70,3 +70,18 @@
 .PopupInner {
   padding: 20px;
 }
+
+/*SERVER LIST.JS*/
+
+.HomeIcon {
+  height: 40px;
+  box-sizing: border-box;
+  width: 40px !important;
+  min-width: 40px !important;
+  border-radius: 20px;
+  background: darkgray;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 5px solid cadetblue;
+}

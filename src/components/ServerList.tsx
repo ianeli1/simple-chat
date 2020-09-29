@@ -31,8 +31,8 @@ export function ServerList({
     <Box id="ServerList">
       <List component="nav" aria-label="server-picker">
         <ListItem button onClick={goHome}>
-          <ListItemIcon>
-            <Home />
+          <ListItemIcon className="HomeIcon">
+            <Home /> {/*LeftSidebar.css*/}
           </ListItemIcon>
         </ListItem>
         {serverList &&
