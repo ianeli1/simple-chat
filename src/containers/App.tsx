@@ -1,14 +1,14 @@
 import { Box, Hidden, Drawer, makeStyles, Theme } from "@material-ui/core";
 import React, { useRef, useState } from "react";
 import { AppToolbar } from "../components/AppToolbar";
-import { dataContext } from "../components/Intermediary";
 import Login, { Invite } from "../extraMenus";
 
 import { ChatBox } from "./ChatBox";
 import LeftSidebar from "./LeftSidebar";
 import "../css/App.css";
-import { RightSidebar } from "./RightSidebar";
+//import { RightSidebar } from "./RightSidebar";
 import { Landing } from "./Landing";
+import { useServer, useUser } from "../dataHandler/hooks";
 
 function smUp() {
   //stack overflow hack haha
@@ -28,25 +28,47 @@ export default function App() {
       console.log("what??? when did i write this function");
     }
   }
-  const [state] = React.useContext(dataContext); //TODO: write a hook
+  const [currentServer, setCurrentServer] = useState<null | string>(null);
+  const [currentChannel, setCurrentChannel] = useState<null | string>(null);
+  const { createServer, joinServer, user, friendFunctions } = useUser();
+  const { addEmote, serverData, createChannel } = useServer(
+    currentServer || undefined
+  );
   const [inviting, setInviting] = useState(false);
   const [showRight, setShowRight] = useState(false);
   const [showLeft, setShowLeft] = useState(smUp());
   const container =
     window !== undefined ? () => window.document.body : undefined;
-  const leftSidebar = state.misc.user && (
-    <LeftSidebar openWindow={openWindow} />
+  const leftSidebar = (
+    <LeftSidebar
+      openWindow={openWindow}
+      {...{
+        currentChannel,
+        setCurrentChannel,
+        currentServer,
+        setCurrentServer,
+        createServer,
+        createChannel,
+        serverList: (user && user.servers) || null,
+        channelList: (serverData && serverData.channels) || null,
+      }}
+    />
   );
   return (
     <Box className="Global">
-      {inviting && state.misc.currentServer && (
-        <Invite close={() => setInviting(false)} />
+      {inviting && currentServer && (
+        <Invite
+          serverId={currentServer}
+          serverName={serverData?.name || null}
+          close={() => setInviting(false)}
+        />
       )}
-      {!state.misc.user && <Login />}
+      {!user && <Login />}
 
       <AppToolbar
         toggleLeft={() => setShowLeft(!showLeft)}
         toggleRight={() => setShowRight(!showRight)}
+        {...{ currentServer, currentChannel }}
       />
 
       <div className={"App"}>
@@ -74,10 +96,22 @@ export default function App() {
 
           <div className={showLeft ? "LeftShow" : "LeftHide"} />
         </Hidden>
-        {state.misc.currentChannel ? <ChatBox /> : <Landing />}
-        {
+        {currentChannel && currentServer ? (
+          <ChatBox
+            {...{
+              currentChannel,
+              currentServer,
+              joinServer,
+              user,
+              friendFunctions,
+            }}
+          />
+        ) : (
+          <Landing {...{ user, setCurrentServer }} />
+        )}
+        {/*
           showRight && <RightSidebar /> //idea: on mobile, make the bg of the drawer transparent
-        }
+        */}
       </div>
     </Box>
   );

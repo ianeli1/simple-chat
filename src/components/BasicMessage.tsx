@@ -31,7 +31,9 @@ export const BasicMessage = (props: BasicMessageProps) => {
   return (
     <div className="BasicMessage">
       <Tooltip
-        title={String(new Date(Number(message.timestamp.slice(0, -1))))
+        title={message.timestamp
+          .toDate()
+          .toString()
           .split(" ")
           .slice(0, 5)
           .join(" ")}

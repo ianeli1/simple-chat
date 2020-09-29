@@ -1,15 +1,13 @@
 import { Box } from "@material-ui/core";
 import React, { useContext, useEffect, useState } from "react";
 import { EmoteList } from "../components/EmoteList";
-import { addEmote, dataContext, signOut } from "../components/Intermediary";
 import { Members } from "../components/Members";
 import { Profile } from "../components/Profile";
 import "../css/rightSidebar.css";
 
 export const a = 1;
-
+/*
 function useRightSidebar() {
-  const [state] = useContext(dataContext);
   const [user, setUser] = useState<User | null>(null);
   const [members, setMembers] = useState<{ [key: string]: User }>({});
   const [emotes, setEmotes] = useState<Emotes>({});
@@ -53,3 +51,4 @@ export function RightSidebar() {
     )
   );
 }
+*/

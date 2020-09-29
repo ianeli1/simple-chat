@@ -10,7 +10,7 @@ import { File } from "../extraMenus";
 import { IconButton, TextField } from "@material-ui/core";
 import { AddPhotoAlternate, InsertEmoticon, Send } from "@material-ui/icons";
 import EmotePopper from "./EmotePopper";
-import { dataContext, sendMessage } from "./Intermediary";
+import firebase from "firebase";
 
 interface NewPostProps {
   emotes: Emotes;
@@ -28,58 +28,28 @@ interface NewPostState {
 TODO: Add inline emote support
 TODO: Regex check for emote and invite patterns on every textfield change
 */
-
-function useNewMessage() {
-  const [state] = useContext(dataContext);
-  const [user, setUser] = useState<User | null>(null);
-  const [emotes, setEmotes] = useState<Emotes>({});
-  const [currentChannel, setCurrentChannel] = useState("");
-  const curr = state.misc.currentChannel;
-  useEffect(() => {
-    const k = state.misc.user;
-    if (k) {
-      setUser(k);
-    } else {
-      setUser(null);
-    }
-  }, [state.misc.user]);
-
-  useEffect(() => {
-    const curr = state.misc.currentServer;
-    if (curr) {
-      setEmotes(state.servers[curr]?.data?.emotes || {}); //TODO: global emotes!!
-    } else {
-      setEmotes({});
-    }
-  }, [curr]);
-
-  useEffect(() => {
-    if (curr) {
-      setCurrentChannel(curr);
-    } else {
-      setCurrentChannel("");
-    }
-  }, [curr]);
-
-  return { user, emotes, currentChannel };
+interface NewMessageProps {
+  sendMessage: ((msg: Message, file?: File | undefined) => void) | null;
+  currentChannel: string | null;
+  user: User | null;
+  emotes: Emotes;
 }
 
-export function NewMessage() {
+export function NewMessage(props: NewMessageProps) {
   const [message, setMessage] = useState("");
   const [sendingImage, setSendingImage] = useState(false);
   const [showEmote, setShowEmote] = useState(false);
   const emojiRef = useRef<HTMLButtonElement>(null);
-  const { user, emotes, currentChannel } = useNewMessage();
 
   const sendMsg = () => {
-    if (currentChannel && user) {
+    if (props.currentChannel && props.user) {
       const INVITE_REGEX = /<!invite>(.*?)<!\/invite>/i;
       const EMOTE_REGEX = /<:[a-zA-Z0-9]+:>/gi;
       let messageObj: Message = {
-        name: user.name,
-        userId: user.userId,
+        name: props.user.name,
+        userId: props.user.userId,
         message,
-        timestamp: "0",
+        timestamp: firebase.firestore.Timestamp.fromDate(new Date()),
       };
 
       const match = message.match(INVITE_REGEX);
@@ -99,14 +69,18 @@ export function NewMessage() {
         emoteList &&
           emoteList
             .map((x) => x.slice(2, -2))
-            .forEach((x) => x in emotes && (() => (emoteObj[x] = emotes[x]))());
-        sendMessage({
-          ...messageObj,
-          emotes: emoteObj,
-        });
+            .forEach(
+              (x) =>
+                x in props.emotes && (() => (emoteObj[x] = props.emotes[x]))()
+            );
+        props.sendMessage &&
+          props.sendMessage({
+            ...messageObj,
+            emotes: emoteObj,
+          });
         setMessage("");
       } else {
-        sendMessage(messageObj);
+        props.sendMessage && props.sendMessage(messageObj);
         setMessage("");
       }
     }
@@ -114,17 +88,19 @@ export function NewMessage() {
 
   return (
     <div className="newMessage">
-      {sendingImage && user && (
+      {sendingImage && props.user && (
         <File
-          user={user}
+          user={props.user}
           cancel={() => setSendingImage(false)}
-          sendMessage={(message, file) => sendMessage(message, file)}
+          sendMessage={(message, file) =>
+            props.sendMessage && props.sendMessage(message, file)
+          }
         />
       )}
       <EmotePopper
         anchor={emojiRef.current}
         open={showEmote}
-        emotes={emotes}
+        emotes={props.emotes}
         onClose={() => setShowEmote(false)}
         onEmoteClick={(emoteName: string) =>
           setMessage(`${message} <:${emoteName}:>`)
