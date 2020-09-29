@@ -6,21 +6,27 @@ interface ANCProps {
   upperText: string;
   lowerText?: string;
   icon?: string;
+  size?: number;
 }
 
 export function AvatarNameCombo(props: ANCProps) {
+  const size = props.size ? props.size : 50;
   return (
     <div className="ANC">
       {props.icon ? (
-        <Avatar style={{ height: 50, width: 50 }} src={props.icon} />
+        <Avatar style={{ height: size, width: size }} src={props.icon} />
       ) : (
-        <Avatar style={{ height: 50, width: 50, fontSize: "larger" }}>
+        <Avatar style={{ height: size, width: size }}>
           {props.upperText[0]}
         </Avatar>
       )}
       <div className="ANCText">
-        <Typography variant="h3">{props.upperText}</Typography>
-        <Typography variant="h6">{props.lowerText || " "}</Typography>
+        <Typography variant={size >= 50 ? "h3" : "h6"}>
+          {props.upperText}
+        </Typography>
+        <Typography variant={size >= 50 ? "h6" : "body2"}>
+          {props.lowerText || " "}
+        </Typography>
       </div>
     </div>
   );
