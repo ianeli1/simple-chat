@@ -1,9 +1,13 @@
 import React, { useState, useRef, useEffect, useContext } from "react";
 import { Box, Typography, TextField, Button } from "@material-ui/core";
+import {
+  signIn,
+  createUser,
+  ToTimestamp,
+} from "./dataHandler/stateLessFunctions";
 
 import * as r from "./reference";
 import "./css/extraMenus.css";
-import { dataContext, signIn, signUp } from "./components/Intermediary";
 //TODO: Rewrite all these as Material UI dialogs, ooops
 export default function Login() {
   function handleLogin(error: string) {
@@ -73,7 +77,7 @@ export default function Login() {
           variant="outlined"
           disabled={!email.length || !pass.length || (register && !user.length)}
           onClick={() => {
-            if (register) signUp(user, email, pass, handleLogin);
+            if (register) createUser(user, email, pass, handleLogin);
             else signIn(email, pass, handleLogin);
           }}
         >
@@ -124,31 +128,19 @@ export function AddEmote({
   );
 }
 
-function useServerChange() {
-  const [state] = useContext(dataContext);
-  const [serverId, setServerId] = useState<string | null>(null);
-  const [serverName, setServerName] = useState<string | null>(null);
-
-  useEffect(() => {
-    const curr = state.misc.currentServer;
-    if (curr) {
-      setServerId(curr);
-      setServerName(state.servers[curr]?.data?.name || null);
-    }
-  }, [state.misc.currentServer]);
-
-  return [serverId, serverName];
+interface InviteProps {
+  close: () => void;
+  serverName: string | null;
+  serverId: string | null;
 }
 
-export function Invite(props: { close: () => void }) {
+export function Invite(props: InviteProps) {
   function copyToClipboard(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) {
     textAreaRef.current != null && textAreaRef.current.select();
     document.execCommand("copy");
     (e.target as HTMLButtonElement).focus();
     setCopySuccess("Copied!");
   }
-
-  const [serverId, serverName] = useServerChange();
   const textAreaRef = useRef<HTMLTextAreaElement>(null);
   const [copySuccess, setCopySuccess] = useState<string>("Copy");
   return (
@@ -159,8 +151,10 @@ export function Invite(props: { close: () => void }) {
           inputRef={textAreaRef}
           multiline
           value={`<!invite>${
-            serverId && serverName
-              ? btoa(JSON.stringify({ id: serverId, name: serverName }))
+            props.serverId && props.serverName
+              ? btoa(
+                  JSON.stringify({ id: props.serverId, name: props.serverName })
+                )
               : "AN ERROR OCURRED"
           }<!/invite>`}
           variant="outlined"
@@ -189,7 +183,12 @@ export function File(props: {
     return () => {
       if (file) {
         props.sendMessage(
-          { name: props.user.name, message: msg, timestamp: "0" },
+          {
+            userId: props.user.userId,
+            name: props.user.name,
+            message: msg,
+            timestamp: ToTimestamp(new Date()),
+          },
           file
         );
       }

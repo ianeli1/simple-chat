@@ -14,14 +14,12 @@ export function ChannelList({
   channelList,
   currentChannel,
   changeChannel,
-  user,
   createChannel,
   openWindow,
 }: {
   channelList: Array<string>;
   currentChannel: string | null;
   changeChannel: (newChannel: string) => void;
-  user: User;
   createChannel: (channel: string) => void;
   openWindow: (window: string) => void;
 }) {

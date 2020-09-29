@@ -7,60 +7,41 @@ import {
   Divider,
   Typography,
 } from "@material-ui/core";
-import React, {
-  useContext,
-  useEffect,
-  useImperativeHandle,
-  useState,
-} from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { AvatarNameCombo } from "./AvatarNameCombo";
 import "../css/UserProfile.css";
 import {
-  dataContext,
   getProfile,
-  removeFriend,
-  sendFriendRequest,
-} from "./Intermediary";
+  createFriendRequestFuncs,
+} from "../dataHandler/stateLessFunctions";
 
 type UserProfileType = {
-  userId: string | null;
+  profileId: string | null;
+  user: User | null;
   close: () => void;
   open: boolean;
+  friendFunctions: ReturnType<typeof createFriendRequestFuncs> | null;
 };
 
-function useUserProfile() {
-  const [currentUser, setCurrentUser] = useState<User | null>(null);
-  const [state] = useContext(dataContext);
-  useEffect(() => {
-    const curr = state.misc.user;
-    if (curr) {
-      setCurrentUser(curr);
-    } else {
-      setCurrentUser(null);
-    }
-  }, [state.misc.user]);
-
-  return { currentUser };
-}
-
 export function UserProfile(props: UserProfileType) {
-  const [user, setUser] = useState<User | null>(null);
-  const { currentUser } = useUserProfile();
+  const [profile, setProfile] = useState<User | null>(null);
   useEffect(() => {
-    props.open &&
-      (async function () {
-        if (props.userId) {
-          setUser(await getProfile(props.userId));
-        } else setUser(null);
-      })();
-  }, [props.userId]);
+    if (props.profileId) {
+      getProfile(props.profileId)
+        .then((user) => setProfile(user))
+        .catch((e) => {
+          console.log("Userprofile, an error ocurred", e);
+          setProfile(null);
+        });
+    }
+  }, [props.profileId]);
 
   return (
     <Dialog open={props.open} onClose={props.close} className="UserProfile">
-      {user && currentUser?.friends ? (
+      {props.user?.friends && profile && props.profileId ? (
         <>
           <DialogTitle className="UserProfileTitle">
-            <AvatarNameCombo upperText={user.name} />
+            <AvatarNameCombo upperText={profile.name} />
           </DialogTitle>
           <DialogContent className="UserProfileContent">
             <div className="UserProfileContentInner">
@@ -70,22 +51,28 @@ export function UserProfile(props: UserProfileType) {
               </div>
               <Divider orientation="vertical" />
               <div className="UserProfileRight">
-                {Object.keys(currentUser.friends).includes(user.userId) ? (
+                {props.user.friends.includes(props.profileId) ? (
                   <>
                     <Button variant="outlined">Chat</Button>
                     <Button
                       variant="outlined"
-                      onClick={() => removeFriend(user.userId)}
+                      onClick={() =>
+                        props.profileId &&
+                        props.friendFunctions?.removeFriend(props.profileId)
+                      }
                     >
                       Remove Friend
                     </Button>
                   </>
-                ) : user.userId === currentUser.userId ? (
+                ) : props.user.userId == props.profileId ? (
                   <Typography variant="h6">{"It's you :)"}</Typography>
                 ) : (
                   <Button
                     variant="outlined"
-                    onClick={() => sendFriendRequest(user.userId)}
+                    onClick={() =>
+                      props.profileId &&
+                      props.friendFunctions?.sendFriendRequest(props.profileId)
+                    }
                   >
                     Add friend
                   </Button>

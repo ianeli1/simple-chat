@@ -173,7 +173,7 @@ declare global {
   interface User {
     name: string;
     userId: string;
-    icon?: string;
+    icon: string | null;
     status?: "online" | "idle" | "dnd" | "offline"; //add invisible?
     servers?: string[];
     friends?: string[];
@@ -197,7 +197,7 @@ declare global {
     userId?: string;
     message: string;
     image?: string;
-    timestamp: string; //deprecated?
+    timestamp: firebase.firestore.Timestamp;
     emotes?: {
       [key: string]: string;
     };
@@ -213,7 +213,7 @@ declare global {
     channels: string[];
     name: string;
     icon?: string;
-    owner: string;
+    ownerId: string;
     typing?: {
       [key: string]: string;
     };

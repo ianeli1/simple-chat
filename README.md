@@ -1,11 +1,12 @@
 # Simple-Chat v0.5
+
 ### For simple chatting!
 
 This project was built using:
 
 - Material UI
 - React
-- Firebase (Realtime Database and UI)
+- Firebase (Realtime Database, Firestore and Auth)
 
 And it's written in Typescript! ❤️
 
