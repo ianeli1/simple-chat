@@ -1,5 +1,6 @@
 import firebase from "firebase";
 import { useState, useEffect } from "react";
+import { db } from "./handler3";
 import {
   createAddEmote,
   createCreateServer,
@@ -79,6 +80,25 @@ export function useChannel(serverId: string, channelName: string) {
   return { channel, sendMessage };
 }
 
+interface ProtoUser {
+  userId: string;
+  name: string;
+  icon: string | null;
+}
+
+async function Presence(protoUser: ProtoUser, serverList: string[]) {
+  //TODO: add dnd and invisible idk
+  const proto = { ...protoUser, status: "online" };
+  for (const server of serverList) {
+    const presenceRef = db.ref(`servers/${server}/members/${protoUser.userId}`);
+    await presenceRef.child("status").onDisconnect().set("offline");
+    await presenceRef.set(proto);
+  }
+  const userRef = db.ref(`users/${protoUser.userId}`);
+  await userRef.child("status").onDisconnect().set("offline");
+  await userRef.set(proto);
+}
+
 export function useUser() {
   const [user, setUser] = useState<User | null>(null);
   const [joinServer, setJoinServer] = useState<
@@ -109,6 +129,14 @@ export function useUser() {
               setJoinServer(() => createJoinServer(data.userId));
               setCreateServer(() => createCreateServer(data.userId));
               setFriendFunctions(() => createFriendRequestFuncs(data.userId));
+              Presence(
+                {
+                  name: data.name,
+                  userId: user.uid,
+                  icon: data.icon,
+                },
+                data.servers || []
+              );
             } else {
               setUser(null);
               setJoinServer(null);
@@ -125,4 +153,24 @@ export function useUser() {
     };
   }, []);
   return { user, joinServer, createServer, friendFunctions };
+}
+
+export function useMembers(serverId?: string) {
+  const [members, setMembers] = useState<{ [userId: string]: ProtoUser }>({});
+  let ref: firebase.database.Reference;
+  useEffect(() => {
+    if (serverId) {
+      ref = db.ref(`servers/${serverId}/members`);
+      ref.on("value", (data) => {
+        if (data.exists()) {
+          setMembers(data.val());
+        } else {
+          setMembers({});
+        }
+      });
+    }
+    return () => void ref && ref.off();
+  }, [serverId]);
+
+  return { members };
 }
