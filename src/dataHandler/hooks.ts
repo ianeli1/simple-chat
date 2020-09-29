@@ -45,7 +45,7 @@ export function useServer(serverId?: string) {
   return { serverData, addEmote, createChannel };
 }
 
-export function useChannel(serverId: string, channelName: string) {
+export function useChannel(serverId?: string, channelName?: string) {
   const [channel, setChannel] = useState<Channel | null>(null);
   const [sendMessage, setSendMessage] = useState<
     null | ((msg: Message, file?: File) => void)
@@ -53,24 +53,26 @@ export function useChannel(serverId: string, channelName: string) {
   //const [channelData, setChannel] = useState< TODO: implement
   let unsub: () => void;
   useEffect(() => {
-    console.log("loading channel", { serverId, channelName });
-    unsub = firebase
-      .firestore()
-      .collection("servers")
-      .doc(serverId)
-      .collection("channels")
-      .doc(channelName)
-      .onSnapshot((doc) => {
-        if (doc.exists) {
-          const data = doc.data() as { messages: Channel };
-          setChannel(data.messages);
-          setSendMessage(() => createSendMessage(serverId, channelName));
-        } else {
-          setChannel(null);
-          setSendMessage(null);
-          throw new Error("This channel does not exist");
-        }
-      });
+    if (serverId && channelName) {
+      console.log("loading channel", { serverId, channelName });
+      unsub = firebase
+        .firestore()
+        .collection("servers")
+        .doc(serverId)
+        .collection("channels")
+        .doc(channelName)
+        .onSnapshot((doc) => {
+          if (doc.exists) {
+            const data = doc.data() as { messages: Channel };
+            setChannel(data.messages);
+            setSendMessage(() => createSendMessage(serverId, channelName));
+          } else {
+            setChannel(null);
+            setSendMessage(null);
+            throw new Error("This channel does not exist");
+          }
+        });
+    }
 
     return () => {
       unsub && unsub();
