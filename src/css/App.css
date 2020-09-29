@@ -50,10 +50,15 @@
 
 /*AppToolbar*/
 
+.AppToolbarParent {
+  z-index: 10000 !important;
+}
+
 .AppToolbar {
   background: cadetblue;
   display: flex;
   flex-direction: row;
+  z-index: 1000;
 }
 
 .ToolbarCurrent {

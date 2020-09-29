@@ -16,7 +16,7 @@ interface AppToolbarProps {
 }
 export function AppToolbar(props: AppToolbarProps) {
   return (
-    <AppBar position="static">
+    <AppBar position="static" className="AppToolbarParent">
       <Toolbar classes={{ root: "AppToolbar" }}>
         <IconButton edge="start" onClick={props.toggleLeft}>
           <Chat />
