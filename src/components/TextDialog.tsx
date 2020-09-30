@@ -20,8 +20,19 @@ export interface TDProps {
 export function TextDialog(props: TDProps) {
   const [text, setText] = useState("");
 
+  function handleSubmit(text: string) {
+    props.onPositive(text);
+    setText("");
+    props.close();
+  }
+
   return (
-    <Dialog open={props.open} onClose={props.close} className="TextDialog">
+    <Dialog
+      open={props.open}
+      onClose={props.close}
+      className="TextDialog"
+      style={{ zIndex: 2001 }}
+    >
       <DialogTitle>{props.title}</DialogTitle>
       <DialogContent className="TextDialogContent">
         <div className="TextDialogContentInner">
@@ -38,7 +49,7 @@ export function TextDialog(props: TDProps) {
         <Button
           variant="contained"
           color="secondary"
-          onClick={() => props.onPositive(text)}
+          onClick={() => handleSubmit(text)}
         >
           Submit
         </Button>
