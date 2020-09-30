@@ -1,17 +1,42 @@
 import { IconButton, Typography } from "@material-ui/core";
-import React, { useContext } from "react";
+import React, { useContext, useState } from "react";
 import { AvatarNameCombo } from "../AvatarNameCombo";
 import { userContext } from "../Intermediary";
 import { RectangleScroller } from "../RectangleScroller";
 import "../../css/ProfileSettings.css";
 import { Add } from "@material-ui/icons";
 import { ElementContainer } from "./ElementContainer";
+import { ConfirmProps, Confirm } from "../Confirm";
 
 export function ProfileSettings() {
-  const { user, friendFunctions } = useContext(userContext);
+  const { user, friendFunctions, leaveServer } = useContext(userContext);
+  const [confirmState, setConfirmState] = useState<
+    Omit<ConfirmProps, "open"> | undefined
+  >(undefined);
+
+  function confirm(
+    title: string,
+    text: string | null,
+    onPositive: () => void,
+    onNegative?: () => void
+  ) {
+    setConfirmState({
+      title,
+      text: text || "",
+      onPositive: () => {
+        onPositive();
+        setConfirmState(undefined);
+      },
+      onNegative: () => {
+        onNegative && onNegative();
+        setConfirmState(undefined);
+      },
+    });
+  }
 
   return (
     <>
+      <Confirm open={Boolean(confirmState)} {...confirmState} />
       <div className="SettingsElementContainer">
         <AvatarNameCombo
           upperText={user?.name || "unk"}
@@ -31,7 +56,6 @@ export function ProfileSettings() {
                 key: friendId,
               })) || []
             }
-            actionAdd={(key) => void null /*idk, dms?*/}
             actionRemove={(key) => friendFunctions?.removeFriend(key)}
           />
           <IconButton className="AddBtn">
@@ -54,12 +78,8 @@ export function ProfileSettings() {
               key: friendId,
             })) || []
           }
-          actionAdd={
-            (key) => friendFunctions?.acceptFriendRequest(key) /*idk, dms?*/
-          }
-          actionRemove={
-            (key) => void null /*TODO: add method to delete friend req */
-          }
+          actionAdd={(key) => friendFunctions?.acceptFriendRequest(key)}
+          actionRemove={(key) => friendFunctions?.declineFriendRequest(key)}
         />
       </ElementContainer>
 
@@ -73,13 +93,13 @@ export function ProfileSettings() {
               key: serverId,
             })) || []
           }
-          actionAdd={
-            (key) =>
-              void null /*TODO: This option should be disabled and hide the add? idfk */
-          }
-          actionRemove={
-            (key) => void null /*TODO: add method to leave servers */
-          }
+          actionRemove={(key) => {
+            confirm(
+              "Leaving this server",
+              `Are you sure you want to leave this server? (${key})`,
+              () => leaveServer && leaveServer(key)
+            );
+          }}
         />
       </ElementContainer>
     </>
