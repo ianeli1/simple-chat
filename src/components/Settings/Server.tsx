@@ -17,7 +17,7 @@ export function Server(props: ServerProps) {
     props.serverId || undefined
   );
 
-  const { confirm, imageSelect } = useContext(menuContext);
+  const { confirm, imageSelect, textDialog } = useContext(menuContext);
 
   return serverData ? (
     <>
@@ -86,8 +86,16 @@ export function Server(props: ServerProps) {
             }))}
             hideAvatar
           />
-          <IconButton className="AddBtn">
-            {/*TODO: invoke add emote menu */}
+          <IconButton
+            className="AddBtn"
+            onClick={() =>
+              textDialog(
+                "Add a channel",
+                "Enter the name of the new channel",
+                (text) => channelFunctions?.create(text)
+              )
+            }
+          >
             <Add />
           </IconButton>
         </div>

@@ -9,7 +9,7 @@ import { ElementContainer } from "./ElementContainer";
 
 export function ProfileSettings() {
   const { user, friendFunctions, leaveServer } = useContext(userContext);
-  const { confirm } = useContext(menuContext);
+  const { confirm, textDialog } = useContext(menuContext);
 
   return (
     <>
@@ -34,7 +34,16 @@ export function ProfileSettings() {
             }
             actionRemove={(key) => friendFunctions?.removeFriend(key)}
           />
-          <IconButton className="AddBtn">
+          <IconButton
+            className="AddBtn"
+            onClick={() =>
+              textDialog(
+                "Add a friend",
+                "Enter the User ID!\nIt looks like this: jDDsR95426fzWc0CoBYjKhnrrFa2",
+                (text) => friendFunctions?.sendFriendRequest(text)
+              )
+            }
+          >
             {" "}
             {/*TODO: create an add friends menu*/}
             <Add />
