@@ -24,7 +24,7 @@ export default function LeftSidebar(props: LeftSidebarProps) {
   const { currentChannel, setCurrentChannel, setCurrentServer } = useContext(
     currentContext
   );
-  const { serverData, createChannel } = useContext(serverContext);
+  const { serverData, channelFunctions } = useContext(serverContext);
   const { user, createServer } = useContext(userContext);
   const [showSettings, setShowSettings] = useState(false);
   function goHome() {
@@ -50,7 +50,7 @@ export default function LeftSidebar(props: LeftSidebarProps) {
             currentChannel={currentChannel}
             channelList={serverData?.channels || []}
             changeChannel={setCurrentChannel}
-            createChannel={(channel) => createChannel && createChannel(channel)}
+            createChannel={(channel) => channelFunctions?.create(channel)}
             openWindow={props.openWindow}
           />
         </div>

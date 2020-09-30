@@ -4,7 +4,7 @@ import React, { useContext } from "react";
 import { useServer } from "../../dataHandler/hooks";
 import { AvatarNameCombo } from "../AvatarNameCombo";
 import { AvatarScroller } from "../AvatarScroller";
-import { confirmContext } from "../Intermediary";
+import { menuContext } from "../Intermediary";
 import { RectangleScroller } from "../RectangleScroller";
 import { ElementContainer } from "./ElementContainer";
 
@@ -17,7 +17,7 @@ export function Server(props: ServerProps) {
     props.serverId || undefined
   );
 
-  const confirm = useContext(confirmContext);
+  const { confirm, imageSelect } = useContext(menuContext);
 
   return serverData ? (
     <>
@@ -52,8 +52,19 @@ export function Server(props: ServerProps) {
                 : []
             }
           />
-          <IconButton className="AddBtn">
-            {/*TODO: invoke add emote menu */}
+          <IconButton
+            className="AddBtn"
+            onClick={() =>
+              imageSelect(
+                "Adding an emote",
+                "<:",
+                async (name, fileUrl) =>
+                  await emoteFunctions?.addUrl(name, fileUrl),
+                true,
+                ":>"
+              )
+            }
+          >
             <Add />
           </IconButton>
         </div>

@@ -1,7 +1,7 @@
 import { IconButton, Typography } from "@material-ui/core";
 import React, { useContext, useState } from "react";
 import { AvatarNameCombo } from "../AvatarNameCombo";
-import { confirmContext, userContext } from "../Intermediary";
+import { menuContext, userContext } from "../Intermediary";
 import { RectangleScroller } from "../RectangleScroller";
 import "../../css/ProfileSettings.css";
 import { Add } from "@material-ui/icons";
@@ -9,7 +9,7 @@ import { ElementContainer } from "./ElementContainer";
 
 export function ProfileSettings() {
   const { user, friendFunctions, leaveServer } = useContext(userContext);
-  const confirm = useContext(confirmContext);
+  const { confirm } = useContext(menuContext);
 
   return (
     <>
