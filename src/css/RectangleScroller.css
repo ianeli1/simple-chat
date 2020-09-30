@@ -1,0 +1,45 @@
+.Rectangle {
+  height: 72px;
+  display: flex;
+  align-items: center;
+  margin-top: 8px;
+  background-color: darkgray !important;
+  align-items: stretch;
+  padding: 8px;
+  box-sizing: border-box;
+}
+
+.Rectangle:first-child {
+  margin: 0;
+}
+
+.RectangleContainer {
+  display: flex;
+  align-items: center;
+  padding: 8px;
+  border-radius: 28px;
+  flex-grow: 1;
+  background: gray;
+}
+
+.RectangleX {
+  align-self: flex-start;
+}
+
+.RectangleText {
+  margin-left: 8px !important;
+  width: 120px;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.RectangleScroller {
+  min-height: 50px;
+  max-height: 700px;
+  overflow-y: auto;
+  max-width: 300px;
+  border-radius: 8px;
+  background: gray;
+  padding: 8px;
+}

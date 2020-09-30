@@ -29,10 +29,30 @@
   background: #141617;
   margin: 8px;
   border-radius: 8px;
-  padding: 16px;
+  padding: 4vh 8vw;
   flex-grow: 1;
   color: darkgray;
+  overflow-x: auto;
 }
 
 .SettingsElementContainer {
+  margin-top: 16px;
+}
+
+.SettingsElementContainer:first-child {
+  margin-top: 0;
+}
+
+.SettingsElementContainerInner {
+}
+
+.SettingsElementSubtitle {
+  user-select: none;
+}
+
+.AddBtn {
+  background-color: cadetblue !important;
+  margin: 8px !important;
+  width: 40px;
+  height: 40px;
 }
