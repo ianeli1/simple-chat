@@ -1,42 +1,18 @@
 import { IconButton, Typography } from "@material-ui/core";
 import React, { useContext, useState } from "react";
 import { AvatarNameCombo } from "../AvatarNameCombo";
-import { userContext } from "../Intermediary";
+import { confirmContext, userContext } from "../Intermediary";
 import { RectangleScroller } from "../RectangleScroller";
 import "../../css/ProfileSettings.css";
 import { Add } from "@material-ui/icons";
 import { ElementContainer } from "./ElementContainer";
-import { ConfirmProps, Confirm } from "../Confirm";
 
 export function ProfileSettings() {
   const { user, friendFunctions, leaveServer } = useContext(userContext);
-  const [confirmState, setConfirmState] = useState<
-    Omit<ConfirmProps, "open"> | undefined
-  >(undefined);
-
-  function confirm(
-    title: string,
-    text: string | null,
-    onPositive: () => void,
-    onNegative?: () => void
-  ) {
-    setConfirmState({
-      title,
-      text: text || "",
-      onPositive: () => {
-        onPositive();
-        setConfirmState(undefined);
-      },
-      onNegative: () => {
-        onNegative && onNegative();
-        setConfirmState(undefined);
-      },
-    });
-  }
+  const confirm = useContext(confirmContext);
 
   return (
     <>
-      <Confirm open={Boolean(confirmState)} {...confirmState} />
       <div className="SettingsElementContainer">
         <AvatarNameCombo
           upperText={user?.name || "unk"}
