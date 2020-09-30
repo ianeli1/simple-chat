@@ -10,7 +10,7 @@ import { Members } from "../components/Members";
 import { Profile } from "../components/Profile";
 import "../css/rightSidebar.css";
 import { useMembers } from "../dataHandler/hooks";
-import { createAddEmote, signOut } from "../dataHandler/stateLessFunctions";
+import { signOut } from "../dataHandler/stateLessFunctions";
 
 export const a = 1;
 
@@ -19,7 +19,7 @@ interface RightSidebarProps {}
 export function RightSidebar(props: RightSidebarProps) {
   //TODO: useMemo
   const { user } = useContext(userContext);
-  const { addEmote, serverData } = useContext(serverContext);
+  const { emoteFunctions, serverData } = useContext(serverContext);
   const { currentServer } = useContext(currentContext);
   const { members } = useMembers(currentServer || undefined);
 
@@ -30,7 +30,7 @@ export function RightSidebar(props: RightSidebarProps) {
           <Profile user={user} signOut={signOut} />
           {members && <Members users={members} />}
           <EmoteList
-            addEmote={addEmote || (() => null)}
+            addEmote={emoteFunctions?.add || (() => null)}
             emotes={serverData?.emotes || {}}
           />
         </Box>

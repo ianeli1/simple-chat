@@ -2,23 +2,23 @@ import firebase from "firebase";
 import { useState, useEffect } from "react";
 import { db } from "./handler3";
 import {
-  createAddEmote,
   createCreateServer,
   createFriendRequestFuncs,
   createJoinServer,
   createSendMessage,
-  createCreateChannel,
+  createChannelFunctions,
   createLeaveServer,
+  createEmoteFunctions,
 } from "./stateLessFunctions";
 
 export function useServer(serverId?: string) {
   const [serverData, setServerData] = useState<ServerData | null>(null);
-  const [addEmote, setAddEmote] = useState<
-    null | ((emoteName: string, emote: File) => Promise<void>)
-  >(null);
-  const [createChannel, setCreateChannel] = useState<
-    null | ((channelName: string) => Promise<void>)
-  >(null);
+  const [emoteFunctions, setEmoteFunctions] = useState<null | ReturnType<
+    typeof createEmoteFunctions
+  >>(null);
+  const [channelFunctions, setChannelFunctions] = useState<null | ReturnType<
+    typeof createChannelFunctions
+  >>(null);
   let unsub: () => void;
   useEffect(() => {
     if (serverId) {
@@ -30,19 +30,19 @@ export function useServer(serverId?: string) {
           if (doc.exists) {
             const data = doc.data() as ServerData;
             setServerData(data);
-            setAddEmote(() => createAddEmote(data.id));
-            setCreateChannel(() => createCreateChannel(data.id));
+            setEmoteFunctions(() => createEmoteFunctions(data.id));
+            setChannelFunctions(() => createChannelFunctions(data.id));
           } else {
             setServerData(null);
-            setAddEmote(null);
-            setCreateChannel(null);
+            setEmoteFunctions(null);
+            setChannelFunctions(null);
             throw new Error("This server does not have any metadata");
           }
         });
     }
   }, [serverId]);
 
-  return { serverData, addEmote, createChannel };
+  return { serverData, emoteFunctions, channelFunctions };
 }
 
 export function useChannel(serverId?: string, channelName?: string) {

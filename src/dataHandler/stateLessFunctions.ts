@@ -29,12 +29,19 @@ export function createSendMessage(serverId: string, channelName: string) {
   };
 }
 
-export function createAddEmote(serverId: string) {
-  return async (emoteName: string, emote: File) => {
-    const serverRef = firestore.collection("servers").doc(serverId);
-    return serverRef.update({
-      [`emotes.${emoteName}`]: await uploadImage(emote, true),
-    });
+export function createEmoteFunctions(serverId: string) {
+  const serverRef = firestore.collection("servers").doc(serverId);
+  return {
+    add: async (emoteName: string, emote: File) => {
+      return await serverRef.update({
+        [`emotes.${emoteName}`]: await uploadImage(emote, true),
+      });
+    },
+    delete: async (emoteName: string) => {
+      return await serverRef.update({
+        [`emotes.${emoteName}`]: firebase.firestore.FieldValue.delete(),
+      });
+    },
   };
 }
 
@@ -52,7 +59,7 @@ export function createCreateServer(ownerId: string) {
         emotes: {},
       };
       await firestore.collection("servers").doc(id).set(serverObj);
-      await createCreateChannel(id)("general");
+      await createChannelFunctions(id).create("general");
       return await createJoinServer(ownerId)(id);
     }
   };
@@ -153,25 +160,33 @@ export function ToTimestamp(x: Date) {
   return firebase.firestore.Timestamp.fromDate(x);
 }
 
-export function createCreateChannel(serverId: string) {
-  //TODO: this should be a cloud function
-  return async (channelName: string) => {
-    const serverRef = firestore.collection("servers").doc(serverId);
-    const channelRef = serverRef.collection("channels").doc(channelName);
-    await serverRef.update({
-      channels: firebase.firestore.FieldValue.arrayUnion(channelName),
-    });
-    return await channelRef.set({
-      createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-      messages: {
-        0: {
-          message: "This channel was created",
-          name: "<Owner name goes here oops>", //TODO: figure this out
-          timestamp: firebase.firestore.Timestamp.fromDate(new Date()),
-          userId: "<owner id goes here>",
-        } as Message,
-      },
-    });
+export function createChannelFunctions(serverId: string) {
+  const serverRef = firestore.collection("servers").doc(serverId);
+  return {
+    create: async (channelName: string) => {
+      const channelRef = serverRef.collection("channels").doc(channelName);
+      await serverRef.update({
+        channels: firebase.firestore.FieldValue.arrayUnion(channelName),
+      });
+      return await channelRef.set({
+        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+        messages: {
+          0: {
+            message: "This channel was created",
+            name: "<Owner name goes here oops>", //TODO: figure this out
+            timestamp: firebase.firestore.Timestamp.fromDate(new Date()),
+            userId: "<owner id goes here>",
+          } as Message,
+        },
+      });
+    },
+    remove: async (channelName: string) => {
+      const channelRef = serverRef.collection("channels").doc(channelName);
+      await serverRef.update({
+        channels: firebase.firestore.FieldValue.arrayRemove(channelName),
+      });
+      await channelRef.delete();
+    },
   };
 }
 
