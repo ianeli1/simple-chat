@@ -3,6 +3,7 @@
   min-width: 100vw;
   display: flex;
   background: #282c34;
+  user-select: none;
 }
 
 .Global {

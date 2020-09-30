@@ -62,7 +62,9 @@ export const BasicMessage = (props: BasicMessageProps) => {
             ))}
           </Box>
         ) : (
-          <Typography variant="body1">{message.message}</Typography>
+          <Typography variant="body1" style={{ userSelect: "text" }}>
+            {message.message}
+          </Typography>
         ))}
     </div>
   );
