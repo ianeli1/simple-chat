@@ -106,7 +106,7 @@ export function ImageSelector(props: ISProps) {
           onClick={handleSubmit}
           disabled={Boolean(loading)}
         >
-          {loading ? `${loading}%` : "Submit"}
+          {loading ? `${loading.toFixed(1)}%` : "Submit"}
         </Button>
       </DialogActions>
     </Dialog>
