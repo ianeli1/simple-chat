@@ -1,19 +1,24 @@
 import {
   AppBar,
+  Avatar,
+  Collapse,
   Dialog,
   IconButton,
   List,
   ListItem,
+  ListItemAvatar,
   ListItemText,
   Slide,
   Toolbar,
   Typography,
 } from "@material-ui/core";
 import { TransitionProps } from "@material-ui/core/transitions/transition";
-import { Close } from "@material-ui/icons";
-import React, { useState } from "react";
+import { Close, ExpandLess, ExpandMore } from "@material-ui/icons";
+import React, { useContext, useState } from "react";
 import "../css/Settings.css";
 import { ProfileSettings } from "../components/Settings/Profile";
+import { userContext } from "../components/Intermediary";
+import { Server } from "../components/Settings/Server";
 
 interface SettingsProps {
   close: () => void;
@@ -33,7 +38,9 @@ const SettingsPages: { [key: string]: () => JSX.Element } = {
 
 export function Settings(props: SettingsProps) {
   const [current, setCurrent] = useState<keyof typeof SettingsPages>("Profile");
-
+  const [selectedServer, setSelectedServer] = useState<string | null>(null);
+  const [showServers, setShowServers] = useState(true);
+  const { user } = useContext(userContext);
   return (
     <Dialog
       fullScreen
@@ -55,12 +62,46 @@ export function Settings(props: SettingsProps) {
       <div className="SettingsContent">
         <List className="SettingsSidebar">
           {Object.keys(SettingsPages).map((name) => (
-            <ListItem button onClick={() => setCurrent(name)}>
+            <ListItem
+              button
+              onClick={() => {
+                setCurrent(name);
+                setSelectedServer(null);
+              }}
+            >
               <ListItemText primary={name} />
             </ListItem>
           ))}
+          <ListItem
+            button
+            onClick={() => {
+              setShowServers(!showServers);
+            }}
+          >
+            <ListItemText primary="Servers" />
+            {showServers ? <ExpandLess /> : <ExpandMore />}
+          </ListItem>
+          <Collapse in={showServers}>
+            <List>
+              {user &&
+                user.servers?.map((serverId) => (
+                  <ListItem button onClick={() => setSelectedServer(serverId)}>
+                    <ListItemAvatar>
+                      <Avatar>{serverId[0]}</Avatar>
+                    </ListItemAvatar>
+                    <ListItemText>{serverId}</ListItemText>
+                  </ListItem>
+                ))}
+            </List>
+          </Collapse>
         </List>
-        <div className="SettingsCurrent">{SettingsPages[current]()}</div>
+        <div className="SettingsCurrent">
+          {selectedServer ? (
+            <Server serverId={selectedServer} />
+          ) : (
+            SettingsPages[current]()
+          )}
+        </div>
       </div>
     </Dialog>
   );
