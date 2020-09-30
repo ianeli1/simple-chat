@@ -10,7 +10,7 @@ export type ASElement = {
 };
 
 type AvatarScrollerProps = {
-  size: number;
+  size?: number;
   elements: ASElement[];
   onElementClick: (key: string) => void;
 };
@@ -18,9 +18,9 @@ type AvatarScrollerProps = {
 export function AvatarScroller(props: AvatarScrollerProps) {
   const onElementClick = useCallback(props.onElementClick, []);
   const style = {
-    width: props.size,
-    height: props.size,
-    fontSize: props.size / 2,
+    width: props.size || 50,
+    height: props.size || 50,
+    fontSize: props.size ? props.size / 2 : 25,
   };
   return (
     <div className="AvatarScroller">
