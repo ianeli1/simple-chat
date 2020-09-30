@@ -136,6 +136,15 @@ export function createJoinServer(userId: string) {
   };
 }
 
+export function createLeaveServer(userId: string) {
+  return async (serverId: string) => {
+    const userNode = firestore.collection("users").doc(userId);
+    return userNode.update({
+      servers: firebase.firestore.FieldValue.arrayRemove(serverId),
+    });
+  };
+}
+
 export function ToDate(x: firebase.firestore.Timestamp) {
   return x.toDate();
 }
@@ -198,6 +207,14 @@ export function createFriendRequestFuncs(currentUserId: string) {
         .doc(currentUserId)
         .update({
           friends: firebase.firestore.FieldValue.arrayUnion(userId),
+          friendReq: firebase.firestore.FieldValue.arrayRemove(userId),
+        });
+    },
+    declineFriendRequest: async (userId: string) => {
+      return await firestore
+        .collection("users")
+        .doc(currentUserId)
+        .update({
           friendReq: firebase.firestore.FieldValue.arrayRemove(userId),
         });
     },

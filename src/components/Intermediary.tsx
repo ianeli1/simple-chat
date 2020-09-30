@@ -20,7 +20,13 @@ export const currentContext = React.createContext<{
 export function Intermediary(props: { children: React.ReactNode }) {
   const [currentServer, setCurrentServer] = useState<null | string>(null);
   const [currentChannel, setCurrentChannel] = useState<null | string>(null);
-  const { createServer, friendFunctions, joinServer, user } = useUser();
+  const {
+    createServer,
+    friendFunctions,
+    joinServer,
+    leaveServer,
+    user,
+  } = useUser();
   const { addEmote, createChannel, serverData } = useServer(
     currentServer || undefined
   );
@@ -33,7 +39,13 @@ export function Intermediary(props: { children: React.ReactNode }) {
     <serverContext.Provider value={{ addEmote, createChannel, serverData }}>
       <channelContext.Provider value={{ channel, sendMessage }}>
         <userContext.Provider
-          value={{ createServer, friendFunctions, joinServer, user }}
+          value={{
+            createServer,
+            friendFunctions,
+            joinServer,
+            leaveServer,
+            user,
+          }}
         >
           <currentContext.Provider
             value={{

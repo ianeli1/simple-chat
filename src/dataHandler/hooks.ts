@@ -8,10 +8,10 @@ import {
   createJoinServer,
   createSendMessage,
   createCreateChannel,
+  createLeaveServer,
 } from "./stateLessFunctions";
 
 export function useServer(serverId?: string) {
-  //TODO: members HAVE to be managed via Realtime database
   const [serverData, setServerData] = useState<ServerData | null>(null);
   const [addEmote, setAddEmote] = useState<
     null | ((emoteName: string, emote: File) => Promise<void>)
@@ -47,10 +47,10 @@ export function useServer(serverId?: string) {
 
 export function useChannel(serverId?: string, channelName?: string) {
   const [channel, setChannel] = useState<Channel | null>(null);
-  const [sendMessage, setSendMessage] = useState<
-    null | ((msg: Message, file?: File) => void)
-  >(null);
-  //const [channelData, setChannel] = useState< TODO: implement
+  const [sendMessage, setSendMessage] = useState<null | ReturnType<
+    typeof createSendMessage
+  >>(null);
+  //const [channelData, setChannel] = useState< //TODO: implement channel data
   let unsub: () => void;
   useEffect(() => {
     if (serverId && channelName) {
@@ -103,18 +103,19 @@ async function Presence(protoUser: ProtoUser, serverList: string[]) {
 
 export function useUser() {
   const [user, setUser] = useState<User | null>(null);
-  const [joinServer, setJoinServer] = useState<
-    ((serverId: string) => Promise<void>) | null
-  >(null);
-  const [createServer, setCreateServer] = useState<
-    null | ((serverName: string) => Promise<void>)
-  >(null);
+  const [joinServer, setJoinServer] = useState<ReturnType<
+    typeof createJoinServer
+  > | null>(null);
+  const [createServer, setCreateServer] = useState<null | ReturnType<
+    typeof createCreateServer
+  >>(null);
+  const [leaveServer, setLeaveServer] = useState<ReturnType<
+    typeof createLeaveServer
+  > | null>(null);
 
-  const [friendFunctions, setFriendFunctions] = useState<{
-    sendFriendRequest: (userId: string) => Promise<void>;
-    acceptFriendRequest: (userId: string) => Promise<void>;
-    removeFriend: (userId: string) => Promise<void>;
-  } | null>(null);
+  const [friendFunctions, setFriendFunctions] = useState<ReturnType<
+    typeof createFriendRequestFuncs
+  > | null>(null);
   let unsub: () => void;
   let unsubAuth: firebase.Unsubscribe;
   useEffect(() => {
@@ -129,6 +130,7 @@ export function useUser() {
               const data = doc.data() as User;
               setUser(data);
               setJoinServer(() => createJoinServer(data.userId));
+              setLeaveServer(() => createLeaveServer(data.userId));
               setCreateServer(() => createCreateServer(data.userId));
               setFriendFunctions(() => createFriendRequestFuncs(data.userId));
               Presence(
@@ -143,6 +145,7 @@ export function useUser() {
               setUser(null);
               setJoinServer(null);
               setCreateServer(null);
+              setLeaveServer(null);
               setFriendFunctions(null);
               throw new Error("Logged in user does not exist in database");
             }
@@ -154,7 +157,7 @@ export function useUser() {
       unsubAuth && unsubAuth();
     };
   }, []);
-  return { user, joinServer, createServer, friendFunctions };
+  return { user, joinServer, leaveServer, createServer, friendFunctions };
 }
 
 export function useMembers(serverId?: string) {
