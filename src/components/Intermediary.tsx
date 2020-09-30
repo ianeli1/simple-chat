@@ -1,5 +1,6 @@
-import React, { useState } from "react";
+import React, { useCallback, useState } from "react";
 import { useChannel, useServer, useUser } from "../dataHandler/hooks";
+import { Confirm, ConfirmProps } from "./Confirm";
 
 export const serverContext = React.createContext<ReturnType<typeof useServer>>(
   undefined!
@@ -17,9 +18,46 @@ export const currentContext = React.createContext<{
   setCurrentChannel: (channelName: string | null) => void;
 }>(undefined!);
 
+interface ConfirmFunction {
+  (
+    title: string,
+    text: string,
+    onPositive: () => void,
+    onNegative?: () => void
+  ): void;
+}
+
+export const confirmContext = React.createContext<ConfirmFunction>(undefined!);
+
 export function Intermediary(props: { children: React.ReactNode }) {
+  const confirm: ConfirmFunction = useCallback(function (
+    title: string,
+    text: string | null,
+    onPositive: () => void,
+    onNegative?: () => void
+  ) {
+    setConfirmState({
+      title,
+      text: text || "",
+      onPositive: () => {
+        onPositive();
+        setShowConfirm(false);
+      },
+      onNegative: () => {
+        onNegative && onNegative();
+        setShowConfirm(false);
+      },
+    });
+    setShowConfirm(true);
+  },
+  []);
+
+  const [showConfirm, setShowConfirm] = useState(false);
   const [currentServer, setCurrentServer] = useState<null | string>(null);
   const [currentChannel, setCurrentChannel] = useState<null | string>(null);
+  const [confirmState, setConfirmState] = useState<
+    Omit<ConfirmProps, "open"> | undefined
+  >(undefined);
   const {
     createServer,
     friendFunctions,
@@ -27,16 +65,14 @@ export function Intermediary(props: { children: React.ReactNode }) {
     leaveServer,
     user,
   } = useUser();
-  const { addEmote, createChannel, serverData } = useServer(
-    currentServer || undefined
-  );
+  const serverObj = useServer(currentServer || undefined);
   const { channel, sendMessage } = useChannel(
     currentServer || undefined,
     currentChannel || undefined
   );
 
   return (
-    <serverContext.Provider value={{ addEmote, createChannel, serverData }}>
+    <serverContext.Provider value={serverObj}>
       <channelContext.Provider value={{ channel, sendMessage }}>
         <userContext.Provider
           value={{
@@ -55,7 +91,10 @@ export function Intermediary(props: { children: React.ReactNode }) {
               setCurrentServer,
             }}
           >
-            {props.children}
+            <Confirm open={showConfirm} {...confirmState} />
+            <confirmContext.Provider value={confirm}>
+              {props.children}
+            </confirmContext.Provider>
           </currentContext.Provider>
         </userContext.Provider>
       </channelContext.Provider>
