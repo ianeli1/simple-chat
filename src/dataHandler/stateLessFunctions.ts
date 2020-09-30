@@ -1,14 +1,32 @@
 import firebase from "firebase";
 import { auth, firestore, storage } from "./handler3";
 
-export async function uploadImage(file: File, isEmote: boolean = false) {
+export async function uploadImage(
+  file: File,
+  isEmote: boolean = false,
+  progressCallback?: (percentage: number) => void
+) {
   const id = Date.now() + String(Math.floor(Math.random() * 9));
   const name = `${id}.${file.name.split(".").pop()}`;
-  const uploadTask = await storage
-    .ref(isEmote ? "emotes" : "images")
-    .child(name)
-    .put(file);
-  return await uploadTask.ref.getDownloadURL();
+  const ref = storage.ref(isEmote ? "emotes" : "images").child(name);
+  await new Promise((resolve, reject) => {
+    ref.put(file).on(
+      "state_changed",
+      progressCallback &&
+        ((snap) => {
+          progressCallback((snap.bytesTransferred / snap.totalBytes) * 100);
+        }),
+      (e) => {
+        console.trace("An error ocurred while uploading this image", e);
+        reject();
+      },
+      () => {
+        resolve();
+      }
+    );
+  });
+
+  return await ref.getDownloadURL();
 }
 
 export function createSendMessage(serverId: string, channelName: string) {
@@ -35,6 +53,11 @@ export function createEmoteFunctions(serverId: string) {
     add: async (emoteName: string, emote: File) => {
       return await serverRef.update({
         [`emotes.${emoteName}`]: await uploadImage(emote, true),
+      });
+    },
+    addUrl: async (emoteName: string, emoteUrl: string) => {
+      return await serverRef.update({
+        [`emotes.${emoteName}`]: emoteUrl,
       });
     },
     delete: async (emoteName: string) => {
