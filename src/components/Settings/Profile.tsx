@@ -58,7 +58,7 @@ export function ProfileSettings() {
       >
         <RectangleScroller
           elements={
-            user?.friends?.map((friendId) => ({
+            user?.friendReq?.map((friendId) => ({
               name: friendId,
               key: friendId,
             })) || []

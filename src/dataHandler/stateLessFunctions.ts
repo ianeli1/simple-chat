@@ -125,7 +125,7 @@ export function createUser(
           icon: null, //TODO: add an option to set an icon during registration
           servers: [],
           friends: [],
-          friendReq: {}, //TODO: move to a private sub soething idk
+          friendReq: [], //TODO: move to a private sub soething idk
         };
         await firestore.collection("users").doc(user.user.uid).set(userObj);
       } else {

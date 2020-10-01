@@ -177,9 +177,7 @@ declare global {
     status?: "online" | "idle" | "dnd" | "offline"; //add invisible?
     servers?: string[];
     friends?: string[];
-    friendReq?: {
-      [userId: string]: string | number;
-    };
+    friendReq?: string[];
   }
 
   interface Channel {
