@@ -1,4 +1,4 @@
-# Simple-Chat v0.5
+# Simple-Chat v0.6
 
 ### For simple chatting!
 
@@ -14,6 +14,8 @@ Users are able to:
 
 - Register/Sign In
 - Create/Join servers
+- Create/Delete channels
+- Use custom emotes
 - Send images
 - View who's online
 - Chat!!!
