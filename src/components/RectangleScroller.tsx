@@ -53,13 +53,12 @@ interface ScrollerProps {
 export function RectangleScroller(props: ScrollerProps) {
   const showAvatar = !props.hideAvatar;
   const actionAdd = useMemo(() => props.actionAdd || undefined, []);
-  const actionRemove = useCallback(props.actionRemove, []);
   return (
     <div className="RectangleScroller">
       {(props.elements || []).map((element, i) => (
         <Rectangle
           actionAdd={actionAdd && (() => actionAdd(element.key))}
-          actionRemove={() => actionRemove(element.key)}
+          actionRemove={() => props.actionRemove(element.key)}
           element={element}
           showAvatar={showAvatar}
           key={i}

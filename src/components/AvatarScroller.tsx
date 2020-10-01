@@ -16,7 +16,6 @@ type AvatarScrollerProps = {
 };
 
 export function AvatarScroller(props: AvatarScrollerProps) {
-  const onElementClick = useCallback(props.onElementClick, []);
   const style = {
     width: props.size || 50,
     height: props.size || 50,
@@ -26,7 +25,11 @@ export function AvatarScroller(props: AvatarScrollerProps) {
     <div className="AvatarScroller">
       {props.elements.length > 0 &&
         props.elements.map(({ key, name, icon }) => (
-          <div onClick={() => onElementClick(key)} key={key} style={style}>
+          <div
+            onClick={() => props.onElementClick(key)}
+            key={key}
+            style={style}
+          >
             <Tooltip title={name}>
               {icon ? (
                 <Avatar src={icon} style={style} />
