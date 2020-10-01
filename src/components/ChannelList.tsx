@@ -7,7 +7,7 @@ import {
   ListItemText,
   TextField,
 } from "@material-ui/core";
-import React, { useState } from "react";
+import React from "react";
 
 export function ChannelList({
   channelList,

@@ -8,6 +8,7 @@ import React, {
 import { ChannelList } from "../components/ChannelList";
 import {
   currentContext,
+  menuContext,
   serverContext,
   userContext,
 } from "../components/Intermediary";
