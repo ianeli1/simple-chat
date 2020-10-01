@@ -1,0 +1,15 @@
+.AvatarScroller {
+  min-width: 100%;
+  max-width: 100%;
+  box-sizing: content-box;
+  padding: 5px;
+  overflow-x: auto;
+  display: flex;
+  flex-direction: row;
+  background: gray;
+  border-radius: 5px;
+}
+
+.AvatarScroller > div {
+  margin: 0 2px;
+}

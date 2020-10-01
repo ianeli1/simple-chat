@@ -1,13 +1,15 @@
 import { Box, Hidden, Drawer, makeStyles, Theme } from "@material-ui/core";
-import React, { useRef, useState } from "react";
+import React, { useContext, useRef, useState } from "react";
 import { AppToolbar } from "../components/AppToolbar";
-import { dataContext } from "../components/Intermediary";
 import Login, { Invite } from "../extraMenus";
 
 import { ChatBox } from "./ChatBox";
 import LeftSidebar from "./LeftSidebar";
 import "../css/App.css";
+//import { RightSidebar } from "./RightSidebar";
+import { Landing } from "./Landing";
 import { RightSidebar } from "./RightSidebar";
+import { currentContext, userContext } from "../components/Intermediary";
 
 function smUp() {
   //stack overflow hack haha
@@ -27,25 +29,23 @@ export default function App() {
       console.log("what??? when did i write this function");
     }
   }
-  const [state] = React.useContext(dataContext);
   const [inviting, setInviting] = useState(false);
   const [showRight, setShowRight] = useState(false);
   const [showLeft, setShowLeft] = useState(smUp());
+  const { currentServer, currentChannel } = useContext(currentContext);
+  const { user } = useContext(userContext);
   const container =
     window !== undefined ? () => window.document.body : undefined;
-  const leftSidebar = state.misc.user && (
-    <LeftSidebar openWindow={openWindow} />
-  );
+  const leftSidebar = <LeftSidebar openWindow={openWindow} />;
   return (
     <Box className="Global">
-      {inviting && state.misc.currentServer && (
-        <Invite close={() => setInviting(false)} />
-      )}
-      {!state.misc.user && <Login />}
+      {inviting && currentServer && <Invite close={() => setInviting(false)} />}
+      {!user && <Login />}
 
       <AppToolbar
         toggleLeft={() => setShowLeft(!showLeft)}
         toggleRight={() => setShowRight(!showRight)}
+        {...{ currentServer, currentChannel }}
       />
 
       <div className={"App"}>
@@ -73,7 +73,7 @@ export default function App() {
 
           <div className={showLeft ? "LeftShow" : "LeftHide"} />
         </Hidden>
-        <ChatBox />
+        {currentChannel && currentServer ? <ChatBox /> : <Landing />}
         {
           showRight && <RightSidebar /> //idea: on mobile, make the bg of the drawer transparent
         }

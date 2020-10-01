@@ -1,0 +1,29 @@
+.ImageSelectorContent {
+  width: 400px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  padding: 16px !important;
+}
+
+.ImageSelectorContent > :first-child {
+  flex-grow: 1;
+}
+
+.ImageSelectorSpan {
+  width: 80px;
+  height: 80px;
+  background: darkgray;
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.ImageSelectorImage {
+  height: 100%;
+  width: auto;
+}
+
+.ImageSelectorInnerContent {
+  display: flex;
+  align-items: center;
+}

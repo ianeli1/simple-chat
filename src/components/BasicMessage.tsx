@@ -1,9 +1,10 @@
 import { Tooltip, Box, Avatar, Typography } from "@material-ui/core";
-import React from "react";
+import React, { useCallback } from "react";
 import { Emote } from "./Emote";
 
 type BasicMessageProps = {
   message: Message;
+  onProfileClick: (userId: string) => void;
 };
 
 export const BasicMessage = (props: BasicMessageProps) => {
@@ -26,22 +27,28 @@ export const BasicMessage = (props: BasicMessageProps) => {
     return output;
   }
   const EMOTE_REGEX = /<:(.*?):>/gi;
-
   const { message } = props;
   return (
     <div className="BasicMessage">
       <Tooltip
-        title={String(new Date(Number(message.timestamp.slice(0, -1))))
+        title={message.timestamp
+          .toDate()
+          .toString()
           .split(" ")
           .slice(0, 5)
           .join(" ")}
         arrow
         placement="top"
       >
-        <Box className="MessageName">
+        <div
+          className="MessageName"
+          onClick={() =>
+            props.message.userId && props.onProfileClick(props.message.userId)
+          }
+        >
           <Avatar>{message.name[0]}</Avatar>
           <Typography variant="h5">{message.name}</Typography>
-        </Box>
+        </div>
       </Tooltip>
 
       {message.message &&
@@ -55,7 +62,9 @@ export const BasicMessage = (props: BasicMessageProps) => {
             ))}
           </Box>
         ) : (
-          <Typography variant="body1">{message.message}</Typography>
+          <Typography variant="body1" style={{ userSelect: "text" }}>
+            {message.message}
+          </Typography>
         ))}
     </div>
   );

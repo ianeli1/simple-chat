@@ -1,0 +1,58 @@
+.Settings {
+  z-index: 1499 !important;
+}
+
+.SettingsBar {
+  display: flex;
+  flex-direction: row;
+  background-color: cadetblue;
+}
+
+.SettingsContent {
+  background: #282c34;
+  margin-top: 64px;
+  display: flex;
+  flex-direction: row;
+  flex-grow: 1;
+}
+
+.SettingsSidebar {
+  width: 200px;
+  background: #141617;
+  margin: 8px !important;
+  color: darkgray;
+  font-weight: 300;
+  border-radius: 8px;
+}
+
+.SettingsCurrent {
+  background: #141617;
+  margin: 8px;
+  border-radius: 8px;
+  padding: 4vh 8vw;
+  flex-grow: 1;
+  color: darkgray;
+  overflow-x: auto;
+}
+
+.SettingsElementContainer {
+  margin-top: 16px;
+}
+
+.SettingsElementContainer:first-child {
+  margin-top: 0;
+}
+
+.SettingsElementContainerInner {
+}
+
+.SettingsElementSubtitle {
+  user-select: none;
+}
+
+.AddBtn {
+  background-color: cadetblue !important;
+  margin: 8px !important;
+  width: 40px;
+  height: 40px;
+}

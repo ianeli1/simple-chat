@@ -133,11 +133,7 @@ export declare class Handler {
    * handler.loadServer("123", (members) => this.setState({members})
    *                    (data) => this.setState({data}))
    */
-  loadServer(
-    serverId: string,
-    updateMembers: (serverMembers: { [key: string]: User }) => void,
-    updateData: (serverData: ServerData) => void
-  ): void;
+  loadServer(serverId: string, update?: boolean): void;
 
   /**
    * Adds a new emote to the current server
@@ -177,9 +173,13 @@ declare global {
   interface User {
     name: string;
     userId: string;
-    icon?: string;
+    icon: string | null;
     status?: "online" | "idle" | "dnd" | "offline"; //add invisible?
     servers?: string[];
+    friends?: string[];
+    friendReq?: {
+      [userId: string]: string | number;
+    };
   }
 
   interface Channel {
@@ -197,7 +197,7 @@ declare global {
     userId?: string;
     message: string;
     image?: string;
-    timestamp: string; //deprecated?
+    timestamp: firebase.firestore.Timestamp;
     emotes?: {
       [key: string]: string;
     };
@@ -213,18 +213,13 @@ declare global {
     channels: string[];
     name: string;
     icon?: string;
-    owner: string;
+    ownerId: string;
     typing?: {
       [key: string]: string;
     };
     emotes?: {
       [key: string]: string;
     };
-  }
-
-  interface ChannelTuple {
-    server: string;
-    channel: string;
   }
 
   interface Reference {
@@ -254,6 +249,6 @@ declare global {
     };
     channel?: Channel;
     user?: User;
-    current?: string;
+    current?: string | null;
   }
 }

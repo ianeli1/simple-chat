@@ -1,8 +1,15 @@
+body {
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+}
+
 #root {
   min-height: 100vh;
   min-width: 100vw;
   display: flex;
   background: #282c34;
+  user-select: none;
 }
 
 .Global {
@@ -50,10 +57,14 @@
 
 /*AppToolbar*/
 
+.AppToolbarParent {
+}
+
 .AppToolbar {
   background: cadetblue;
   display: flex;
   flex-direction: row;
+  z-index: 1000;
 }
 
 .ToolbarCurrent {

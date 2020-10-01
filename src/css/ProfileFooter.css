@@ -1,0 +1,10 @@
+.ProfileFooterContainer {
+  display: flex;
+  flex-direction: row;
+  width: 230px;
+  overflow: hidden;
+  background: gray;
+  border-radius: 30px;
+  margin: 8px;
+  margin-top: 0;
+}

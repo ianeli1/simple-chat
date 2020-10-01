@@ -1,0 +1,8 @@
+.ProfileSettingsYourFriends {
+  display: flex;
+  align-items: center;
+}
+
+.ProfileSettingsYourFriends > div:first-child {
+  flex-grow: 1;
+}

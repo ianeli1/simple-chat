@@ -1,113 +1,168 @@
-import React, { createContext, useEffect, useReducer } from "react";
-import { serverACT, serverReducer } from "../dataHandler/reducer";
-import { Handler } from "../handler2";
+import React, { useCallback, useState } from "react";
+import { useChannel, useServer, useUser } from "../dataHandler/hooks";
+import { Confirm, ConfirmProps } from "./Confirm";
+import { ImageSelector, ISProps } from "./ImageSelector";
+import { TDProps, TextDialog } from "./TextDialog";
 
-interface MiscData {
-  user: User | null;
-  currentServer: string | null;
-  currentChannel: string | null;
-}
-
-export enum MiscACT {
-  SET_USER = 69,
-  SET_CURRENT_CHANNEL,
-  SET_CURRENT_SERVER,
-}
-
-function miscReducer(state: MiscData, action: Action) {
-  switch (action.type) {
-    case MiscACT.SET_USER:
-      if (action.user) {
-        return {
-          ...state,
-          user: action.user,
-        };
-      } else return state;
-    case MiscACT.SET_CURRENT_CHANNEL:
-      if (action.current && state.currentServer) {
-        return {
-          ...state,
-          currentChannel: action.current,
-        };
-      } else return state;
-    case MiscACT.SET_CURRENT_SERVER:
-      if (action.current) {
-        return {
-          ...state,
-          currentChannel: null,
-          currentServer: action.current,
-        };
-      }
-    default:
-      return state;
-  }
-}
-
-interface rootState {
-  misc: MiscData;
-  servers: Data;
-}
-
-function rootReducer(state: rootState, action: Action) {
-  if (action.type in MiscACT) {
-    return {
-      ...state,
-      misc: miscReducer(state.misc, action),
-    };
-  } else if (action.type in serverACT) {
-    return {
-      ...state,
-      servers: serverReducer(state.servers, action),
-    };
-  } else return state;
-}
-
-export enum func {
-  SEND_MESSAGE = 100,
-}
-
-function dispatchMiddleware(dispatch: React.Dispatch<Action>) {
-  return (action: Action) => {
-    switch (action.type) {
-      default:
-        return dispatch(action);
-    }
-  };
-}
-
-export const dataContext = createContext<[rootState, React.Dispatch<Action>]>(
+export const serverContext = React.createContext<ReturnType<typeof useServer>>(
   undefined!
 );
+export const channelContext = React.createContext<
+  ReturnType<typeof useChannel>
+>(undefined!);
+export const userContext = React.createContext<ReturnType<typeof useUser>>(
+  undefined!
+);
+export const currentContext = React.createContext<{
+  currentServer: string | null;
+  currentChannel: string | null;
+  setCurrentServer: (serverId: string | null) => void;
+  setCurrentChannel: (channelName: string | null) => void;
+}>(undefined!);
 
-const handler = new Handler();
+interface ConfirmFunction {
+  (
+    title: string,
+    text: string,
+    onPositive: () => void,
+    onNegative?: () => void
+  ): void;
+}
 
-export const sendMessage = handler.sendMessage;
-export const signIn = handler.signIn;
-export const signUp = handler.createUser;
-export const joinServer = handler.joinServer;
-export const loadServer = handler.loadServer;
-export const createServer = handler.createServer;
-export const getChannel = handler.getChannel;
-export const createChannel = handler.createChannel;
-export const signOut = handler.signOut;
-export const addEmote = handler.addEmote;
+interface ImageSelectFunc {
+  (
+    title: string,
+    text: string,
+    onPositive: (name: string, fileUrl: string) => void | Promise<void>,
+    isEmote?: boolean,
+    textAfter?: string
+  ): void;
+}
+
+interface TextDialogFunc {
+  (title: string, text: string, onPositive: (text: string) => void): void;
+}
+
+export const menuContext = React.createContext<{
+  confirm: ConfirmFunction;
+  imageSelect: ImageSelectFunc;
+  textDialog: TextDialogFunc;
+}>(undefined!);
+
 export function Intermediary(props: { children: React.ReactNode }) {
-  const [state, dispatch] = useReducer(rootReducer, {
-    misc: {
-      user: null,
-      currentChannel: null,
-      currentServer: null,
-    },
-    servers: {},
+  const textDialog: TextDialogFunc = useCallback(function (
+    title,
+    text,
+    onPositive
+  ) {
+    setTextDialogState({
+      close: () => setShowTextDialog(false),
+      onPositive,
+      text,
+      title,
+    });
+    setShowTextDialog(true);
+  },
+  []);
+
+  const confirm: ConfirmFunction = useCallback(function (
+    title,
+    text,
+    onPositive,
+    onNegative
+  ) {
+    setConfirmState({
+      title,
+      text: text || "",
+      onPositive: () => {
+        onPositive();
+        setShowConfirm(false);
+      },
+      onNegative: () => {
+        onNegative && onNegative();
+        setShowConfirm(false);
+      },
+    });
+    setShowConfirm(true);
+  },
+  []);
+
+  const imageSelect: ImageSelectFunc = useCallback(function (
+    title,
+    text,
+    onPositive,
+    isEmote,
+    textAfter
+  ) {
+    setImageSelectorProps({
+      close: () => setShowImageSelector(false),
+      onPositive,
+      text,
+      title,
+      isEmote,
+      textAfter,
+    });
+    setShowImageSelector(true);
+  },
+  []);
+
+  const [imageSelectorProps, setImageSelectorProps] = useState<
+    Omit<ISProps, "open">
+  >({
+    close: () => setShowImageSelector(false),
+    onPositive: () => void null,
+    text: "",
+    title: "",
   });
-  useEffect(() => {
-    handler.connect(dispatch);
-    handler.getUser();
-  }, []);
+
+  const [confirmState, setConfirmState] = useState<
+    Omit<ConfirmProps, "open"> | undefined
+  >(undefined);
+
+  const [textDialogState, setTextDialogState] = useState<Omit<TDProps, "open">>(
+    {
+      close: () => setShowTextDialog(false),
+      onPositive: () => void null,
+      text: "",
+      title: "",
+    }
+  );
+
+  const [showConfirm, setShowConfirm] = useState(false);
+  const [showImageSelector, setShowImageSelector] = useState(false);
+  const [showTextDialog, setShowTextDialog] = useState(false);
+
+  const [currentServer, setCurrentServer] = useState<null | string>(null);
+  const [currentChannel, setCurrentChannel] = useState<null | string>(null);
+
+  const userObj = useUser();
+  const serverObj = useServer(currentServer || undefined);
+  const channelObj = useChannel(
+    currentServer || undefined,
+    currentChannel || undefined
+  );
 
   return (
-    <dataContext.Provider value={[state, dispatchMiddleware(dispatch)]}>
-      {props.children}
-    </dataContext.Provider>
+    <serverContext.Provider value={serverObj}>
+      <channelContext.Provider value={channelObj}>
+        <userContext.Provider value={userObj}>
+          <currentContext.Provider
+            value={{
+              currentChannel,
+              currentServer,
+              setCurrentChannel,
+              setCurrentServer,
+            }}
+          >
+            <TextDialog open={showTextDialog} {...textDialogState} />
+            <ImageSelector open={showImageSelector} {...imageSelectorProps} />
+            <Confirm open={showConfirm} {...confirmState} />
+            <menuContext.Provider value={{ confirm, imageSelect, textDialog }}>
+              {props.children}
+            </menuContext.Provider>
+          </currentContext.Provider>
+        </userContext.Provider>
+      </channelContext.Provider>
+    </serverContext.Provider>
   );
 }
