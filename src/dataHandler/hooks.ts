@@ -46,6 +46,10 @@ export function useServer(serverId?: string) {
 }
 
 export function useChannel(serverId?: string, channelName?: string) {
+  const [loadedChannel, setLoadedChannel] = useState<{
+    serverId: string;
+    channelName: string;
+  } | null>({ serverId: "", channelName: "" });
   const [channel, setChannel] = useState<Channel | null>(null);
   const [sendMessage, setSendMessage] = useState<null | ReturnType<
     typeof createSendMessage
@@ -64,6 +68,7 @@ export function useChannel(serverId?: string, channelName?: string) {
         .onSnapshot((doc) => {
           if (doc.exists) {
             const data = doc.data() as { messages: Channel };
+            setLoadedChannel({ serverId, channelName });
             setChannel(data.messages);
             setSendMessage(() => createSendMessage(serverId, channelName));
           } else {
@@ -72,6 +77,9 @@ export function useChannel(serverId?: string, channelName?: string) {
             throw new Error("This channel does not exist");
           }
         });
+    } else {
+      setChannel(null);
+      setSendMessage(null);
     }
 
     return () => {
@@ -79,7 +87,7 @@ export function useChannel(serverId?: string, channelName?: string) {
     };
   }, [serverId, channelName]);
 
-  return { channel, sendMessage };
+  return { channel, sendMessage, loadedChannel };
 }
 
 interface ProtoUser {

@@ -5,7 +5,13 @@ import React, {
   useRef,
   useCallback,
 } from "react";
-import { Backdrop, Box, CircularProgress } from "@material-ui/core";
+import {
+  Backdrop,
+  Box,
+  CircularProgress,
+  Container,
+  Fade,
+} from "@material-ui/core";
 import "../css/chatElements.css";
 import { Message } from "../components/Message";
 import { NewMessage } from "../components/NewMessage";
@@ -26,10 +32,10 @@ import {
 interface ChatBoxProps {}
 
 export function ChatBox(props: ChatBoxProps) {
-  const { channel, sendMessage } = useContext(channelContext);
+  const { channel, sendMessage, loadedChannel } = useContext(channelContext);
   const { joinServer, friendFunctions, user } = useContext(userContext);
   const { serverData } = useContext(serverContext);
-  const { currentChannel } = useContext(currentContext);
+  const { currentChannel, currentServer } = useContext(currentContext);
   const [showProfile, setShowProfile] = useState<null | string>(null);
   const endMessage = useRef<HTMLDivElement>(null);
   useEffect(() => {
@@ -45,60 +51,75 @@ export function ChatBox(props: ChatBoxProps) {
   );
 
   return (
-    <Box id="chatBox" bgcolor="primary.main">
-      <UserProfile
-        friendFunctions={friendFunctions}
-        user={user}
-        close={() => setShowProfile(null)}
-        open={Boolean(showProfile)}
-        profileId={showProfile}
-      />
-      <Box id="messageList">
-        {channel && Object.keys(channel).length ? (
-          Object.values(channel)
-            .sort((a, b) => Number(a.timestamp) - Number(b.timestamp) || 0)
-            .map((x, i) =>
-              x.invite ? (
-                <Message
-                  key={i}
-                  message={x}
-                  joined={
-                    user
-                      ? (user.servers && user.servers.includes(x.invite.id)) ||
-                        false
-                      : false
-                  }
-                  joinServer={() => joinServ(x.invite)}
-                  onProfileClick={setProfileId}
-                />
-              ) : (
-                <Message key={i} message={x} onProfileClick={setProfileId} />
-              )
-            )
-        ) : (
-          <Message
-            key={1}
-            message={{
-              name: "SYSTEM",
-              message: "There's no messages here",
-              timestamp: ToTimestamp(new Date(0)),
-            }}
-            onProfileClick={() => void null}
-          />
+    <>
+      <Backdrop
+        open={Boolean(
+          currentChannel &&
+            !channel &&
+            (loadedChannel?.serverId != currentServer ||
+              loadedChannel?.channelName != currentChannel)
         )}
-        <div style={{ float: "left" }} ref={endMessage} />
-      </Box>
-      {channel && Object.keys(channel).length && (
-        <Box id="newMessageBox">
-          <NewMessage
-            {...{ sendMessage }}
-            user={user}
-            currentChannel={currentChannel}
-            emotes={serverData?.emotes || {}}
-          />
+        style={{ zIndex: 99999, color: "#fff" }}
+      >
+        <CircularProgress />
+      </Backdrop>
+
+      <div id="chatBox">
+        <UserProfile
+          friendFunctions={friendFunctions}
+          user={user}
+          close={() => setShowProfile(null)}
+          open={Boolean(showProfile)}
+          profileId={showProfile}
+        />
+        <Box id="messageList">
+          {channel && Object.keys(channel).length ? (
+            Object.values(channel)
+              .sort((a, b) => Number(a.timestamp) - Number(b.timestamp) || 0)
+              .map((x, i) =>
+                x.invite ? (
+                  <Message
+                    key={i}
+                    message={x}
+                    joined={
+                      user
+                        ? (user.servers &&
+                            user.servers.includes(x.invite.id)) ||
+                          false
+                        : false
+                    }
+                    joinServer={() => joinServ(x.invite)}
+                    onProfileClick={setProfileId}
+                  />
+                ) : (
+                  <Message key={i} message={x} onProfileClick={setProfileId} />
+                )
+              )
+          ) : (
+            <Message
+              key={1}
+              message={{
+                name: "SYSTEM",
+                message: "There's no messages here",
+                timestamp: ToTimestamp(new Date(0)),
+              }}
+              onProfileClick={() => void null}
+            />
+          )}
+          <div style={{ float: "left" }} ref={endMessage} />
         </Box>
-      )}
-    </Box>
+        {channel && Object.keys(channel).length && (
+          <Box id="newMessageBox">
+            <NewMessage
+              {...{ sendMessage }}
+              user={user}
+              currentChannel={currentChannel}
+              emotes={serverData?.emotes || {}}
+            />
+          </Box>
+        )}
+      </div>
+    </>
   );
 }
 /*
