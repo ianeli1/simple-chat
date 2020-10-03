@@ -5,6 +5,7 @@ import {
   makeStyles,
   Theme,
   Fade,
+  SwipeableDrawer,
 } from "@material-ui/core";
 import React, { useContext, useRef, useState } from "react";
 import { AppToolbar } from "../components/AppToolbar";
@@ -66,17 +67,18 @@ export default function App() {
       <Fade in={!!user} timeout={500} style={{ transitionDelay: "200ms" }}>
         <div className={"App"}>
           <Hidden smUp>
-            <Drawer
+            <SwipeableDrawer
               container={container}
               variant="temporary"
               anchor="left"
               open={showLeft}
               onClose={() => setShowLeft(false)}
+              onOpen={() => setShowLeft(true)}
               ModalProps={{ keepMounted: true }}
               classes={{ paper: "drawerPaper" }}
             >
               {leftSidebar}
-            </Drawer>
+            </SwipeableDrawer>
           </Hidden>
           <Hidden xsDown>
             <Drawer

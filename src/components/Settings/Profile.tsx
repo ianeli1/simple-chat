@@ -32,7 +32,13 @@ export function ProfileSettings() {
                 key: friendId,
               })) || []
             }
-            actionRemove={(key) => friendFunctions?.removeFriend(key)}
+            actionRemove={(key) =>
+              confirm(
+                "Remove this friend?",
+                `Are you sure you want to remove ${key} from your friend list?`,
+                () => friendFunctions?.removeFriend(key)
+              )
+            }
           />
           <IconButton
             className="AddBtn"
