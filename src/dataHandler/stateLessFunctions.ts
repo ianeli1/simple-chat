@@ -29,21 +29,32 @@ export async function uploadImage(
   return await ref.getDownloadURL();
 }
 
-export function createSendMessage(serverId: string, channelName: string) {
-  return async (msg: Message, file?: File) => {
-    const msgObj = { ...msg };
-    const channelRef = firestore
-      .collection("servers")
-      .doc(serverId)
-      .collection("channels")
-      .doc(channelName);
-    if (file) {
-      msgObj.image = await uploadImage(file);
-      console.log({ msgObj });
-    }
-    return channelRef.update({
-      [`messages.${Date.now()}`]: msgObj,
-    });
+export function createMessageFunctions(serverId: string, channelName: string) {
+  const channelRef = firestore
+    .collection("servers")
+    .doc(serverId)
+    .collection("channels")
+    .doc(channelName);
+  return {
+    send: async (msg: Omit<Message, "id">, file?: File) => {
+      const ts = new Date();
+      const msgObj: Message = {
+        ...msg,
+        id: ts.valueOf(),
+      };
+      if (file) {
+        msgObj.image = await uploadImage(file);
+        console.log({ msgObj });
+      }
+      return channelRef.update({
+        [`messages.${msgObj.id}`]: msgObj,
+      });
+    },
+    delete: async (msgId: number) => {
+      return await channelRef.update({
+        [`messages.${msgId}`]: firebase.firestore.FieldValue.delete(),
+      });
+    },
   };
 }
 

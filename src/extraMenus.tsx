@@ -174,7 +174,7 @@ export function File(props: {
   user: User;
   cancel: any;
   sendMessage: (
-    msg: Message,
+    msg: Omit<Message, "id">,
     file?: File,
     updateLoad?: (percentage: Number) => void
   ) => void;

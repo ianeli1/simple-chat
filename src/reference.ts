@@ -191,6 +191,7 @@ declare global {
   }
 
   interface Message {
+    id: number;
     name: string;
     userId?: string;
     message: string;

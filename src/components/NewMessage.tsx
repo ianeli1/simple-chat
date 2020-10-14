@@ -9,7 +9,9 @@ TODO: Add inline emote support
 TODO: Regex check for emote and invite patterns on every textfield change
 */
 interface NewMessageProps {
-  sendMessage: ((msg: Message, file?: File | undefined) => void) | null;
+  sendMessage:
+    | ((msg: Omit<Message, "id">, file?: File | undefined) => void)
+    | null;
   currentChannel: string | null;
   user: User | null;
   emotes: Emotes;
@@ -25,7 +27,7 @@ export function NewMessage(props: NewMessageProps) {
     if (props.currentChannel && props.user && message.length) {
       const INVITE_REGEX = /<!invite>(.*?)<!\/invite>/i;
       const EMOTE_REGEX = /<:[a-zA-Z0-9]+:>/gi;
-      let messageObj: Message = {
+      let messageObj: Omit<Message, "id"> = {
         name: props.user.name,
         userId: props.user.userId,
         message,

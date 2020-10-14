@@ -5,10 +5,10 @@ import {
   createCreateServer,
   createFriendRequestFuncs,
   createJoinServer,
-  createSendMessage,
   createChannelFunctions,
   createLeaveServer,
   createEmoteFunctions,
+  createMessageFunctions,
 } from "./stateLessFunctions";
 
 export function useServer(serverId?: string) {
@@ -51,8 +51,8 @@ export function useChannel(serverId?: string, channelName?: string) {
     channelName: string;
   } | null>({ serverId: "", channelName: "" });
   const [channel, setChannel] = useState<Channel | null>(null);
-  const [sendMessage, setSendMessage] = useState<null | ReturnType<
-    typeof createSendMessage
+  const [messageFunctions, setMessageFunctions] = useState<null | ReturnType<
+    typeof createMessageFunctions
   >>(null);
   //const [channelData, setChannel] = useState< //TODO: implement channel data
   let unsub: () => void;
@@ -70,16 +70,18 @@ export function useChannel(serverId?: string, channelName?: string) {
             const data = doc.data() as { messages: Channel };
             setLoadedChannel({ serverId, channelName });
             setChannel(data.messages);
-            setSendMessage(() => createSendMessage(serverId, channelName));
+            setMessageFunctions(() =>
+              createMessageFunctions(serverId, channelName)
+            );
           } else {
             setChannel(null);
-            setSendMessage(null);
+            setMessageFunctions(null);
             throw new Error("This channel does not exist");
           }
         });
     } else {
       setChannel(null);
-      setSendMessage(null);
+      setMessageFunctions(null);
     }
 
     return () => {
@@ -87,7 +89,7 @@ export function useChannel(serverId?: string, channelName?: string) {
     };
   }, [serverId, channelName]);
 
-  return { channel, sendMessage, loadedChannel };
+  return { channel, messageFunctions, loadedChannel };
 }
 
 interface ProtoUser {

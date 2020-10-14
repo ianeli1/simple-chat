@@ -32,7 +32,9 @@ import {
 interface ChatBoxProps {}
 
 export function ChatBox(props: ChatBoxProps) {
-  const { channel, sendMessage, loadedChannel } = useContext(channelContext);
+  const { channel, messageFunctions, loadedChannel } = useContext(
+    channelContext
+  );
   const { joinServer, friendFunctions, user } = useContext(userContext);
   const { serverData } = useContext(serverContext);
   const { currentChannel, currentServer } = useContext(currentContext);
@@ -79,6 +81,7 @@ export function ChatBox(props: ChatBoxProps) {
               .map((x, i) =>
                 x.invite ? (
                   <Message
+                    id={x.id}
                     key={i}
                     message={x}
                     joined={
@@ -90,15 +93,32 @@ export function ChatBox(props: ChatBoxProps) {
                     }
                     joinServer={() => joinServ(x.invite)}
                     onProfileClick={setProfileId}
+                    onMessageDelete={
+                      x.userId == user?.userId
+                        ? messageFunctions?.delete
+                        : undefined
+                    }
                   />
                 ) : (
-                  <Message key={i} message={x} onProfileClick={setProfileId} />
+                  <Message
+                    key={i}
+                    id={x.id}
+                    message={x}
+                    onProfileClick={setProfileId}
+                    onMessageDelete={
+                      x.userId == user?.userId
+                        ? messageFunctions?.delete
+                        : undefined
+                    }
+                  />
                 )
               )
           ) : (
             <Message
               key={1}
+              id={1}
               message={{
+                id: 1,
                 name: "SYSTEM",
                 message: "There's no messages here",
                 timestamp: ToTimestamp(new Date(0)),
@@ -111,7 +131,7 @@ export function ChatBox(props: ChatBoxProps) {
         {channel && Object.keys(channel).length && (
           <Box id="newMessageBox">
             <NewMessage
-              {...{ sendMessage }}
+              sendMessage={messageFunctions?.send || null}
               user={user}
               currentChannel={currentChannel}
               emotes={serverData?.emotes || {}}
