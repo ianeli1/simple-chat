@@ -56,8 +56,17 @@ export default function LeftSidebar(props: LeftSidebarProps) {
           />
         )}
         <ChannelList
+          title={currentServer || "Friends"}
           currentChannel={currentChannel}
-          channelList={currentServer && serverData ? serverData?.channels : []}
+          channelList={
+            currentServer && serverData
+              ? serverData?.channels?.map((name) => ({ key: name, name }))
+              : user?.friends?.map((userId) => ({
+                  key: userId,
+                  name: userId,
+                  icon: userId[0],
+                })) || []
+          }
           changeChannel={setCurrentChannel}
           openWindow={props.openWindow}
         />

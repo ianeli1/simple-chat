@@ -12,7 +12,7 @@ import {
 import { Home } from "@material-ui/icons";
 import { create } from "domain";
 import React, { useContext, useState } from "react";
-import { menuContext } from "./Intermediary";
+import { currentContext, menuContext } from "./Intermediary";
 
 export function ServerList({
   serverList,
@@ -25,6 +25,7 @@ export function ServerList({
   createServer: (serverName: string) => void;
   goHome: () => void;
 }) {
+  const { currentServer, currentChannel } = useContext(currentContext);
   const { textDialog } = useContext(menuContext);
   const [creatingServer, setCreatingServer] = useState<
     { name: string } | false
@@ -32,7 +33,11 @@ export function ServerList({
   return (
     <Box id="ServerList">
       <List component="nav" aria-label="server-picker">
-        <ListItem button onClick={goHome}>
+        <ListItem
+          button
+          onClick={goHome}
+          disabled={!currentChannel && !currentServer}
+        >
           <ListItemIcon className="HomeIcon">
             <Home /> {/*LeftSidebar.css*/}
           </ListItemIcon>
@@ -40,7 +45,11 @@ export function ServerList({
         {serverList &&
           serverList.length &&
           serverList.map((x) => (
-            <ListItem button onClick={() => changeServer(x)}>
+            <ListItem
+              button
+              onClick={() => changeServer(x)}
+              disabled={x == currentServer}
+            >
               <ListItemAvatar>
                 <Avatar>{x}</Avatar>
               </ListItemAvatar>

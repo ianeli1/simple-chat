@@ -9,7 +9,7 @@
 #LeftSidebarRoot {
   display: flex;
   flex-direction: column;
-  height: calc(100% - 64px);
+  height: calc(100vh - 64px);
   background: #777777;
 }
 
@@ -37,6 +37,24 @@
   flex: 1;
   overflow-y: auto;
   box-sizing: content-box;
+  overflow-x: hidden;
+}
+
+.ChannelListTitle {
+  box-sizing: border-box;
+  background: gray;
+  border-radius: 8px;
+  height: 32px;
+  width: 100%;
+  overflow: hidden;
+  white-space: pre;
+}
+
+.ChannelListTitle * {
+  margin-left: 8px !important;
+  word-wrap: break-word;
+  text-overflow: ellipsis;
+  overflow: hidden;
 }
 
 /* Popup */
