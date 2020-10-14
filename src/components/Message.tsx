@@ -28,40 +28,43 @@ export function Message(props: MessageProps) {
     [setShowPopper]
   );
   const divRef = useRef(null);
-  return (
-    <div className="Message" {...mouseActions} ref={divRef}>
-      {props.onMessageDelete && (
-        <Popper
-          open={showPopper}
-          {...mouseActions}
-          style={{ zIndex: 999999999999 }}
-          anchorEl={divRef.current}
-          transition
-          placement="right"
-        >
-          {({ TransitionProps }) => (
-            <Fade {...TransitionProps}>
-              <Paper>
-                <IconButton>
-                  <Edit />
-                </IconButton>
-                <IconButton
-                  onClick={() =>
-                    props.onMessageDelete && props.onMessageDelete(props.id)
-                  }
-                >
-                  <Delete />
-                </IconButton>
-              </Paper>
-            </Fade>
-          )}
-        </Popper>
-      )}
-      <BasicMessage {...{ message }} onProfileClick={props.onProfileClick} />
-      {message.invite && joinServer && (
-        <InviteMessage invite={message.invite} {...{ joinServer, joined }} />
-      )}
-      {message.image && <ImageMessage imageUrl={message.image} />}
-    </div>
+  return useMemo(
+    () => (
+      <div className="Message" {...mouseActions} ref={divRef}>
+        {props.onMessageDelete && (
+          <Popper
+            open={showPopper}
+            {...mouseActions}
+            style={{ zIndex: 999999999999 }}
+            anchorEl={divRef.current}
+            transition
+            placement="right"
+          >
+            {({ TransitionProps }) => (
+              <Fade {...TransitionProps}>
+                <Paper>
+                  <IconButton>
+                    <Edit />
+                  </IconButton>
+                  <IconButton
+                    onClick={() =>
+                      props.onMessageDelete && props.onMessageDelete(props.id)
+                    }
+                  >
+                    <Delete />
+                  </IconButton>
+                </Paper>
+              </Fade>
+            )}
+          </Popper>
+        )}
+        <BasicMessage {...{ message }} onProfileClick={props.onProfileClick} />
+        {message.invite && joinServer && (
+          <InviteMessage invite={message.invite} {...{ joinServer, joined }} />
+        )}
+        {message.image && <ImageMessage imageUrl={message.image} />}
+      </div>
+    ),
+    [message]
   );
 }
