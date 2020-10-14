@@ -3,12 +3,6 @@ import { Avatar, Tooltip } from "@material-ui/core";
 import { keys } from "@material-ui/core/styles/createBreakpoints";
 import "../css/AvatarScroller.css";
 
-export type ASElement = {
-  key: string;
-  name: string;
-  icon?: string;
-};
-
 type AvatarScrollerProps = {
   size?: number;
   elements: ASElement[];

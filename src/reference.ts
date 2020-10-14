@@ -220,6 +220,12 @@ declare global {
     };
   }
 
+  interface ASElement {
+    key: string;
+    name: string;
+    icon?: string;
+  }
+
   interface Reference {
     db: firebase.database.Reference;
     storage: firebase.storage.Reference;
