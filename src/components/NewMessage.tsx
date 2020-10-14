@@ -66,6 +66,10 @@ export function NewMessage(props: NewMessageProps) {
     }
   };
 
+  /**
+   * Limits the message length to 500 characters
+   * @param message the message contents
+   */
   function updateMessage(message: string) {
     setMessage(message.slice(0, 500));
   }
