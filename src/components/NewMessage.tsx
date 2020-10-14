@@ -1,29 +1,9 @@
-import * as r from "../reference";
-import React, {
-  Component,
-  useContext,
-  useEffect,
-  useRef,
-  useState,
-} from "react";
+import React, { useRef, useState } from "react";
 import { File } from "../extraMenus";
 import { IconButton, TextField } from "@material-ui/core";
 import { AddPhotoAlternate, InsertEmoticon, Send } from "@material-ui/icons";
 import EmotePopper from "./EmotePopper";
 import firebase from "firebase";
-
-interface NewPostProps {
-  emotes: Emotes;
-  user: User;
-  sendMessage: typeof r.Handler.prototype.sendMessage;
-}
-
-interface NewPostState {
-  user: User;
-  message: string;
-  isUploading: boolean;
-  showEmote: boolean;
-}
 /*
 TODO: Add inline emote support
 TODO: Regex check for emote and invite patterns on every textfield change
@@ -42,7 +22,7 @@ export function NewMessage(props: NewMessageProps) {
   const emojiRef = useRef<HTMLButtonElement>(null);
 
   const sendMsg = () => {
-    if (props.currentChannel && props.user) {
+    if (props.currentChannel && props.user && message.length) {
       const INVITE_REGEX = /<!invite>(.*?)<!\/invite>/i;
       const EMOTE_REGEX = /<:[a-zA-Z0-9]+:>/gi;
       let messageObj: Message = {
@@ -86,6 +66,10 @@ export function NewMessage(props: NewMessageProps) {
     }
   };
 
+  function updateMessage(message: string) {
+    setMessage(message.slice(0, 500));
+  }
+
   return (
     <div className="newMessage">
       {sendingImage && props.user && (
@@ -103,7 +87,7 @@ export function NewMessage(props: NewMessageProps) {
         emotes={props.emotes}
         onClose={() => setShowEmote(false)}
         onEmoteClick={(emoteName: string) =>
-          setMessage(`${message} <:${emoteName}:>`)
+          updateMessage(`${message} <:${emoteName}:>`)
         }
       />
       <IconButton onClick={() => setShowEmote(true)} ref={emojiRef}>
@@ -121,7 +105,7 @@ export function NewMessage(props: NewMessageProps) {
         id="messageInput"
         style={{ flexGrow: 1 }}
         value={message}
-        onChange={(e) => setMessage(e.target.value)}
+        onChange={(e) => updateMessage(e.target.value)}
         onKeyDown={(e) => e.key === "Enter" && sendMsg()}
         variant="outlined"
         label="Message"
