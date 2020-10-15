@@ -4,6 +4,8 @@ import { IconButton, TextField } from "@material-ui/core";
 import { AddPhotoAlternate, InsertEmoticon, Send } from "@material-ui/icons";
 import EmotePopper from "./EmotePopper";
 import firebase from "firebase";
+import { useContext } from "react";
+import { menuContext } from "./Intermediary";
 /*
 TODO: Add inline emote support
 TODO: Regex check for emote and invite patterns on every textfield change
@@ -19,11 +21,11 @@ interface NewMessageProps {
 
 export function NewMessage(props: NewMessageProps) {
   const [message, setMessage] = useState("");
-  const [sendingImage, setSendingImage] = useState(false);
   const [showEmote, setShowEmote] = useState(false);
   const emojiRef = useRef<HTMLButtonElement>(null);
+  const { imageSelect } = useContext(menuContext);
 
-  const sendMsg = () => {
+  const sendMsg = (message: string, fileUrl?: string) => {
     if (props.currentChannel && props.user && message.length) {
       const INVITE_REGEX = /<!invite>(.*?)<!\/invite>/i;
       const EMOTE_REGEX = /<:[a-zA-Z0-9]+:>/gi;
@@ -33,6 +35,10 @@ export function NewMessage(props: NewMessageProps) {
         message,
         timestamp: firebase.firestore.Timestamp.fromDate(new Date()),
       };
+
+      if (fileUrl) {
+        messageObj.image = fileUrl;
+      }
 
       const match = message.match(INVITE_REGEX);
       if (match) {
@@ -78,15 +84,6 @@ export function NewMessage(props: NewMessageProps) {
 
   return (
     <div className="newMessage">
-      {sendingImage && props.user && (
-        <File
-          user={props.user}
-          cancel={() => setSendingImage(false)}
-          sendMessage={(message, file) =>
-            props.sendMessage && props.sendMessage(message, file)
-          }
-        />
-      )}
       <EmotePopper
         anchor={emojiRef.current}
         open={showEmote}
@@ -100,9 +97,12 @@ export function NewMessage(props: NewMessageProps) {
         <InsertEmoticon />
       </IconButton>
       <IconButton
-        onClick={
-          //get file
-          () => setSendingImage(true)
+        onClick={() =>
+          imageSelect(
+            "Send an image",
+            "Message: ",
+            (message, fileUrl) => void sendMsg(message, fileUrl)
+          )
         }
       >
         <AddPhotoAlternate />
@@ -112,12 +112,12 @@ export function NewMessage(props: NewMessageProps) {
         style={{ flexGrow: 1 }}
         value={message}
         onChange={(e) => updateMessage(e.target.value)}
-        onKeyDown={(e) => e.key === "Enter" && sendMsg()}
+        onKeyDown={(e) => e.key === "Enter" && sendMsg(message)}
         variant="outlined"
         label="Message"
         autoComplete="off"
       />
-      <IconButton onClick={() => message.length && sendMsg()}>
+      <IconButton onClick={() => message.length && sendMsg(message)}>
         <Send />
       </IconButton>
     </div>
