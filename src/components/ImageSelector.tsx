@@ -46,7 +46,7 @@ export function ImageSelector(props: ISProps) {
   }
 
   async function handleSubmit() {
-    if (file && text) {
+    if (file && (text || props.hideTextbox)) {
       const url = await uploadImage(file, props.isEmote || false, (per) =>
         setLoading(per)
       );

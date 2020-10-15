@@ -92,3 +92,18 @@ export function createFriendRequestFuncs(currentUserId: string) {
     },
   };
 }
+
+export function createProfileFunctions(userId: string) {
+  const userRef = firestore.collection("users").doc(userId);
+  return {
+    /**
+     * updates the avatar of the current, logged in user
+     * @param iconUrl firebase image link
+     */
+    changeAvatar(iconUrl?: string) {
+      userRef.update({
+        icon: iconUrl || null,
+      });
+    },
+  };
+}

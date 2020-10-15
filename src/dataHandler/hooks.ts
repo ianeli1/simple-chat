@@ -11,6 +11,7 @@ import {
   createFriendRequestFuncs,
   createJoinServer,
   createLeaveServer,
+  createProfileFunctions,
 } from "./userFunctions";
 
 export function useServer(serverId?: string) {
@@ -115,12 +116,15 @@ async function Presence(protoUser: ProtoUser, serverList: string[]) {
 
 export function useUser() {
   const [user, setUser] = useState<User | null>(null);
+
   const [joinServer, setJoinServer] = useState<ReturnType<
     typeof createJoinServer
   > | null>(null);
+
   const [createServer, setCreateServer] = useState<null | ReturnType<
     typeof createCreateServer
   >>(null);
+
   const [leaveServer, setLeaveServer] = useState<ReturnType<
     typeof createLeaveServer
   > | null>(null);
@@ -128,6 +132,11 @@ export function useUser() {
   const [friendFunctions, setFriendFunctions] = useState<ReturnType<
     typeof createFriendRequestFuncs
   > | null>(null);
+
+  const [profileFunctions, setProfileFunctions] = useState<ReturnType<
+    typeof createProfileFunctions
+  > | null>(null);
+
   let unsub: () => void;
   let unsubAuth: firebase.Unsubscribe;
   useEffect(() => {
@@ -145,6 +154,7 @@ export function useUser() {
               setLeaveServer(() => createLeaveServer(data.userId));
               setCreateServer(() => createCreateServer(data.userId));
               setFriendFunctions(() => createFriendRequestFuncs(data.userId));
+              setProfileFunctions(() => createProfileFunctions(data.userId));
               Presence(
                 {
                   name: data.name,
@@ -159,6 +169,7 @@ export function useUser() {
               setCreateServer(null);
               setLeaveServer(null);
               setFriendFunctions(null);
+              setProfileFunctions(null);
               throw new Error("Logged in user does not exist in database");
             }
           });
@@ -169,7 +180,14 @@ export function useUser() {
       unsubAuth && unsubAuth();
     };
   }, []);
-  return { user, joinServer, leaveServer, createServer, friendFunctions };
+  return {
+    user,
+    joinServer,
+    leaveServer,
+    createServer,
+    friendFunctions,
+    profileFunctions,
+  };
 }
 
 export function useMembers(serverId?: string) {

@@ -39,7 +39,10 @@ export function UserProfile(props: UserProfileType) {
       {props.user?.friends && profile && props.profileId ? (
         <>
           <DialogTitle className="UserProfileTitle">
-            <AvatarNameCombo upperText={profile.name} />
+            <AvatarNameCombo
+              upperText={profile.name}
+              icon={profile.icon || undefined}
+            />
           </DialogTitle>
           <DialogContent className="UserProfileContent">
             <div className="UserProfileContentInner">

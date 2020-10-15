@@ -8,7 +8,9 @@ import { Add } from "@material-ui/icons";
 import { ElementContainer } from "./ElementContainer";
 
 export function ProfileSettings() {
-  const { user, friendFunctions, leaveServer } = useContext(userContext);
+  const { user, friendFunctions, leaveServer, profileFunctions } = useContext(
+    userContext
+  );
   const { confirm, textDialog, imageSelect } = useContext(menuContext);
 
   return (
@@ -23,7 +25,7 @@ export function ProfileSettings() {
             imageSelect(
               "Profile picture",
               "<= Please select a new profile picture",
-              (_, url) => void url,
+              (_, url) => void profileFunctions?.changeAvatar(url),
               false,
               undefined,
               true

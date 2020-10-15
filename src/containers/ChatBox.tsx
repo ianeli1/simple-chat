@@ -67,8 +67,9 @@ export function ChatBox(props: ChatBoxProps) {
         <Box id="messageList">
           {channel && Object.keys(channel).length ? (
             Object.values(channel)
-              .slice(-30) //TODO: implement pagination
+              //TODO: implement pagination
               .sort((a, b) => Number(a.timestamp) - Number(b.timestamp) || 0)
+              .slice(-30)
               .map((x, i) =>
                 x.invite ? (
                   <Message
