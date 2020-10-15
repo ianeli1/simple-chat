@@ -6,6 +6,7 @@ import { RectangleScroller } from "../RectangleScroller";
 import "../../css/ProfileSettings.css";
 import { Add } from "@material-ui/icons";
 import { ElementContainer } from "./ElementContainer";
+import { version } from "../../../package.json";
 
 export function ProfileSettings() {
   const { user, friendFunctions, leaveServer, profileFunctions } = useContext(
@@ -104,6 +105,10 @@ export function ProfileSettings() {
             );
           }}
         />
+      </ElementContainer>
+
+      <ElementContainer title={"Version"}>
+        <Typography variant="body1">{version}</Typography>
       </ElementContainer>
     </>
   );
