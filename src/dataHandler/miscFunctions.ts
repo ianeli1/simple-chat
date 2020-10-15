@@ -112,3 +112,17 @@ export function ToDate(x: firebase.firestore.Timestamp) {
 export function ToTimestamp(x: Date) {
   return firebase.firestore.Timestamp.fromDate(x);
 }
+
+export function subscribeToProfile(
+  userId: string,
+  callback: (profile: User) => void
+) {
+  return firestore
+    .collection("users")
+    .doc(userId)
+    .onSnapshot((snap) => {
+      if (snap.exists) {
+        callback(snap.data() as User);
+      }
+    });
+}

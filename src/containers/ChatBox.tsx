@@ -4,6 +4,7 @@ import React, {
   useState,
   useRef,
   useCallback,
+  useMemo,
 } from "react";
 import { Backdrop, Box, CircularProgress } from "@material-ui/core";
 import "../css/chatElements.css";
@@ -17,7 +18,7 @@ import {
   serverContext,
   userContext,
 } from "../components/Intermediary";
-import { ToTimestamp } from "../dataHandler/miscFunctions";
+import { subscribeToProfile, ToTimestamp } from "../dataHandler/miscFunctions";
 
 interface ChatBoxProps {}
 
@@ -29,6 +30,9 @@ export function ChatBox(props: ChatBoxProps) {
   const { serverData } = useContext(serverContext);
   const { currentChannel, currentServer } = useContext(currentContext);
   const [showProfile, setShowProfile] = useState<null | string>(null);
+  const [pictureCache, setPictureCache] = useState<{ [key: string]: string }>(
+    {}
+  );
   const endMessage = useRef<HTMLDivElement>(null);
   useEffect(() => {
     endMessage.current?.scrollIntoView({ behavior: "smooth" });
@@ -41,6 +45,38 @@ export function ChatBox(props: ChatBoxProps) {
       void (invite && joinServer && joinServer(invite.id)),
     [user?.userId]
   );
+  const messages = channel
+    ? Object.values(channel)
+        .sort((a, b) => Number(a.timestamp) - Number(b.timestamp) || 0)
+        .slice(-30)
+    : null;
+  const subbed: { [key: string]: () => void } = {};
+
+  useEffect(() => {
+    const users =
+      messages?.reduce((arr: string[], cv) => {
+        if (cv.userId && !arr.includes(cv.userId)) {
+          return [cv.userId, ...arr];
+        } else {
+          return arr;
+        }
+      }, []) || [];
+    for (const id of users) {
+      if (!subbed[id]) {
+        subbed[id] = subscribeToProfile(
+          id,
+          (user) =>
+            user.icon &&
+            setPictureCache((cache) =>
+              user.icon ? { ...cache, [id]: user.icon } : cache
+            )
+        );
+      }
+    }
+    return () => {
+      Object.values(subbed).forEach((x) => x()); //unsubscribe from every profile
+    };
+  }, [messages?.length]);
 
   return (
     <>
@@ -76,6 +112,7 @@ export function ChatBox(props: ChatBoxProps) {
                     id={x.id}
                     key={i}
                     message={x}
+                    avatarUrl={x.userId && pictureCache[x.userId]}
                     joined={
                       user
                         ? (user.servers &&
@@ -97,6 +134,7 @@ export function ChatBox(props: ChatBoxProps) {
                     id={x.id}
                     message={x}
                     onProfileClick={setProfileId}
+                    avatarUrl={x.userId && pictureCache[x.userId]}
                     onMessageDelete={
                       x.userId == user?.userId
                         ? messageFunctions?.delete

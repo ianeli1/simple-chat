@@ -13,6 +13,7 @@ type MessageProps = {
   joined?: boolean;
   onProfileClick: (userId: string) => void;
   onMessageDelete?: (id: number) => void;
+  avatarUrl?: string;
 };
 
 //TODO: connect join server + join using context
@@ -62,6 +63,7 @@ export function Message(props: MessageProps) {
           <>
             <BasicMessage
               {...{ message }}
+              avatarUrl={props.avatarUrl}
               onProfileClick={props.onProfileClick}
             />
             {message.invite && joinServer && (
@@ -73,7 +75,7 @@ export function Message(props: MessageProps) {
             {message.image && <ImageMessage imageUrl={message.image} />}
           </>
         ),
-        [id]
+        [id, props.avatarUrl]
       )}
     </div>
   );
