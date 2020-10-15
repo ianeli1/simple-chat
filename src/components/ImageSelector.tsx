@@ -21,6 +21,7 @@ export interface ISProps {
   textAfter?: string;
   placeholder?: string;
   isEmote?: boolean;
+  hideTextbox?: boolean;
 }
 
 export function ImageSelector(props: ISProps) {
@@ -84,12 +85,14 @@ export function ImageSelector(props: ISProps) {
         </label>
         <div className="ImageSelectorInnerContent">
           <Typography variant="h6">{props.text}</Typography>
-          <TextField
-            variant="outlined"
-            placeholder={props.placeholder}
-            value={text}
-            onChange={(e) => setText(e.target.value)}
-          />
+          {!props.hideTextbox && (
+            <TextField
+              variant="outlined"
+              placeholder={props.placeholder}
+              value={text}
+              onChange={(e) => setText(e.target.value)}
+            />
+          )}
           <Typography variant="h6">{props.textAfter}</Typography>
         </div>
       </DialogContent>

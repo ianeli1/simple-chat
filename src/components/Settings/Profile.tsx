@@ -9,7 +9,7 @@ import { ElementContainer } from "./ElementContainer";
 
 export function ProfileSettings() {
   const { user, friendFunctions, leaveServer } = useContext(userContext);
-  const { confirm, textDialog } = useContext(menuContext);
+  const { confirm, textDialog, imageSelect } = useContext(menuContext);
 
   return (
     <>
@@ -19,6 +19,16 @@ export function ProfileSettings() {
           lowerText={user?.userId || "unk"}
           icon={user?.icon || undefined}
           size={88}
+          onAvatarClick={() =>
+            imageSelect(
+              "Profile picture",
+              "<= Please select a new profile picture",
+              (_, url) => void url,
+              false,
+              undefined,
+              true
+            )
+          }
         />
       </div>
       <ElementContainer
