@@ -5,22 +5,11 @@ import React, {
   useRef,
   useCallback,
 } from "react";
-import {
-  Backdrop,
-  Box,
-  CircularProgress,
-  Container,
-  Fade,
-} from "@material-ui/core";
+import { Backdrop, Box, CircularProgress } from "@material-ui/core";
 import "../css/chatElements.css";
 import { Message } from "../components/Message";
 import { NewMessage } from "../components/NewMessage";
 import { UserProfile } from "../components/UserProfile";
-import {
-  createFriendRequestFuncs,
-  createJoinServer,
-  ToTimestamp,
-} from "../dataHandler/stateLessFunctions";
 import { useChannel } from "../dataHandler/hooks";
 import {
   channelContext,
@@ -28,6 +17,7 @@ import {
   serverContext,
   userContext,
 } from "../components/Intermediary";
+import { ToTimestamp } from "../dataHandler/miscFunctions";
 
 interface ChatBoxProps {}
 

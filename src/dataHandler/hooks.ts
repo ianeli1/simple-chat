@@ -2,14 +2,16 @@ import firebase from "firebase";
 import { useState, useEffect } from "react";
 import { db } from "./handler3";
 import {
+  createEmoteFunctions,
+  createChannelFunctions,
+  createMessageFunctions,
+} from "./serverFunctions";
+import {
   createCreateServer,
   createFriendRequestFuncs,
   createJoinServer,
-  createChannelFunctions,
   createLeaveServer,
-  createEmoteFunctions,
-  createMessageFunctions,
-} from "./stateLessFunctions";
+} from "./userFunctions";
 
 export function useServer(serverId?: string) {
   const [serverData, setServerData] = useState<ServerData | null>(null);

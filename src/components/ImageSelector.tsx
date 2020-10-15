@@ -10,7 +10,7 @@ import {
 } from "@material-ui/core";
 import React, { ChangeEvent, useEffect, useState } from "react";
 import "../css/ImageSelector.css";
-import { uploadImage } from "../dataHandler/stateLessFunctions";
+import { uploadImage } from "../dataHandler/miscFunctions";
 
 export interface ISProps {
   open: boolean;
