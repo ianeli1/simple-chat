@@ -1,14 +1,10 @@
 import React, { useState, useRef, useEffect, useContext } from "react";
 import { Box, Typography, TextField, Button } from "@material-ui/core";
-import {
-  signIn,
-  createUser,
-  ToTimestamp,
-} from "./dataHandler/stateLessFunctions";
 
 import * as r from "./reference";
 import "./css/extraMenus.css";
 import { serverContext } from "./components/Intermediary";
+import { createUser, signIn, ToTimestamp } from "./dataHandler/miscFunctions";
 //TODO: Rewrite all these as Material UI dialogs, ooops
 export default function Login() {
   function handleLogin(error: string) {
@@ -174,7 +170,7 @@ export function File(props: {
   user: User;
   cancel: any;
   sendMessage: (
-    msg: Message,
+    msg: Omit<Message, "id">,
     file?: File,
     updateLoad?: (percentage: Number) => void
   ) => void;

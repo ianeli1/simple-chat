@@ -2,14 +2,17 @@ import firebase from "firebase";
 import { useState, useEffect } from "react";
 import { db } from "./handler3";
 import {
+  createEmoteFunctions,
+  createChannelFunctions,
+  createMessageFunctions,
+} from "./serverFunctions";
+import {
   createCreateServer,
   createFriendRequestFuncs,
   createJoinServer,
-  createSendMessage,
-  createChannelFunctions,
   createLeaveServer,
-  createEmoteFunctions,
-} from "./stateLessFunctions";
+  createProfileFunctions,
+} from "./userFunctions";
 
 export function useServer(serverId?: string) {
   const [serverData, setServerData] = useState<ServerData | null>(null);
@@ -46,9 +49,13 @@ export function useServer(serverId?: string) {
 }
 
 export function useChannel(serverId?: string, channelName?: string) {
+  const [loadedChannel, setLoadedChannel] = useState<{
+    serverId: string;
+    channelName: string;
+  } | null>({ serverId: "", channelName: "" });
   const [channel, setChannel] = useState<Channel | null>(null);
-  const [sendMessage, setSendMessage] = useState<null | ReturnType<
-    typeof createSendMessage
+  const [messageFunctions, setMessageFunctions] = useState<null | ReturnType<
+    typeof createMessageFunctions
   >>(null);
   //const [channelData, setChannel] = useState< //TODO: implement channel data
   let unsub: () => void;
@@ -64,14 +71,20 @@ export function useChannel(serverId?: string, channelName?: string) {
         .onSnapshot((doc) => {
           if (doc.exists) {
             const data = doc.data() as { messages: Channel };
+            setLoadedChannel({ serverId, channelName });
             setChannel(data.messages);
-            setSendMessage(() => createSendMessage(serverId, channelName));
+            setMessageFunctions(() =>
+              createMessageFunctions(serverId, channelName)
+            );
           } else {
             setChannel(null);
-            setSendMessage(null);
+            setMessageFunctions(null);
             throw new Error("This channel does not exist");
           }
         });
+    } else {
+      setChannel(null);
+      setMessageFunctions(null);
     }
 
     return () => {
@@ -79,7 +92,7 @@ export function useChannel(serverId?: string, channelName?: string) {
     };
   }, [serverId, channelName]);
 
-  return { channel, sendMessage };
+  return { channel, messageFunctions, loadedChannel };
 }
 
 interface ProtoUser {
@@ -103,12 +116,15 @@ async function Presence(protoUser: ProtoUser, serverList: string[]) {
 
 export function useUser() {
   const [user, setUser] = useState<User | null>(null);
+
   const [joinServer, setJoinServer] = useState<ReturnType<
     typeof createJoinServer
   > | null>(null);
+
   const [createServer, setCreateServer] = useState<null | ReturnType<
     typeof createCreateServer
   >>(null);
+
   const [leaveServer, setLeaveServer] = useState<ReturnType<
     typeof createLeaveServer
   > | null>(null);
@@ -116,6 +132,11 @@ export function useUser() {
   const [friendFunctions, setFriendFunctions] = useState<ReturnType<
     typeof createFriendRequestFuncs
   > | null>(null);
+
+  const [profileFunctions, setProfileFunctions] = useState<ReturnType<
+    typeof createProfileFunctions
+  > | null>(null);
+
   let unsub: () => void;
   let unsubAuth: firebase.Unsubscribe;
   useEffect(() => {
@@ -133,6 +154,7 @@ export function useUser() {
               setLeaveServer(() => createLeaveServer(data.userId));
               setCreateServer(() => createCreateServer(data.userId));
               setFriendFunctions(() => createFriendRequestFuncs(data.userId));
+              setProfileFunctions(() => createProfileFunctions(data.userId));
               Presence(
                 {
                   name: data.name,
@@ -147,6 +169,7 @@ export function useUser() {
               setCreateServer(null);
               setLeaveServer(null);
               setFriendFunctions(null);
+              setProfileFunctions(null);
               throw new Error("Logged in user does not exist in database");
             }
           });
@@ -157,7 +180,14 @@ export function useUser() {
       unsubAuth && unsubAuth();
     };
   }, []);
-  return { user, joinServer, leaveServer, createServer, friendFunctions };
+  return {
+    user,
+    joinServer,
+    leaveServer,
+    createServer,
+    friendFunctions,
+    profileFunctions,
+  };
 }
 
 export function useMembers(serverId?: string) {

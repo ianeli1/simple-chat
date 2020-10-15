@@ -10,7 +10,7 @@ import {
 } from "@material-ui/core";
 import React, { ChangeEvent, useEffect, useState } from "react";
 import "../css/ImageSelector.css";
-import { uploadImage } from "../dataHandler/stateLessFunctions";
+import { uploadImage } from "../dataHandler/miscFunctions";
 
 export interface ISProps {
   open: boolean;
@@ -21,6 +21,7 @@ export interface ISProps {
   textAfter?: string;
   placeholder?: string;
   isEmote?: boolean;
+  hideTextbox?: boolean;
 }
 
 export function ImageSelector(props: ISProps) {
@@ -45,7 +46,7 @@ export function ImageSelector(props: ISProps) {
   }
 
   async function handleSubmit() {
-    if (file && text) {
+    if (file && (text || props.hideTextbox)) {
       const url = await uploadImage(file, props.isEmote || false, (per) =>
         setLoading(per)
       );
@@ -84,12 +85,14 @@ export function ImageSelector(props: ISProps) {
         </label>
         <div className="ImageSelectorInnerContent">
           <Typography variant="h6">{props.text}</Typography>
-          <TextField
-            variant="outlined"
-            placeholder={props.placeholder}
-            value={text}
-            onChange={(e) => setText(e.target.value)}
-          />
+          {!props.hideTextbox && (
+            <TextField
+              variant="outlined"
+              placeholder={props.placeholder}
+              value={text}
+              onChange={(e) => setText(e.target.value)}
+            />
+          )}
           <Typography variant="h6">{props.textAfter}</Typography>
         </div>
       </DialogContent>

@@ -7,7 +7,12 @@ export function Profile(props: { user: User; signOut: () => void }) {
     <Widget title="Profile">
       <Box className="Profile">
         <Box className="MessageName">
-          <Avatar>{props.user.name[0]}</Avatar>
+          {props.user.icon ? (
+            <Avatar src={props.user.icon} alt={props.user.name[0]} />
+          ) : (
+            <Avatar>{props.user.name[0]}</Avatar>
+          )}
+
           <Typography variant="h5">{props.user.name}</Typography>
         </Box>
         <Button

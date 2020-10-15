@@ -6,10 +6,13 @@ import { RectangleScroller } from "../RectangleScroller";
 import "../../css/ProfileSettings.css";
 import { Add } from "@material-ui/icons";
 import { ElementContainer } from "./ElementContainer";
+import { version } from "../../../package.json";
 
 export function ProfileSettings() {
-  const { user, friendFunctions, leaveServer } = useContext(userContext);
-  const { confirm, textDialog } = useContext(menuContext);
+  const { user, friendFunctions, leaveServer, profileFunctions } = useContext(
+    userContext
+  );
+  const { confirm, textDialog, imageSelect } = useContext(menuContext);
 
   return (
     <>
@@ -19,6 +22,16 @@ export function ProfileSettings() {
           lowerText={user?.userId || "unk"}
           icon={user?.icon || undefined}
           size={88}
+          onAvatarClick={() =>
+            imageSelect(
+              "Profile picture",
+              "<= Please select a new profile picture",
+              (_, url) => void profileFunctions?.changeAvatar(url),
+              false,
+              undefined,
+              true
+            )
+          }
         />
       </div>
       <ElementContainer
@@ -32,7 +45,13 @@ export function ProfileSettings() {
                 key: friendId,
               })) || []
             }
-            actionRemove={(key) => friendFunctions?.removeFriend(key)}
+            actionRemove={(key) =>
+              confirm(
+                "Remove this friend?",
+                `Are you sure you want to remove ${key} from your friend list?`,
+                () => friendFunctions?.removeFriend(key)
+              )
+            }
           />
           <IconButton
             className="AddBtn"
@@ -58,7 +77,7 @@ export function ProfileSettings() {
       >
         <RectangleScroller
           elements={
-            user?.friends?.map((friendId) => ({
+            user?.friendReq?.map((friendId) => ({
               name: friendId,
               key: friendId,
             })) || []
@@ -86,6 +105,10 @@ export function ProfileSettings() {
             );
           }}
         />
+      </ElementContainer>
+
+      <ElementContainer title={"Version"}>
+        <Typography variant="body1">{version}</Typography>
       </ElementContainer>
     </>
   );

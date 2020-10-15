@@ -1,4 +1,12 @@
-import { Box, Hidden, Drawer, makeStyles, Theme } from "@material-ui/core";
+import {
+  Box,
+  Hidden,
+  Drawer,
+  makeStyles,
+  Theme,
+  Fade,
+  SwipeableDrawer,
+} from "@material-ui/core";
 import React, { useContext, useRef, useState } from "react";
 import { AppToolbar } from "../components/AppToolbar";
 import Login, { Invite } from "../extraMenus";
@@ -40,44 +48,57 @@ export default function App() {
   return (
     <Box className="Global">
       {inviting && currentServer && <Invite close={() => setInviting(false)} />}
-      {!user && <Login />}
+      <Fade
+        in={!user}
+        timeout={500}
+        style={{ transitionDelay: !user ? "0" : "200ms" }}
+        unmountOnExit
+      >
+        <div>
+          <Login />
+        </div>
+      </Fade>
 
       <AppToolbar
         toggleLeft={() => setShowLeft(!showLeft)}
         toggleRight={() => setShowRight(!showRight)}
         {...{ currentServer, currentChannel }}
       />
+      <Fade in={!!user} timeout={500} style={{ transitionDelay: "200ms" }}>
+        <div className={"App"}>
+          <Hidden smUp>
+            <SwipeableDrawer
+              container={container}
+              variant="temporary"
+              anchor="left"
+              open={showLeft}
+              onClose={() => setShowLeft(false)}
+              onOpen={() => setShowLeft(true)}
+              ModalProps={{ keepMounted: true }}
+              classes={{ paper: "drawerPaper" }}
+            >
+              {leftSidebar}
+            </SwipeableDrawer>
+          </Hidden>
+          <Hidden xsDown>
+            <Drawer
+              variant="persistent"
+              open={showLeft}
+              classes={{ paper: "drawerPaper" }}
+            >
+              {leftSidebar}
+            </Drawer>
 
-      <div className={"App"}>
-        <Hidden smUp>
-          <Drawer
-            container={container}
-            variant="temporary"
-            anchor="left"
-            open={showLeft}
-            onClose={() => setShowLeft(false)}
-            ModalProps={{ keepMounted: true }}
-            classes={{ paper: "drawerPaper" }}
-          >
-            {leftSidebar}
-          </Drawer>
-        </Hidden>
-        <Hidden xsDown>
-          <Drawer
-            variant="persistent"
-            open={showLeft}
-            classes={{ paper: "drawerPaper" }}
-          >
-            {leftSidebar}
-          </Drawer>
+            <div className={showLeft ? "LeftShow" : "LeftHide"} />
+          </Hidden>
 
-          <div className={showLeft ? "LeftShow" : "LeftHide"} />
-        </Hidden>
-        {currentChannel && currentServer ? <ChatBox /> : <Landing />}
-        {
-          showRight && <RightSidebar /> //idea: on mobile, make the bg of the drawer transparent
-        }
-      </div>
+          {currentChannel && currentServer ? <ChatBox /> : <Landing />}
+
+          {
+            showRight && <RightSidebar /> //idea: on mobile, make the bg of the drawer transparent
+          }
+        </div>
+      </Fade>
     </Box>
   );
 }

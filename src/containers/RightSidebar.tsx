@@ -10,7 +10,7 @@ import { Members } from "../components/Members";
 import { Profile } from "../components/Profile";
 import "../css/rightSidebar.css";
 import { useMembers } from "../dataHandler/hooks";
-import { signOut } from "../dataHandler/stateLessFunctions";
+import { signOut } from "../dataHandler/miscFunctions";
 
 export const a = 1;
 

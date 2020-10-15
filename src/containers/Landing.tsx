@@ -1,6 +1,6 @@
 import { Card, CardContent, Typography } from "@material-ui/core";
 import React, { useContext, useEffect, useState } from "react";
-import { ASElement, AvatarScroller } from "../components/AvatarScroller";
+import { AvatarScroller } from "../components/AvatarScroller";
 import { currentContext, userContext } from "../components/Intermediary";
 import "../css/Landing.css";
 

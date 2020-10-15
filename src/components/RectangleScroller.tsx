@@ -1,7 +1,6 @@
 import { Avatar, IconButton, Paper, Typography } from "@material-ui/core";
 import { Add, Close } from "@material-ui/icons";
 import React, { useCallback, useMemo } from "react";
-import { ASElement } from "./AvatarScroller";
 import "../css/RectangleScroller.css";
 
 interface RectangleProps {

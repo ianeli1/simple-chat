@@ -7,13 +7,11 @@ import {
   Divider,
   Typography,
 } from "@material-ui/core";
-import React, { useContext, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { AvatarNameCombo } from "./AvatarNameCombo";
 import "../css/UserProfile.css";
-import {
-  getProfile,
-  createFriendRequestFuncs,
-} from "../dataHandler/stateLessFunctions";
+import { createFriendRequestFuncs } from "../dataHandler/userFunctions";
+import { getProfile } from "../dataHandler/miscFunctions";
 
 type UserProfileType = {
   profileId: string | null;
@@ -41,7 +39,10 @@ export function UserProfile(props: UserProfileType) {
       {props.user?.friends && profile && props.profileId ? (
         <>
           <DialogTitle className="UserProfileTitle">
-            <AvatarNameCombo upperText={profile.name} />
+            <AvatarNameCombo
+              upperText={profile.name}
+              icon={profile.icon || undefined}
+            />
           </DialogTitle>
           <DialogContent className="UserProfileContent">
             <div className="UserProfileContentInner">

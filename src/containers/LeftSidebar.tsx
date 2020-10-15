@@ -22,9 +22,12 @@ type LeftSidebarProps = {
 };
 
 export default function LeftSidebar(props: LeftSidebarProps) {
-  const { currentChannel, setCurrentChannel, setCurrentServer } = useContext(
-    currentContext
-  );
+  const {
+    currentChannel,
+    setCurrentChannel,
+    setCurrentServer,
+    currentServer,
+  } = useContext(currentContext);
   const { serverData } = useContext(serverContext);
   const { user, createServer } = useContext(userContext);
   const [showSettings, setShowSettings] = useState(false);
@@ -32,31 +35,43 @@ export default function LeftSidebar(props: LeftSidebarProps) {
     setCurrentChannel(null);
     setCurrentServer(null);
   }
-  return useMemo(
-    () => (
-      <section id="LeftSidebarRoot">
-        <Settings isOpen={showSettings} close={() => setShowSettings(false)} />
-        <div id="LeftSidebar">
-          {user && (
-            <ServerList
-              serverList={user.servers || []}
-              changeServer={setCurrentServer}
-              createServer={(serverName) =>
-                createServer && createServer(serverName)
-              }
-              goHome={goHome}
-            />
-          )}
-          <ChannelList
-            currentChannel={currentChannel}
-            channelList={serverData?.channels || []}
-            changeChannel={setCurrentChannel}
-            openWindow={props.openWindow}
+
+  function handleServerChange(serverId: string) {
+    setCurrentChannel(null);
+    setCurrentServer(serverId);
+  }
+
+  return (
+    <section id="LeftSidebarRoot">
+      <Settings isOpen={showSettings} close={() => setShowSettings(false)} />
+      <div id="LeftSidebar">
+        {user && (
+          <ServerList
+            serverList={user.servers || []}
+            changeServer={handleServerChange}
+            createServer={(serverName) =>
+              createServer && createServer(serverName)
+            }
+            goHome={goHome}
           />
-        </div>
-        <ProfileFooter onSettings={() => setShowSettings(true)} />
-      </section>
-    ),
-    [user?.servers, serverData?.channels, showSettings]
+        )}
+        <ChannelList
+          title={currentServer || "Friends"}
+          currentChannel={currentChannel}
+          channelList={
+            currentServer && serverData
+              ? serverData?.channels?.map((name) => ({ key: name, name }))
+              : user?.friends?.map((userId) => ({
+                  key: userId,
+                  name: userId,
+                  icon: userId[0],
+                })) || []
+          }
+          changeChannel={setCurrentChannel}
+          openWindow={props.openWindow}
+        />
+      </div>
+      <ProfileFooter onSettings={() => setShowSettings(true)} />
+    </section>
   );
 }

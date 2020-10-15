@@ -1,6 +1,4 @@
 .AvatarScroller {
-  min-width: 100%;
-  max-width: 100%;
   box-sizing: content-box;
   padding: 5px;
   overflow-x: auto;

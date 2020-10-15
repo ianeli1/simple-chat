@@ -66,11 +66,12 @@
 
 .MessageImage {
   margin: 8px;
-  height: 250px;
-  max-width: 250px;
+  height: 20vh;
+  max-width: 20vh;
   border-radius: 8px;
   background: gray;
   max-height: 500px;
+  overflow: hidden;
 }
 
 .MessageImagePrim {

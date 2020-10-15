@@ -1,10 +1,12 @@
 import { Tooltip, Box, Avatar, Typography } from "@material-ui/core";
-import React, { useCallback } from "react";
+import React, { useCallback, useState } from "react";
+import { getProfile } from "../dataHandler/miscFunctions";
 import { Emote } from "./Emote";
 
 type BasicMessageProps = {
   message: Message;
   onProfileClick: (userId: string) => void;
+  avatarUrl?: string;
 };
 
 export const BasicMessage = (props: BasicMessageProps) => {
@@ -46,7 +48,11 @@ export const BasicMessage = (props: BasicMessageProps) => {
             props.message.userId && props.onProfileClick(props.message.userId)
           }
         >
-          <Avatar>{message.name[0]}</Avatar>
+          {props.avatarUrl ? (
+            <Avatar src={props.avatarUrl} />
+          ) : (
+            <Avatar>{message.name[0]}</Avatar>
+          )}
           <Typography variant="h5">{message.name}</Typography>
         </div>
       </Tooltip>

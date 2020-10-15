@@ -177,9 +177,7 @@ declare global {
     status?: "online" | "idle" | "dnd" | "offline"; //add invisible?
     servers?: string[];
     friends?: string[];
-    friendReq?: {
-      [userId: string]: string | number;
-    };
+    friendReq?: string[];
   }
 
   interface Channel {
@@ -193,6 +191,7 @@ declare global {
   }
 
   interface Message {
+    id: number;
     name: string;
     userId?: string;
     message: string;
@@ -220,6 +219,12 @@ declare global {
     emotes?: {
       [key: string]: string;
     };
+  }
+
+  interface ASElement {
+    key: string;
+    name: string;
+    icon?: string;
   }
 
   interface Reference {

@@ -35,7 +35,8 @@ interface ImageSelectFunc {
     text: string,
     onPositive: (name: string, fileUrl: string) => void | Promise<void>,
     isEmote?: boolean,
-    textAfter?: string
+    textAfter?: string,
+    hideTextbox?: boolean
   ): void;
 }
 
@@ -92,7 +93,8 @@ export function Intermediary(props: { children: React.ReactNode }) {
     text,
     onPositive,
     isEmote,
-    textAfter
+    textAfter,
+    hideTextbox
   ) {
     setImageSelectorProps({
       close: () => setShowImageSelector(false),
@@ -101,6 +103,7 @@ export function Intermediary(props: { children: React.ReactNode }) {
       title,
       isEmote,
       textAfter,
+      hideTextbox,
     });
     setShowImageSelector(true);
   },

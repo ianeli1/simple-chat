@@ -2,13 +2,19 @@ import {
   AppBar,
   Avatar,
   Collapse,
+  createStyles,
   Dialog,
+  Drawer,
+  Hidden,
   IconButton,
   List,
   ListItem,
   ListItemAvatar,
   ListItemText,
+  makeStyles,
   Slide,
+  SwipeableDrawer,
+  Theme,
   Toolbar,
   Typography,
 } from "@material-ui/core";
@@ -36,11 +42,63 @@ const SettingsPages: { [key: string]: () => JSX.Element } = {
   Profile: () => <ProfileSettings />,
 };
 
+const useStyles = makeStyles((theme: Theme) =>
+  createStyles({
+    appBar: {
+      position: "relative",
+    },
+    title: {
+      marginLeft: theme.spacing(2),
+      flex: 1,
+    },
+  })
+);
+
 export function Settings(props: SettingsProps) {
   const [current, setCurrent] = useState<keyof typeof SettingsPages>("Profile");
   const [selectedServer, setSelectedServer] = useState<string | null>(null);
   const [showServers, setShowServers] = useState(true);
+  const [showSidebar, setShowSidebar] = useState(false);
   const { user } = useContext(userContext);
+
+  const epicSidebar = (
+    <List className="SettingsSidebar">
+      {Object.keys(SettingsPages).map((name) => (
+        <ListItem
+          button
+          onClick={() => {
+            setCurrent(name);
+            setSelectedServer(null);
+          }}
+        >
+          <ListItemText primary={name} />
+        </ListItem>
+      ))}
+      <ListItem
+        button
+        onClick={() => {
+          setShowServers(!showServers);
+        }}
+      >
+        <ListItemText primary="Servers" />
+        {showServers ? <ExpandLess /> : <ExpandMore />}
+      </ListItem>
+      <Collapse in={showServers}>
+        <List>
+          {user &&
+            user.servers?.map((serverId) => (
+              <ListItem button onClick={() => setSelectedServer(serverId)}>
+                <ListItemAvatar>
+                  <Avatar>{serverId[0]}</Avatar>
+                </ListItemAvatar>
+                <ListItemText>{serverId}</ListItemText>
+              </ListItem>
+            ))}
+        </List>
+      </Collapse>
+    </List>
+  );
+
   return (
     <Dialog
       fullScreen
@@ -49,7 +107,7 @@ export function Settings(props: SettingsProps) {
       TransitionComponent={Transition}
       className="Settings"
     >
-      <AppBar className="AppToolbarParent">
+      <AppBar className="AppToolbarParent" position="relative">
         <Toolbar className="SettingsBar">
           <IconButton edge="start" onClick={props.close}>
             <Close />
@@ -60,41 +118,21 @@ export function Settings(props: SettingsProps) {
         </Toolbar>
       </AppBar>
       <div className="SettingsContent">
-        <List className="SettingsSidebar">
-          {Object.keys(SettingsPages).map((name) => (
-            <ListItem
-              button
-              onClick={() => {
-                setCurrent(name);
-                setSelectedServer(null);
-              }}
-            >
-              <ListItemText primary={name} />
-            </ListItem>
-          ))}
-          <ListItem
-            button
-            onClick={() => {
-              setShowServers(!showServers);
+        <Hidden smUp>
+          <SwipeableDrawer
+            anchor="left"
+            open={showSidebar}
+            onClose={() => setShowSidebar(false)}
+            onOpen={() => setShowSidebar(true)}
+            style={{ zIndex: 99999 }}
+            classes={{
+              paper: "SettingsDrawerPaper",
             }}
           >
-            <ListItemText primary="Servers" />
-            {showServers ? <ExpandLess /> : <ExpandMore />}
-          </ListItem>
-          <Collapse in={showServers}>
-            <List>
-              {user &&
-                user.servers?.map((serverId) => (
-                  <ListItem button onClick={() => setSelectedServer(serverId)}>
-                    <ListItemAvatar>
-                      <Avatar>{serverId[0]}</Avatar>
-                    </ListItemAvatar>
-                    <ListItemText>{serverId}</ListItemText>
-                  </ListItem>
-                ))}
-            </List>
-          </Collapse>
-        </List>
+            {epicSidebar}
+          </SwipeableDrawer>
+        </Hidden>
+        <Hidden xsDown>{epicSidebar}</Hidden>
         <div className="SettingsCurrent">
           {selectedServer ? (
             <Server serverId={selectedServer} />
